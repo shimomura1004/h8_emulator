@@ -37,6 +37,7 @@ public:
     void run();
     void interrupt();
 
+    void print_registers();
 };
 
 #endif

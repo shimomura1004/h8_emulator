@@ -1,10 +1,12 @@
 CPPC = c++
 
-OBJS = elf_loader.o inner_memory.o instructions/adds.o h8300h.o main.o
+OBJS = elf_loader.o inner_memory.o h8300h.o main.o
+OBJS += instructions/adds.o instructions/movl.o
 
 TARGET = h8300h
 
 CFLAGS = -Wall -I.
+CFLAGS += -g
 LFLAGS = -L.
 
 .SUFFIXES: .c .o

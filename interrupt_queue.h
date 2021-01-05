@@ -9,7 +9,7 @@ class InterruptQueue {
     std::queue<interrupt_t> queue;
 
 public:
-    bool hasInterrupt() { return queue.empty(); }
+    bool hasInterrupt() { return !queue.empty(); }
     interrupt_t pop() {
         interrupt_t type = queue.front();
         queue.pop();

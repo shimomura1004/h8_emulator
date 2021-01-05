@@ -7,9 +7,16 @@ int main (int argc, char* argv[])
     // uint32_t start_addr = h8.load_elf("/Users/shimo/src/h8_emulator/kozos/06/os/kozos");
     uint32_t start_addr = h8.load_elf("/Users/shimo/src/h8_emulator/kozos/01/kzload");
     printf("Start from 0x%x\n", start_addr);
+
     h8.memory.dump("./hoge");
+
+    // 本当はリセット割り込みを発生させて開始するべき
     h8.pc = start_addr;
-    h8.step();
+
+    // h8.step();
+    h8.run();
+
+    h8.print_registers();
 
     return 0;
 }

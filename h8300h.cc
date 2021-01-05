@@ -1,5 +1,6 @@
 #include "h8300h.h"
 #include "instructions/adds.h"
+#include "instructions/movl.h"
 
 using namespace h8instructions;
 
@@ -14,6 +15,9 @@ int H8300H::execute_next_instruction()
     int result = 0;
 
     switch (first_byte) {
+    case movl::immediate::FIRST_BYTE:
+        result = movl::immediate::execute(this);
+        break;
     case adds::FIRST_BYTE:
         result = adds::execute(this);
         break;
@@ -88,7 +92,7 @@ void H8300H::run()
 
     while (1) {
         if (interrupt_queue.hasInterrupt()) {
-            // todo: 多重割り込みのブロック
+        //     // todo: 多重割り込みのブロック
 
             save_pc_and_ccr_to_stack();
             interrupt_t type = interrupt_queue.pop();
@@ -99,5 +103,13 @@ void H8300H::run()
         if (result != 0) {
             break;
         }
+    }
+}
+
+void H8300H::print_registers()
+{
+    for (int i = 0; i < 8; i++) {
+        const unsigned char* raw = reg[i].raw();
+        printf("ER%d: 0x%02x%02x%02x%02x\n", i, raw[0], raw[1], raw[2], raw[3]);
     }
 }

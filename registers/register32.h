@@ -23,6 +23,7 @@ public:
     void set_rh(unsigned char value) { reg[2] = value; }
     void set_rl(unsigned char value) { reg[3] = value; }
 
+    const unsigned char* raw() const { return reg; }
 };
 
 #endif
