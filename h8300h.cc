@@ -1,6 +1,7 @@
 #include "h8300h.h"
 #include "instructions/adds.h"
 #include "instructions/movl.h"
+#include "instructions/jsr.h"
 
 using namespace h8instructions;
 
@@ -11,12 +12,17 @@ unsigned char H8300H::fetch_instruction_byte(unsigned int offset)
 
 int H8300H::execute_next_instruction()
 {
+    // todo: オペレーションコードマップを見て、判定クラスを作る
+
     unsigned char first_byte = fetch_instruction_byte(0);
     int result = 0;
 
     switch (first_byte) {
     case movl::immediate::FIRST_BYTE:
         result = movl::immediate::execute(this);
+        break;
+    case jsr::FIRST_BYTE:
+        result = jsr::execute(this);
         break;
     case adds::FIRST_BYTE:
         result = adds::execute(this);
@@ -112,4 +118,6 @@ void H8300H::print_registers()
         const unsigned char* raw = reg[i].raw();
         printf("ER%d: 0x%02x%02x%02x%02x\n", i, raw[0], raw[1], raw[2], raw[3]);
     }
+    printf("PC : 0x%06x\n", pc);
+    printf("SP : 0x%06x\n", sp.get_er());
 }
