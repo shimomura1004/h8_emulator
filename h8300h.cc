@@ -26,32 +26,32 @@ int H8300H::execute_next_instruction()
     return result;
 }
 
-void H8300H::push_to_stack_w(unsigned short value)
+void H8300H::push_to_stack_w(uint16_t value)
 {
     sp.set_er(sp.get_er() - 2);
     unsigned char mem = memory[sp.get_er()];
-    *(unsigned short*)&mem = value;
+    *(uint16_t*)&mem = value;
 }
 
-unsigned short H8300H::pop_from_stack_w()
+uint16_t H8300H::pop_from_stack_w()
 {
     unsigned char mem = memory[sp.get_er()];
-    unsigned short value = *(unsigned short*)&mem;
+    unsigned short value = *(uint16_t*)&mem;
     sp.set_er(sp.get_er() + 2);
     return value;
 }
 
-void H8300H::push_to_stack_l(unsigned long value)
+void H8300H::push_to_stack_l(uint32_t value)
 {
     sp.set_er(sp.get_er() - 4);
     unsigned char mem = memory[sp.get_er()];
-    *(unsigned long*)&mem = value;
+    *(uint32_t*)&mem = value;
 }
 
-unsigned long H8300H::pop_from_stack_l()
+uint32_t H8300H::pop_from_stack_l()
 {
     unsigned char mem = memory[sp.get_er()];
-    unsigned long value = *(unsigned long*)&mem;
+    uint32_t value = *(uint32_t*)&mem;
     sp.set_er(sp.get_er() + 4);
     return value;
 }
@@ -66,9 +66,9 @@ void H8300H::save_pc_and_ccr_to_stack()
     push_to_stack_l(ccr_pc);
 }
 
-void H8300H::load_elf(std::string filepath)
+uint32_t H8300H::load_elf(std::string filepath)
 {
-    memory.load_elf(filepath);
+    return memory.load_elf(filepath);
 }
 
 int H8300H::step()

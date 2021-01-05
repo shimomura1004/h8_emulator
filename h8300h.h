@@ -21,18 +21,18 @@ public:
     unsigned char fetch_instruction_byte(unsigned int offset);
     int execute_next_instruction();
 
-    void push_to_stack_w(unsigned short);
-    unsigned short pop_from_stack_w();
-    void push_to_stack_l(unsigned long);
-    unsigned long pop_from_stack_l();
-    
+    void push_to_stack_w(uint16_t);
+    uint16_t pop_from_stack_w();
+    void push_to_stack_l(uint32_t);
+    uint32_t pop_from_stack_l();
+
     void save_pc_and_ccr_to_stack();
 
 public:
     H8300H() : pc(0), sp(reg[7]) {}
 
     void init();
-    void load_elf(std::string filepath);
+    uint32_t load_elf(std::string filepath);
     int step();
     void run();
     void interrupt();

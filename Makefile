@@ -1,6 +1,6 @@
 CPPC = c++
 
-OBJS = inner_memory.o instructions/adds.o h8300h.o main.o
+OBJS = elf_loader.o inner_memory.o instructions/adds.o h8300h.o main.o
 
 TARGET = h8300h
 
