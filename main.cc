@@ -4,10 +4,18 @@
 int main (int argc, char* argv[])
 {
     H8300H h8;
+
+    h8.step();
+
+    return 0;
+}
+
+void test()
+{
     Register32 reg;
 
     reg.set_er(0x12345678);
-    printf("0x%08x\n", reg.get_er());
+    printf("0x%08lx\n", reg.get_er());
 
     printf("0x%08x\n", reg.get_e());
     reg.set_e(0xabcd);
@@ -22,7 +30,5 @@ int main (int argc, char* argv[])
     reg.set_rl(0x44);
     printf("0x%08x 0x%08x\n", reg.get_rh(), reg.get_rl());
 
-    printf("0x%08x\n", reg.get_er());
-
-    return 0;
+    printf("0x%08lx\n", reg.get_er());
 }
