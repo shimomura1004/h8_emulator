@@ -11,7 +11,7 @@ InnerMemory::~InnerMemory()
     free(memory);
 }
 
-const unsigned char& InnerMemory::operator[](unsigned long index) const
+unsigned char& InnerMemory::operator[](unsigned long index)
 {
     return memory[index];
 }
@@ -21,7 +21,7 @@ void InnerMemory::load_elf(std::string filepath)
 
 }
 
-unsigned long* InnerMemory::vector(unsigned int index) const
+unsigned long InnerMemory::get_vector(unsigned int index) const
 {
-    return (unsigned long*)&memory[index * 4];
+    return *(unsigned long*)&memory[index * 4];
 }

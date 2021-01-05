@@ -12,11 +12,9 @@ public:
     InnerMemory();
     ~InnerMemory();
 
-    const unsigned char& operator[](unsigned long index) const;
+    unsigned char& operator[](unsigned long index);
     void load_elf(std::string filepath);
-
-    // 割込みベクタにアクセス
-    unsigned long* vector(unsigned int index) const;
+    unsigned long get_vector(unsigned int index) const;
 
 };
 
