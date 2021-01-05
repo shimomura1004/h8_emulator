@@ -13,7 +13,7 @@ public:
     Register32 reg[8];
     Register32& sp;
     CCR ccr;
-    unsigned long pc;
+    uint32_t pc;
     InnerMemory memory;
     InterruptQueue interrupt_queue;
 

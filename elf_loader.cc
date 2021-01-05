@@ -196,5 +196,5 @@ uint32_t ElfLoader::load(InnerMemory* memory, std::string filepath)
         return 0;
     }
 
-    return (unsigned long)header->entry_point;
+    return (uint32_t)header->entry_point;
 }

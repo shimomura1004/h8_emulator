@@ -25,7 +25,7 @@ uint32_t InnerMemory::load_elf(std::string filepath)
 
 uint32_t InnerMemory::get_vector(unsigned int index) const
 {
-    return *(unsigned long*)&memory[index * 4];
+    return *(uint32_t*)&memory[index * 4];
 }
 
 void InnerMemory::dump(std::string filepath)

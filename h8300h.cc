@@ -18,7 +18,7 @@ int H8300H::execute_next_instruction()
         result = adds::execute(this);
         break;
     default:
-        fprintf(stderr, "Unknown instruction: 0x%02x at address 0x%08lx\n", first_byte, pc);
+        fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%08x\n", first_byte, pc);
         result = -1;
         break;
     }
