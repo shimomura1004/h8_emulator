@@ -34,11 +34,25 @@ static int register_indirect_b(H8300H* h8)
         h8->memory.write_uint8(address, value);
 
         update_ccr(h8, value);
-        h8->pc += 2;
     } else {
         // @ERs,Rd
-        return -1;
+        uint8_t src_register_index = (b1 & 0x70) >> 4;
+        uint8_t dst_register_index = (b1 & 0x0f);
+        Register32& src = h8->reg[src_register_index];
+        Register32& dst = h8->reg[dst_register_index % 8];
+
+        uint32_t address = src.get_er();
+        uint8_t value = h8->memory.read_uint8(address);
+        if (dst_register_index < 8) {
+            dst.set_rh(value);
+        } else {
+            dst.set_rl(value);
+        }
+
+        update_ccr(h8, value);
     }
+
+    h8->pc += 2;
 
     return 0;
 }
