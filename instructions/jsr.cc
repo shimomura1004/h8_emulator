@@ -9,8 +9,7 @@ int h8instructions::jsr::absolute_address(H8300H* h8)
     abs_[0] = h8->fetch_instruction_byte(3);
     int32_t abs = *(int32_t*)abs_;
 
-    // PC をスタックに退避したあと PC を更新
-    h8->save_pc_and_ccr_to_stack();
+    h8->push_to_stack_l(h8->pc + 4);
     h8->pc = abs;
 
     return 0;

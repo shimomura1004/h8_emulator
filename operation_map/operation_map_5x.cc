@@ -1,5 +1,6 @@
 #include "operation_map_5x.h"
 #include "../instructions/jsr.h"
+#include "../instructions/rts.h"
 
 instruction_handler_t lookup_58(H8300H *h8)
 {
@@ -37,7 +38,7 @@ instruction_handler_t lookup_5x(H8300H *h8)
     case 0x01: return nullptr; // DIVXU
     case 0x02: return nullptr; // MULXU
     case 0x03: return nullptr; // DIVXU
-    case 0x04: return nullptr; // RTS
+    case 0x04: return h8instructions::rts::rts; // RTS
     case 0x05: return nullptr; // BSR
     case 0x06: return nullptr; // RTE
     case 0x07: return nullptr; // TRAPA

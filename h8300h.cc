@@ -47,25 +47,21 @@ void H8300H::push_to_stack_l(uint32_t value, unsigned int register_index)
 {
     Register32& r = reg[register_index];
     r.set_er(r.get_er() - 4);
+    // memory.write_uint32(r.get_er(), __builtin_bswap32(value));
     memory.write_uint32(r.get_er(), value);
 }
 
 uint32_t H8300H::pop_from_stack_l(unsigned int register_index)
 {
     Register32& r = reg[register_index];
-    unsigned char mem = memory[r.get_er()];
-    uint32_t value = *(uint32_t*)&mem;
+    uint32_t value = memory.read_uint32(r.get_er());
     r.set_er(r.get_er() + 4);
     return value;
 }
 
 void H8300H::save_pc_and_ccr_to_stack()
 {
-    // リトルエンディアン環境を想定
-    unsigned long ccr_pc;
-    ccr_pc = __builtin_bswap32(pc);
-    ccr_pc |= ccr.raw() << 24;
-
+    uint32_t ccr_pc = pc | (ccr.raw() << 24);
     push_to_stack_l(ccr_pc);
 }
 
