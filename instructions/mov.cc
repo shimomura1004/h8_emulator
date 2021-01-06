@@ -127,7 +127,16 @@ static int displacement_register_indirect24_l(H8300H* h8)
 
 static int post_increment_register_indirect_l(H8300H* h8)
 {
-    return -1;
+    uint8_t b3 = h8->fetch_instruction_byte(3);
+    uint8_t src_register_index = (b3 & 0x70) >> 4;
+    uint8_t dst_register_index = (b3 & 0x07);
+    Register32& dst = h8->reg[dst_register_index];
+
+    uint32_t value = h8->pop_from_stack_l(src_register_index);
+    update_ccr(h8, value);
+    h8->pc += 4;
+
+    return 0;
 }
 
 static int pre_decrement_register_indirect_l(H8300H* h8)
