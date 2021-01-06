@@ -139,6 +139,26 @@ static int displacement_register_indirect24_l(H8300H* h8)
     return 0;
 }
 
+static int post_increment_register_indirect_b(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t src_register_index = (b1 & 0x70) >> 4;
+    uint8_t dst_register_index = (b1 & 0x07);
+    Register32& dst = h8->reg[dst_register_index % 8];
+
+    uint8_t value = h8->pop_from_stack_b(src_register_index);
+    if (dst_register_index < 8) {
+        dst.set_rh(value);
+    } else {
+        dst.set_rl(value);
+    }
+
+    update_ccr(h8, value);
+    h8->pc += 2;
+
+    return 0;
+}
+
 static int post_increment_register_indirect_l(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
@@ -252,6 +272,14 @@ int h8instructions::mov::mov(H8300H* h8)
 
     switch (b0) {
     case 0x68: return register_indirect_b(h8);
+    case 0x6c: {
+        uint8_t b1 = h8->fetch_instruction_byte(1);
+        if ((b1 & 0x80) == 0) {
+            return post_increment_register_indirect_b(h8);
+        } else {
+            return -1;
+        }
+    }
     case 0x6e: return displacement_register_indirect16_b(h8);
     case 0xf0: case 0xf1: case 0xf2: case 0xf3:
     case 0xf4: case 0xf5: case 0xf6: case 0xf7:
