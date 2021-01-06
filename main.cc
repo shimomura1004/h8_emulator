@@ -6,7 +6,7 @@ int main (int argc, char* argv[])
     H8300H h8;
     // uint32_t start_addr = h8.load_elf("/Users/shimo/src/h8_emulator/kozos/06/os/kozos");
     uint32_t start_addr = h8.load_elf("/Users/shimo/src/h8_emulator/kozos/01/kzload");
-    printf("Start from 0x%x\n", start_addr);
+    printf("Start execution from 0x%x\n", start_addr);
 
     // h8.memory.dump("./hoge");
 

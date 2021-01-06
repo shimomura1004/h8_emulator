@@ -1,4 +1,5 @@
 #include "operation_map_1x.h"
+#include "../instructions/exts.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -78,8 +79,8 @@ instruction_handler_t lookup_17(H8300H* h8300h)
     case 0x08:
     case 0x09: return nullptr; // NEG
     case 0x0b: return nullptr; // NEG
-    case 0x0d: return nullptr; // EXTS
-    case 0x0f: return nullptr; // EXTS
+    case 0x0d: return h8instructions::exts::exts_w;
+    case 0x0f: return h8instructions::exts::exts_l;
     default:   return nullptr;
     }
 }
