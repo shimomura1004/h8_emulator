@@ -21,6 +21,9 @@ int H8300H::execute_next_instruction()
     case movl::immediate::FIRST_BYTE:
         result = movl::immediate::execute(this);
         break;
+    case movl::regs::FIRST_BYTE:
+        result = movl::regs::execute(this);
+        break;
     case movl::FIRST_BYTE:
         result = movl::execute(this);
         break;
@@ -39,6 +42,7 @@ int H8300H::execute_next_instruction()
     return result;
 }
 
+// todo: スタック操作関係は別クラスに移動
 void H8300H::push_to_stack_w(uint16_t value, unsigned int register_index)
 {
     Register32& r = reg[register_index];

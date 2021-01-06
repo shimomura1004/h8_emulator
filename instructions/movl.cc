@@ -39,6 +39,22 @@ int h8instructions::movl::immediate::execute(H8300H* h8300h)
     return 0;
 }
 
+int h8instructions::movl::regs::execute(H8300H* h8300h)
+{
+    unsigned char instruction_byte_2 = h8300h->fetch_instruction_byte(1);
+    unsigned char src_register_index = (instruction_byte_2 & 0x70) >> 4;
+    unsigned char dst_register_index = (instruction_byte_2 & 0x07);
+    Register32& src = h8300h->reg[src_register_index];
+    Register32& dst = h8300h->reg[dst_register_index];
+
+    dst.set_er(src.get_er());
+
+    update_ccr(h8300h, src.get_er());
+    h8300h->pc += 2;
+
+    return 0;
+}
+
 int h8instructions::movl::execute(H8300H* h8300h)
 {
     unsigned char instruction_byte_3 = h8300h->fetch_instruction_byte(2);
