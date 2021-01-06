@@ -6,6 +6,8 @@
 #include "operation_map_6x.h"
 #include "operation_map_7x.h"
 
+#include "../instructions/mov.h"
+
 instruction_handler_t OperationMap::lookup(H8300H* h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
@@ -27,7 +29,7 @@ instruction_handler_t OperationMap::lookup(H8300H* h8300h)
     case 0x0c: return nullptr; // OR
     case 0x0d: return nullptr; // XOR
     case 0x0e: return nullptr; // AND
-    case 0x0f: return nullptr; // MOV
+    case 0x0f: return h8instructions::mov::mov;
     default:   return nullptr;
     }
 }

@@ -6,8 +6,7 @@
 namespace h8instructions {
 namespace jsr {
 
-const unsigned char FIRST_BYTE = 0x5e;
-int execute(H8300H* h8300h);
+int absolute_address(H8300H* h8);
 
 }
 }

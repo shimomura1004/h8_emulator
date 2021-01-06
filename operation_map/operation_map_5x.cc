@@ -1,8 +1,9 @@
 #include "operation_map_5x.h"
+#include "../instructions/jsr.h"
 
-instruction_handler_t lookup_58(H8300H *h8300h)
+instruction_handler_t lookup_58(H8300H *h8)
 {
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
+    unsigned char b1 = h8->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
@@ -26,9 +27,9 @@ instruction_handler_t lookup_58(H8300H *h8300h)
     }
 }
 
-instruction_handler_t lookup_5x(H8300H *h8300h)
+instruction_handler_t lookup_5x(H8300H *h8)
 {
-    unsigned char b0 = h8300h->fetch_instruction_byte(0);
+    unsigned char b0 = h8->fetch_instruction_byte(0);
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
@@ -40,13 +41,13 @@ instruction_handler_t lookup_5x(H8300H *h8300h)
     case 0x05: return nullptr; // BSR
     case 0x06: return nullptr; // RTE
     case 0x07: return nullptr; // TRAPA
-    case 0x08: return lookup_58(h8300h);
+    case 0x08: return lookup_58(h8);
     case 0x09:
     case 0x0a:
     case 0x0b: return nullptr; // JMP
     case 0x0c: return nullptr; // BSR
-    case 0x0d:
-    case 0x0e:
+    case 0x0d: return nullptr; // JSR
+    case 0x0e: return h8instructions::jsr::absolute_address;
     case 0x0f: return nullptr; // JSR
     default:   return nullptr;
     }

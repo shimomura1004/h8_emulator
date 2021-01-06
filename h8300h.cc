@@ -1,13 +1,6 @@
 #include "h8300h.h"
 #include "operation_map/operation_map.h"
 
-#include "instructions/adds.h"
-#include "instructions/movw.h"
-#include "instructions/movl.h"
-#include "instructions/jsr.h"
-
-using namespace h8instructions;
-
 unsigned char H8300H::fetch_instruction_byte(unsigned int offset)
 {
     return memory[pc + offset];
@@ -23,41 +16,13 @@ int H8300H::execute_next_instruction()
         return -1;
     }
     
-    return handler(this);
+    int result = handler(this);
+    if (result != 0) {
+        unsigned char first_byte = fetch_instruction_byte(0);
+        fprintf(stderr, "Instruction execution error(%d): [0x%02x, ...] at address 0x%08x\n", result, first_byte, pc);
+    }
 
-
-    // // todo: オペレーションコードマップを見て、判定クラスを作る
-    // // 少なくとも2バイト目までみないとダメ
-
-    // unsigned char first_byte = fetch_instruction_byte(0);
-
-    // switch (first_byte) {
-    //     // todo: bug! 79 から始まるものは他にもある
-    // case movw::immediate::FIRST_BYTE:
-    //     result = movw::immediate::execute(this);
-    //     break;
-    // case movl::immediate::FIRST_BYTE:
-    //     result = movl::immediate::execute(this);
-    //     break;
-    // case movl::regs::FIRST_BYTE:
-    //     result = movl::regs::execute(this);
-    //     break;
-    // case movl::FIRST_BYTE:
-    //     result = movl::execute(this);
-    //     break;
-    // case jsr::FIRST_BYTE:
-    //     result = jsr::execute(this);
-    //     break;
-    // case adds::FIRST_BYTE:
-    //     result = adds::execute(this);
-    //     break;
-    // default:
-    //     fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%08x\n", first_byte, pc);
-    //     result = -1;
-    //     break;
-    // }
-
-    // return result;
+    return result;
 }
 
 // todo: スタック操作関係は別クラスに移動

@@ -6,9 +6,8 @@
 namespace h8instructions {
 namespace mov {
 
-int reg_to_reg(H8300H* h8);
-int location_to_reg(H8300H* h8);
-int reg_to_location(H8300H* h8);
+// MOV 命令は下位バイトまで読まないと判定ができないため mov 関数内部で分岐させる
+int mov(H8300H *h8);
 
 }
 }

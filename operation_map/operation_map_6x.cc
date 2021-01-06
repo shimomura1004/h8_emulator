@@ -1,4 +1,5 @@
 #include "operation_map_6x.h"
+#include "../instructions/mov.h"
 
 instruction_handler_t lookup_67(H8300H* h8300h)
 {
@@ -30,7 +31,7 @@ instruction_handler_t lookup_6x(H8300H *h8300h)
     case 0x0c:
     case 0x0d:
     case 0x0e:
-    case 0x0f: return nullptr; // MOV
+    case 0x0f: return h8instructions::mov::mov;
     default:   return nullptr;
     }
 }

@@ -1,4 +1,5 @@
 #include "operation_map_0x.h"
+#include "../instructions/mov.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -40,7 +41,7 @@ instruction_handler_t lookup_01(H8300H* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return nullptr; // MOV
+    case 0x00: return h8instructions::mov::mov;
     case 0x04: return nullptr; // LDC/STC
     case 0x08: return nullptr; // SLEEP
     case 0x0c: return lookup_01C05x(h8300h);
@@ -99,7 +100,7 @@ instruction_handler_t lookup_0F(H8300H* h8300h)
     case 0x0c:
     case 0x0d:
     case 0x0e:
-    case 0x0f: return nullptr; // MOV
+    case 0x0f: return h8instructions::mov::mov;
     default:   return nullptr;
     }
 }
@@ -123,7 +124,7 @@ instruction_handler_t lookup_0x(H8300H *h8300h)
     case 0x0a: return lookup_0A(h8300h);
     case 0x0b: return lookup_0B(h8300h);
     case 0x0c:
-    case 0x0d: return nullptr; // MOV
+    case 0x0d: return h8instructions::mov::mov;
     case 0x0e: return nullptr; // ADDX
     case 0x0f: return lookup_0F(h8300h);
     default:   return nullptr;

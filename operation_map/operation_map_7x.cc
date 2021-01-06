@@ -4,6 +4,8 @@
 #include "operation_map_7Ex.h"
 #include "operation_map_7Fx.h"
 
+#include "../instructions/mov.h"
+
 instruction_handler_t lookup_7x(H8300H *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
@@ -18,7 +20,7 @@ instruction_handler_t lookup_7x(H8300H *h8300h)
     case 0x05: return lookup_75(h8300h);
     case 0x06: return lookup_76(h8300h);
     case 0x07: return lookup_77(h8300h);
-    case 0x08: return nullptr; // MOV
+    case 0x08: return h8instructions::mov::mov;
     case 0x09: return lookup_79(h8300h);
     case 0x0a: return lookup_7A(h8300h);
     case 0x0b: return nullptr; // EEPMOV
@@ -72,7 +74,7 @@ instruction_handler_t lookup_79(H8300H* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return nullptr; // MOV
+    case 0x00: return h8instructions::mov::mov;
     case 0x01: return nullptr; // ADD
     case 0x02: return nullptr; // CMP
     case 0x03: return nullptr; // SUB
@@ -85,5 +87,17 @@ instruction_handler_t lookup_79(H8300H* h8300h)
 
 instruction_handler_t lookup_7A(H8300H* h8300h)
 {
-    return lookup_79(h8300h);
+    unsigned char b1 = h8300h->fetch_instruction_byte(1);
+    unsigned char bh = (b1 & 0xf0) >> 4;
+
+    switch (bh) {
+    case 0x00: return h8instructions::mov::mov;
+    case 0x01: return nullptr; // ADD
+    case 0x02: return nullptr; // CMP
+    case 0x03: return nullptr; // SUB
+    case 0x04: return nullptr; // OR
+    case 0x05: return nullptr; // XOR
+    case 0x06: return nullptr; // AND
+    default:   return nullptr;
+    }
 }
