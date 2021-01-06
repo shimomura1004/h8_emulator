@@ -15,7 +15,8 @@ OBJS += operation_map/operation_map.o \
 OBJS += instructions/mov.o \
 		instructions/jsr.o \
 		instructions/exts.o \
-		instructions/shll.o
+		instructions/shll.o \
+		instructions/sub.o
 
 TARGET = h8300h
 

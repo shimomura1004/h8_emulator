@@ -1,6 +1,7 @@
 #include "operation_map_1x.h"
 #include "../instructions/exts.h"
 #include "../instructions/shll.h"
+#include "../instructions/sub.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -155,7 +156,7 @@ instruction_handler_t lookup_1x(H8300H *h8300h)
     case 0x05: return nullptr; // XOR
     case 0x06: return nullptr; // AND
     case 0x07: return lookup_17(h8300h);
-    case 0x08:
+    case 0x08: return h8instructions::sub::sub_b;
     case 0x09: return nullptr; // SUB
     case 0x0a: return lookup_1A(h8300h);
     case 0x0b: return lookup_1B(h8300h);
