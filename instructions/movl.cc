@@ -1,5 +1,6 @@
 #include "movl.h"
 
+// todo: 共通の処理なのでくくりだす
 static void update_ccr(H8300H* h8300h, int32_t value) {
     CCR& ccr = h8300h->ccr;
     if (value < 0) {

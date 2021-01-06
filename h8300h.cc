@@ -1,5 +1,6 @@
 #include "h8300h.h"
 #include "instructions/adds.h"
+#include "instructions/movw.h"
 #include "instructions/movl.h"
 #include "instructions/jsr.h"
 
@@ -13,11 +14,16 @@ unsigned char H8300H::fetch_instruction_byte(unsigned int offset)
 int H8300H::execute_next_instruction()
 {
     // todo: オペレーションコードマップを見て、判定クラスを作る
+    // 少なくとも2バイト目までみないとダメ
 
     unsigned char first_byte = fetch_instruction_byte(0);
     int result = 0;
 
     switch (first_byte) {
+        // todo: bug! 79 から始まるものは他にもある
+    case movw::immediate::FIRST_BYTE:
+        result = movw::immediate::execute(this);
+        break;
     case movl::immediate::FIRST_BYTE:
         result = movl::immediate::execute(this);
         break;
