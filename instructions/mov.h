@@ -4,9 +4,13 @@
 #include "../h8300h.h"
 
 namespace h8instructions {
+namespace mov {
 
-int mov(H8300H* h8300h);
+int reg_to_reg(H8300H* h8);
+int location_to_reg(H8300H* h8);
+int reg_to_location(H8300H* h8);
 
+}
 }
 
 #endif

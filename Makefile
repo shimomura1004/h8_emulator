@@ -1,7 +1,18 @@
 CPPC = c++
 
 OBJS = elf_loader.o inner_memory.o h8300h.o main.o
-OBJS += instructions/adds.o instructions/movw.o instructions/movl.o instructions/jsr.o
+OBJS += operation_map/operation_map.o \
+		operation_map/operation_map_0x.o \
+		operation_map/operation_map_1x.o \
+		operation_map/operation_map_4x.o \
+		operation_map/operation_map_5x.o \
+		operation_map/operation_map_6x.o \
+		operation_map/operation_map_7Cx.o \
+		operation_map/operation_map_7Dx.o \
+		operation_map/operation_map_7Ex.o \
+		operation_map/operation_map_7Fx.o \
+		operation_map/operation_map_7x.o
+OBJS += instructions/adds.o instructions/mov.o instructions/movw.o instructions/movl.o instructions/jsr.o
 
 TARGET = h8300h
 

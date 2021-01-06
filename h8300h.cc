@@ -1,4 +1,6 @@
 #include "h8300h.h"
+#include "operation_map/operation_map.h"
+
 #include "instructions/adds.h"
 #include "instructions/movw.h"
 #include "instructions/movl.h"
@@ -13,39 +15,49 @@ unsigned char H8300H::fetch_instruction_byte(unsigned int offset)
 
 int H8300H::execute_next_instruction()
 {
-    // todo: オペレーションコードマップを見て、判定クラスを作る
-    // 少なくとも2バイト目までみないとダメ
+    instruction_handler_t handler = OperationMap::lookup(this);
 
-    unsigned char first_byte = fetch_instruction_byte(0);
-    int result = 0;
-
-    switch (first_byte) {
-        // todo: bug! 79 から始まるものは他にもある
-    case movw::immediate::FIRST_BYTE:
-        result = movw::immediate::execute(this);
-        break;
-    case movl::immediate::FIRST_BYTE:
-        result = movl::immediate::execute(this);
-        break;
-    case movl::regs::FIRST_BYTE:
-        result = movl::regs::execute(this);
-        break;
-    case movl::FIRST_BYTE:
-        result = movl::execute(this);
-        break;
-    case jsr::FIRST_BYTE:
-        result = jsr::execute(this);
-        break;
-    case adds::FIRST_BYTE:
-        result = adds::execute(this);
-        break;
-    default:
+    if (handler == nullptr) {
+        unsigned char first_byte = fetch_instruction_byte(0);
         fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%08x\n", first_byte, pc);
-        result = -1;
-        break;
+        return -1;
     }
+    
+    return handler(this);
 
-    return result;
+
+    // // todo: オペレーションコードマップを見て、判定クラスを作る
+    // // 少なくとも2バイト目までみないとダメ
+
+    // unsigned char first_byte = fetch_instruction_byte(0);
+
+    // switch (first_byte) {
+    //     // todo: bug! 79 から始まるものは他にもある
+    // case movw::immediate::FIRST_BYTE:
+    //     result = movw::immediate::execute(this);
+    //     break;
+    // case movl::immediate::FIRST_BYTE:
+    //     result = movl::immediate::execute(this);
+    //     break;
+    // case movl::regs::FIRST_BYTE:
+    //     result = movl::regs::execute(this);
+    //     break;
+    // case movl::FIRST_BYTE:
+    //     result = movl::execute(this);
+    //     break;
+    // case jsr::FIRST_BYTE:
+    //     result = jsr::execute(this);
+    //     break;
+    // case adds::FIRST_BYTE:
+    //     result = adds::execute(this);
+    //     break;
+    // default:
+    //     fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%08x\n", first_byte, pc);
+    //     result = -1;
+    //     break;
+    // }
+
+    // return result;
 }
 
 // todo: スタック操作関係は別クラスに移動

@@ -1,0 +1,53 @@
+#include "operation_map_5x.h"
+
+instruction_handler_t lookup_58(H8300H *h8300h)
+{
+    unsigned char b1 = h8300h->fetch_instruction_byte(1);
+    unsigned char bh = (b1 & 0xf0) >> 4;
+
+    switch (bh) {
+    case 0x00: return nullptr; // BRA
+    case 0x01: return nullptr; // BRN
+    case 0x02: return nullptr; // BHI
+    case 0x03: return nullptr; // BLS
+    case 0x04: return nullptr; // BCC
+    case 0x05: return nullptr; // BCS
+    case 0x06: return nullptr; // BNE
+    case 0x07: return nullptr; // BEQ
+    case 0x08: return nullptr; // BVC
+    case 0x09: return nullptr; // BVS
+    case 0x0a: return nullptr; // BPL
+    case 0x0b: return nullptr; // BMI
+    case 0x0c: return nullptr; // BGE
+    case 0x0d: return nullptr; // BLT
+    case 0x0e: return nullptr; // BGT
+    case 0x0f: return nullptr; // BLE
+    default:   return nullptr;
+    }
+}
+
+instruction_handler_t lookup_5x(H8300H *h8300h)
+{
+    unsigned char b0 = h8300h->fetch_instruction_byte(0);
+    unsigned char al = b0 & 0x0f;
+
+    switch (al) {
+    case 0x00: return nullptr; // MULXU
+    case 0x01: return nullptr; // DIVXU
+    case 0x02: return nullptr; // MULXU
+    case 0x03: return nullptr; // DIVXU
+    case 0x04: return nullptr; // RTS
+    case 0x05: return nullptr; // BSR
+    case 0x06: return nullptr; // RTE
+    case 0x07: return nullptr; // TRAPA
+    case 0x08: return lookup_58(h8300h);
+    case 0x09:
+    case 0x0a:
+    case 0x0b: return nullptr; // JMP
+    case 0x0c: return nullptr; // BSR
+    case 0x0d:
+    case 0x0e:
+    case 0x0f: return nullptr; // JSR
+    default:   return nullptr;
+    }
+}
