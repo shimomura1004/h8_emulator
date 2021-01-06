@@ -17,28 +17,61 @@ static void update_ccr(H8300H* h8300h, int32_t value) {
     ccr.clear_v();
 }
 
+static int register_indirect_b(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t b1_msb = b1 & 0x80;
+
+    if (b1_msb) {
+        // Rs,@ERd
+        uint8_t dst_register_index = (b1 & 0x70) >> 4;
+        uint8_t src_register_index = (b1 & 0x0f);
+        Register32& dst = h8->reg[dst_register_index];
+        Register32& src = h8->reg[src_register_index % 8];
+
+        uint8_t value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
+        uint32_t address = dst.get_er();
+        h8->memory.write_uint8(address, value);
+
+        update_ccr(h8, value);
+        h8->pc += 2;
+    } else {
+        // @ERs,Rd
+        return -1;
+    }
+
+    return 0;
+}
+
 static int displacement_register_indirect16_b(H8300H* h8)
 {
-    uint8_t instruction_byte_1 = h8->fetch_instruction_byte(1);
-    uint8_t dst_register_index = (instruction_byte_1 & 0x70) >> 4;
-    uint8_t src_register_index = (instruction_byte_1 & 0x0f);
-    Register32& dst = h8->reg[dst_register_index];
-    Register32& src = h8->reg[src_register_index % 8];
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t b1_msb = b1 & 0x80;
 
-    uint8_t displacement[2];
-    displacement[1] = h8->fetch_instruction_byte(2);
-    displacement[0] = h8->fetch_instruction_byte(3);
-    int16_t disp = *(int16_t*)displacement;
+    if (b1_msb) {
+        // Rs,@(d:16,ERd)
+        uint8_t dst_register_index = (b1 & 0x70) >> 4;
+        uint8_t src_register_index = (b1 & 0x0f);
+        Register32& dst = h8->reg[dst_register_index];
+        Register32& src = h8->reg[src_register_index % 8];
 
-    uint8_t value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
-    uint32_t address = dst.get_er() + *(uint16_t*)displacement;
-    printf("%x\n", address);
-    h8->memory.write_uint8(address, value);
+        uint8_t displacement[2];
+        displacement[1] = h8->fetch_instruction_byte(2);
+        displacement[0] = h8->fetch_instruction_byte(3);
+        int16_t disp = *(int16_t*)displacement;
 
-    update_ccr(h8, value);
-    h8->pc += 4;
+        uint8_t value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
+        uint32_t address = dst.get_er() + *(uint16_t*)displacement;
+        h8->memory.write_uint8(address, value);
 
-    return -1;
+        update_ccr(h8, value);
+        h8->pc += 4;
+    } else {
+        // @(d:16,ERs),Rd
+        return -1;
+    }
+
+    return 0;
 }
 
 static int register_indirect(H8300H* h8)
@@ -99,9 +132,9 @@ static int post_increment_register_indirect_l(H8300H* h8)
 
 static int pre_decrement_register_indirect_l(H8300H* h8)
 {
-    uint8_t instruction_byte_3 = h8->fetch_instruction_byte(3);
-    uint8_t src_register_index = (instruction_byte_3 & 0x07);
-    uint8_t dst_register_index = (instruction_byte_3 & 0x70) >> 4;
+    uint8_t b3 = h8->fetch_instruction_byte(3);
+    uint8_t src_register_index = (b3 & 0x07);
+    uint8_t dst_register_index = (b3 & 0x70) >> 4;
     Register32& src = h8->reg[src_register_index];
 
     h8->push_to_stack_l(src.get_er(), dst_register_index);
@@ -116,10 +149,29 @@ static int absolute_address(H8300H* h8)
     return -1;
 }
 
+static int immediate_b(H8300H* h8)
+{
+    uint8_t b0 = h8->fetch_instruction_byte(0);
+    uint8_t register_index = b0 & 0x0f;
+    Register32& reg = h8->reg[register_index % 8];
+    uint8_t value = h8->fetch_instruction_byte(1);
+
+    if (register_index < 8) {
+        reg.set_rh(value);
+    } else {
+        reg.set_rl(value);
+    }
+
+    update_ccr(h8, value);
+    h8->pc += 2;
+
+    return 0;
+}
+
 static int immediate_w(H8300H* h8)
 {
-    uint8_t instruction_byte_1 = h8->fetch_instruction_byte(1);
-    uint8_t register_index = instruction_byte_1 & 0x0f;
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t register_index = b1 & 0x0f;
     Register32& reg = h8->reg[register_index];
 
     // ビッグエンディアンな即値をリトルエンディアンで読む
@@ -137,8 +189,8 @@ static int immediate_w(H8300H* h8)
 
 static int immediate_l(H8300H* h8)
 {
-    uint8_t instruction_byte_1 = h8->fetch_instruction_byte(1);
-    uint8_t register_index = instruction_byte_1 & 0x0f;
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t register_index = b1 & 0x0f;
     Register32& reg = h8->reg[register_index];
 
     // ビッグエンディアンな即値をリトルエンディアンで読む
@@ -158,9 +210,9 @@ static int immediate_l(H8300H* h8)
 
 static int register_direct_l(H8300H* h8)
 {
-    uint8_t instruction_byte_1 = h8->fetch_instruction_byte(1);
-    uint8_t src_register_index = (instruction_byte_1 & 0x70) >> 4;
-    uint8_t dst_register_index = (instruction_byte_1 & 0x07);
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t src_register_index = (b1 & 0x70) >> 4;
+    uint8_t dst_register_index = (b1 & 0x07);
     Register32& src = h8->reg[src_register_index];
     Register32& dst = h8->reg[dst_register_index];
 
@@ -176,7 +228,13 @@ int h8instructions::mov::mov(H8300H* h8)
     uint8_t b0 = h8->fetch_instruction_byte(0);
 
     switch (b0) {
+    case 0x68: return register_indirect_b(h8);
     case 0x6e: return displacement_register_indirect16_b(h8);
+    case 0xf0: case 0xf1: case 0xf2: case 0xf3:
+    case 0xf4: case 0xf5: case 0xf6: case 0xf7:
+    case 0xf8: case 0xf9: case 0xfa: case 0xfb:
+    case 0xfc: case 0xfd: case 0xfe: case 0xff:
+        return immediate_b(h8);
     case 0x01: {
         uint8_t b2 = h8->fetch_instruction_byte(2);
         switch (b2) {
