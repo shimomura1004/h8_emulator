@@ -27,9 +27,45 @@ static int displacement_register_indirect16(H8300H* h8)
     return -1;
 }
 
-static int displacement_register_indirect32(H8300H* h8)
+static int displacement_register_indirect24(H8300H* h8)
 {
-    return -1;
+    unsigned char b3 = h8->fetch_instruction_byte(3);
+    unsigned char b5 = h8->fetch_instruction_byte(5);
+    unsigned char b7 = h8->fetch_instruction_byte(7);
+    unsigned char b8 = h8->fetch_instruction_byte(8);
+    unsigned char b9 = h8->fetch_instruction_byte(9);
+
+    unsigned char displacement[4];
+    displacement[3] = 0;
+    displacement[2] = h8->fetch_instruction_byte(7);
+    displacement[1] = h8->fetch_instruction_byte(8);
+    displacement[0] = h8->fetch_instruction_byte(9);
+    int32_t disp = *(int32_t*)displacement;
+
+    if ((b3 & 0x80) == 0) {
+        // @(d:24,ERs),ERd
+        unsigned char src_register_index = (b3 & 0x70) >> 4;
+        unsigned char dst_register_index = (b5 & 0x07);
+        Register32& src = h8->reg[src_register_index];
+        Register32& dst = h8->reg[dst_register_index];
+        uint32_t address = src.get_er() + *(uint32_t*)displacement;
+        uint32_t value = h8->memory.read_uint32(address);
+        dst.set_er(value);
+
+        (value < 0) ? h8->ccr.set_n() : h8->ccr.clear_n();
+        (value == 0) ? h8->ccr.set_z() : h8->ccr.clear_z();
+        h8->ccr.clear_v();
+    } else {
+        // ERs,@(d:24,ERd)
+        unsigned char dst_register_index = (b3 & 0x70) >> 4;
+        unsigned char src_register_index = (b5 & 0x07);
+
+        return -1;
+    }
+
+    h8->pc += 10;
+
+    return 0;
 }
 
 static int post_increment_register_indirect(H8300H* h8)
@@ -121,7 +157,7 @@ int h8instructions::mov::mov(H8300H* h8)
         switch (b2) {
         case 0x69: return register_indirect(h8);
         case 0x6f: return displacement_register_indirect16(h8);
-        case 0x78: return displacement_register_indirect32(h8);
+        case 0x78: return displacement_register_indirect24(h8);
         case 0x6d: {
             unsigned char b3 = h8->fetch_instruction_byte(3);
             return ((b3 & 0x80) == 0)
