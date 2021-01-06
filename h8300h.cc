@@ -21,6 +21,9 @@ int H8300H::execute_next_instruction()
     case movl::immediate::FIRST_BYTE:
         result = movl::immediate::execute(this);
         break;
+    case movl::FIRST_BYTE:
+        result = movl::execute(this);
+        break;
     case jsr::FIRST_BYTE:
         result = jsr::execute(this);
         break;
@@ -36,33 +39,36 @@ int H8300H::execute_next_instruction()
     return result;
 }
 
-void H8300H::push_to_stack_w(uint16_t value)
+void H8300H::push_to_stack_w(uint16_t value, unsigned int register_index)
 {
-    sp.set_er(sp.get_er() - 2);
-    unsigned char mem = memory[sp.get_er()];
+    Register32& r = reg[register_index];
+    r.set_er(r.get_er() - 2);
+    unsigned char mem = memory[r.get_er()];
     *(uint16_t*)&mem = value;
 }
 
-uint16_t H8300H::pop_from_stack_w()
+uint16_t H8300H::pop_from_stack_w(unsigned int register_index)
 {
-    unsigned char mem = memory[sp.get_er()];
+    Register32& r = reg[register_index];
+    unsigned char mem = memory[r.get_er()];
     unsigned short value = *(uint16_t*)&mem;
-    sp.set_er(sp.get_er() + 2);
+    r.set_er(r.get_er() + 2);
     return value;
 }
 
-void H8300H::push_to_stack_l(uint32_t value)
+void H8300H::push_to_stack_l(uint32_t value, unsigned int register_index)
 {
-    sp.set_er(sp.get_er() - 4);
-    unsigned char mem = memory[sp.get_er()];
-    *(uint32_t*)&mem = value;
+    Register32& r = reg[register_index];
+    r.set_er(r.get_er() - 4);
+    memory.write_uint32(r.get_er(), value);
 }
 
-uint32_t H8300H::pop_from_stack_l()
+uint32_t H8300H::pop_from_stack_l(unsigned int register_index)
 {
-    unsigned char mem = memory[sp.get_er()];
+    Register32& r = reg[register_index];
+    unsigned char mem = memory[r.get_er()];
     uint32_t value = *(uint32_t*)&mem;
-    sp.set_er(sp.get_er() + 4);
+    r.set_er(r.get_er() + 4);
     return value;
 }
 
@@ -98,7 +104,7 @@ void H8300H::run()
 
     while (1) {
         if (interrupt_queue.hasInterrupt()) {
-        //     // todo: 多重割り込みのブロック
+            // todo: 多重割り込みのブロック
 
             save_pc_and_ccr_to_stack();
             interrupt_t type = interrupt_queue.pop();
@@ -107,6 +113,8 @@ void H8300H::run()
 
         result = step();
         if (result != 0) {
+            fprintf(stderr, "Core dumped.\n");
+            memory.dump("core");
             break;
         }
     }
@@ -118,6 +126,7 @@ void H8300H::print_registers()
         const unsigned char* raw = reg[i].raw();
         printf("ER%d: 0x%02x%02x%02x%02x\n", i, raw[0], raw[1], raw[2], raw[3]);
     }
-    printf("PC : 0x%06x\n", pc);
-    printf("SP : 0x%06x\n", sp.get_er());
+    printf("PC : 0x%08x\n", pc);
+    printf("CCR: I:%d, UI:%d, H:%d, U:%d, N:%d, Z:%d, V:%d, C:%d\n",
+           ccr.i(), ccr.ui(), ccr.h(), ccr.u(), ccr.n(), ccr.z(), ccr.v(), ccr.c());
 }

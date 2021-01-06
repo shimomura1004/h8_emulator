@@ -28,6 +28,26 @@ uint32_t InnerMemory::get_vector(unsigned int index) const
     return *(uint32_t*)&memory[index * 4];
 }
 
+uint16_t InnerMemory::read_uint16(uint32_t address)
+{
+    return *(uint16_t*)&memory[address];
+}
+
+void InnerMemory::write_uint16(uint32_t address, uint16_t value)
+{
+    *(uint16_t*)&memory[address] = __builtin_bswap16(value);
+}
+
+uint32_t InnerMemory::read_uint32(uint32_t address)
+{
+    return *(uint32_t*)&memory[address];
+}
+
+void InnerMemory::write_uint32(uint32_t address, uint32_t value)
+{
+    *(uint32_t*)&memory[address] = __builtin_bswap32(value);
+}
+
 void InnerMemory::dump(std::string filepath)
 {
     FILE* fp = fopen(filepath.c_str(), "wb");

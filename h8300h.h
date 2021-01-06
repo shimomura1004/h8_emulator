@@ -21,10 +21,10 @@ public:
     unsigned char fetch_instruction_byte(unsigned int offset);
     int execute_next_instruction();
 
-    void push_to_stack_w(uint16_t);
-    uint16_t pop_from_stack_w();
-    void push_to_stack_l(uint32_t);
-    uint32_t pop_from_stack_l();
+    void push_to_stack_w(uint16_t value, unsigned int register_index = 7);
+    uint16_t pop_from_stack_w(unsigned int register_index = 7);
+    void push_to_stack_l(uint32_t value, unsigned int register_index = 7);
+    uint32_t pop_from_stack_l(unsigned int register_index = 7);
 
     void save_pc_and_ccr_to_stack();
 
