@@ -1,6 +1,6 @@
 #include "sub.h"
 
-// todo: CCR の動作が不明確
+// todo: CCR の動作が不明確("コンディションコードの変化"に詳細があった)
 // おそらく index 0~7 が RnH、8~f が RnL
 int h8instructions::sub::sub_b(H8300H *h8)
 {

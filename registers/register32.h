@@ -6,6 +6,8 @@
 // リトルエンディアン環境を前提にしている
 // レジスタにはビッグエンディアンで格納する
 
+// todo: Register16/Register8 も作ったほうがよさそう
+
 class Register32 {
 private:
     unsigned char reg[4];

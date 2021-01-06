@@ -4,7 +4,7 @@
 
 InnerMemory::InnerMemory()
 {
-    memory = (unsigned char*)malloc(sizeof(unsigned char) * 16 * 1024 * 1024);
+    memory = (uint8_t*)malloc(sizeof(uint8_t) * 16 * 1024 * 1024);
 }
 
 InnerMemory::~InnerMemory()
@@ -12,7 +12,7 @@ InnerMemory::~InnerMemory()
     free(memory);
 }
 
-unsigned char& InnerMemory::operator[](unsigned long index)
+uint8_t& InnerMemory::operator[](unsigned long index)
 {
     return memory[index];
 }
@@ -25,12 +25,22 @@ uint32_t InnerMemory::load_elf(std::string filepath)
 
 uint32_t InnerMemory::get_vector(unsigned int index) const
 {
-    return *(uint32_t*)&memory[index * 4];
+    return __builtin_bswap32(*(uint32_t*)&memory[index * 4]);
+}
+
+uint8_t InnerMemory::read_uint8(uint32_t address)
+{
+    return memory[address];
+}
+
+void InnerMemory::write_uint8(uint32_t address, uint8_t value)
+{
+    memory[address] = value;
 }
 
 uint16_t InnerMemory::read_uint16(uint32_t address)
 {
-    return *(uint16_t*)&memory[address];
+    return __builtin_bswap16(*(uint16_t*)&memory[address]);
 }
 
 void InnerMemory::write_uint16(uint32_t address, uint16_t value)
@@ -40,7 +50,7 @@ void InnerMemory::write_uint16(uint32_t address, uint16_t value)
 
 uint32_t InnerMemory::read_uint32(uint32_t address)
 {
-    return *(uint32_t*)&memory[address];
+    return __builtin_bswap32(*(uint32_t*)&memory[address]);
 }
 
 void InnerMemory::write_uint32(uint32_t address, uint32_t value)
@@ -55,7 +65,7 @@ void InnerMemory::dump(std::string filepath)
         return;
     }
 
-    fwrite(memory, sizeof(unsigned char), 16 * 1024 * 1024, fp);
+    fwrite(memory, sizeof(uint8_t), 16 * 1024 * 1024, fp);
 
     fclose(fp);
 }
