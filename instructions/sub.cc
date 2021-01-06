@@ -59,7 +59,25 @@ int h8instructions::sub::sub_b(H8300H *h8)
 
 int h8instructions::sub::sub_w(H8300H *h8)
 {
-    return -1;
+    unsigned char b1 = h8->fetch_instruction_byte(1);
+    unsigned char src_register_index = (b1 & 0xf0) >> 4;
+    unsigned char dst_register_index = (b1 & 0x0f);
+
+    // おそらく R(0~7) と E(8~F) という対応と思われる
+    Register32& src = h8->reg[src_register_index % 8];
+    Register32& dst = h8->reg[dst_register_index % 8];
+
+    char left = (dst_register_index < 8) ? dst.get_r() : dst.get_e();
+    char right = (src_register_index < 8) ? src.get_r() : src.get_e();
+    char value = left - right;
+
+    (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
+
+    // todo: *** CCR の更新 ***
+
+    h8->pc += 2;
+
+    return 0;
 }
 
 int h8instructions::sub::sub_l(H8300H *h8)
