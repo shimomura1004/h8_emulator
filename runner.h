@@ -14,8 +14,9 @@ class Runner {
 
 public:
     Runner(H8300H& h8) : h8(h8), continue_mode(false) {}
-    void run(bool debug = false);
+
     int proccess_debugger_command();
+    void run(bool debug = false);
 
 };
 

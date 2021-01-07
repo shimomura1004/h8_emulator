@@ -1,6 +1,6 @@
 CPPC = c++
 
-OBJS = sci.o elf_loader.o inner_memory.o h8300h.o runner.o main.o
+OBJS = sci.o sci_register.o elf_loader.o inner_memory.o h8300h.o runner.o main.o
 OBJS += operation_map/operation_map.o \
 		operation_map/operation_map_0x.o \
 		operation_map/operation_map_1x.o \

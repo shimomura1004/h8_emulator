@@ -23,29 +23,6 @@ void Runner::set_breakpoint(char *buf)
     }
 }
 
-void Runner::run(bool debug)
-{
-    int result = 0;
-
-    while (1) {
-        if (debug) {
-            int r = proccess_debugger_command();
-            if (r != 0) {
-                break;
-            }
-        }
-
-        result = h8.step();
-        if (result != 0) {
-            fprintf(stderr, "Core dumped.\n");
-            h8.memory.dump("core");
-            break;
-        }
-    }
-
-    h8.terminate = true;
-}
-
 int Runner::proccess_debugger_command()
 {
     if (continue_mode) {
@@ -92,4 +69,27 @@ int Runner::proccess_debugger_command()
             break;
         }
     }
+}
+
+void Runner::run(bool debug)
+{
+    int result = 0;
+
+    while (1) {
+        if (debug) {
+            int r = proccess_debugger_command();
+            if (r != 0) {
+                break;
+            }
+        }
+
+        result = h8.step();
+        if (result != 0) {
+            fprintf(stderr, "Core dumped.\n");
+            h8.memory.dump("core");
+            break;
+        }
+    }
+
+    h8.terminate = true;
 }
