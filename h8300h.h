@@ -34,6 +34,8 @@ public:
 
     void save_pc_and_ccr_to_stack();
 
+    int proccess_debugger_command();
+
 public:
     H8300H() : sp(reg[7]), pc(0), terminate(0) {}
     ~H8300H();
