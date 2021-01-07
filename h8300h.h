@@ -19,6 +19,7 @@ public:
     InterruptQueue interrupt_queue;
 
     std::thread *sci[3];
+    bool terminate;
 
 public:
     unsigned char fetch_instruction_byte(unsigned int offset);
@@ -34,7 +35,7 @@ public:
     void save_pc_and_ccr_to_stack();
 
 public:
-    H8300H() : sp(reg[7]), pc(0) {}
+    H8300H() : sp(reg[7]), pc(0), terminate(0) {}
     ~H8300H();
 
     void init();

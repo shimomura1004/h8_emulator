@@ -93,7 +93,8 @@ H8300H::~H8300H()
 void H8300H::init()
 {
     for (uint8_t i = 0; i < 3; i++) {
-        sci[i] = new std::thread(&sci::start, i, std::ref(memory));
+        if (i==1)
+        sci[i] = new std::thread(&sci::start, i, std::ref(memory), std::ref(terminate));
     }
 }
 
@@ -126,7 +127,8 @@ void H8300H::run()
             pc = memory.get_vector(type);
         }
 
-        print_registers();
+        printf("PC : 0x%08x\n", pc);
+        // print_registers();
 
         result = step();
         if (result != 0) {
@@ -135,6 +137,8 @@ void H8300H::run()
             break;
         }
     }
+
+    terminate = true;
 }
 
 void H8300H::print_registers()
