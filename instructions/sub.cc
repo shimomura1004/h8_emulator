@@ -1,7 +1,5 @@
 #include "sub.h"
 
-// todo: CCR の動作が不明確("コンディションコードの変化"に詳細があった)
-
 template<int n, class T>
 void update_ccr_n(H8300H* h8, T src_value, T dst_value, T result_value)
 {
