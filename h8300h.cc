@@ -139,6 +139,8 @@ int H8300H::proccess_debugger_command()
             return -1;
         }
         switch (buf[0]) {
+        case 0x0a:
+            return 0;
         case 'h':
             printf("  h: print help\n");
             printf("  r: print register status\n");
@@ -155,7 +157,7 @@ int H8300H::proccess_debugger_command()
             memory.dump("core");
             printf("Memory dumped to 'core' file\n");
             break;
-        case 0x0a: case 's':
+        case 's':
             return 0;
         case 'c':
             continue_mode = true;

@@ -60,8 +60,7 @@ public:
 
             // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
             putc(data, stdout);
-            fflush(stdout);
-printf("********** from %08x %x\n", tdr_address, data);
+
             // 送信が終わったらSSR_TDRE を 1 にして送信可能を通知
             set_ssr_tdre(true);
         }
@@ -104,7 +103,7 @@ void sci::start(uint8_t index, InnerMemory& memory, bool& terminate)
 
     while (!terminate) {
         // 少し動作を遅くする
-        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         // 送信要求がきていたら処理
         sci.process_send_request();

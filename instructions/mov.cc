@@ -156,7 +156,7 @@ static int post_increment_register_indirect_b(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t src_register_index = (b1 & 0x70) >> 4;
-    uint8_t dst_register_index = (b1 & 0x07);
+    uint8_t dst_register_index = (b1 & 0x0f);
     Register32& dst = h8->reg[dst_register_index % 8];
 
     uint8_t value = h8->pop_from_stack_b(src_register_index);
