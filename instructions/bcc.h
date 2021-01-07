@@ -6,7 +6,8 @@
 namespace h8instructions {
 namespace bcc {
 
-int beq(H8300H *h8);
+int bne_8(H8300H* h8);
+int beq_8(H8300H *h8);
 
 }
 }
