@@ -1,6 +1,6 @@
 #include "h8300h.h"
 #include "operation_map/operation_map.h"
-#include "sci.h"
+#include "sci/sci.h"
 
 unsigned char H8300H::fetch_instruction_byte(unsigned int offset)
 {
