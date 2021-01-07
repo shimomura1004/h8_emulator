@@ -34,8 +34,6 @@ public:
 
     void save_pc_and_ccr_to_stack();
 
-    int proccess_debugger_command();
-
 public:
     H8300H() : sp(reg[7]), pc(0), terminate(0) {}
     ~H8300H();
@@ -43,8 +41,6 @@ public:
     void init();
     uint32_t load_elf(std::string filepath);
     int step();
-    void run(bool debug = false);
-    // void interrupt();
 
     void print_registers();
 };

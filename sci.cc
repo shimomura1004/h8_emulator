@@ -2,6 +2,7 @@
 #include <thread>
 #include <chrono>
 
+// todo: 別ファイルにする
 class SciRegister {
     const uint32_t sci_base_address[3] = { 0xffffb0, 0xffffb8, 0xffffc0 };
     uint32_t smr_address;
