@@ -7,7 +7,7 @@ instruction_handler_t lookup_4x(H8300H *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x00: return nullptr; // BRA
+    case 0x00: return h8instructions::bcc::bra_8;
     case 0x01: return nullptr; // BRN
     case 0x02: return nullptr; // BHI
     case 0x03: return nullptr; // BLS
