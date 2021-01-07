@@ -43,44 +43,12 @@ int h8instructions::sub::sub_b(H8300H *h8)
     Register32& src = h8->reg[src_register_index % 8];
     Register32& dst = h8->reg[dst_register_index % 8];
 
-    char left = (dst_register_index < 8) ? dst.get_rh() : dst.get_rl();
-    char right = (src_register_index < 8) ? src.get_rh() : src.get_rl();
-    char value = left - right;
+    char src_value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
+    char dst_value = (dst_register_index < 8) ? dst.get_rh() : dst.get_rl();
+    char result_value = dst_value - src_value;
+    (dst_register_index < 8) ? dst.set_rh(result_value) : dst.set_rl(result_value);
 
-    (dst_register_index < 8) ? dst.set_rh(value) : dst.set_rl(value);
-
-    // ビット3(4ビット目)にボローが発生したか？は、下位4ビットを引き算すればわかる
-    if ((left % 0x0f) - (right % 0x0f) < 0) {
-        h8->ccr.set_h();
-    } else {
-        h8->ccr.clear_h();
-    }
-
-    if (value < 0) {
-        h8->ccr.set_n();
-    } else {
-        h8->ccr.clear_n();
-    }
-
-    if (value == 0) {
-        h8->ccr.set_z();
-    } else {
-        h8->ccr.clear_z();
-    }
-
-    // オーバーフローが発生したか？
-    if (((int16_t)left - (int16_t)right) >= 0xffff) {
-        h8->ccr.set_v();
-    } else {
-        h8->ccr.clear_v();
-    }
-
-    // ビット7(8ビット目)にボローが発生したか？
-    if (value < 0) {
-        h8->ccr.set_c();
-    } else {
-        h8->ccr.clear_c();
-    }
+    update_ccr_n<8, int8_t>(h8, src_value, dst_value, result_value);
 
     h8->pc += 2;
 
@@ -97,13 +65,12 @@ int h8instructions::sub::sub_w(H8300H *h8)
     Register32& src = h8->reg[src_register_index % 8];
     Register32& dst = h8->reg[dst_register_index % 8];
 
-    char left = (dst_register_index < 8) ? dst.get_r() : dst.get_e();
-    char right = (src_register_index < 8) ? src.get_r() : src.get_e();
-    char value = left - right;
+    char src_value = (src_register_index < 8) ? src.get_r() : src.get_e();
+    char dst_value = (dst_register_index < 8) ? dst.get_r() : dst.get_e();
+    char result_value = dst_value - src_value;
+    (dst_register_index < 8) ? dst.set_r(result_value) : dst.set_e(result_value);
 
-    (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
-
-    // todo: *** CCR の更新 ***
+    update_ccr_n<16, int16_t>(h8, src_value, dst_value, result_value);
 
     h8->pc += 2;
 
@@ -124,35 +91,6 @@ int h8instructions::sub::sub_l(H8300H *h8)
     dst.set_er(result_value);
 
     update_ccr_n<32, int32_t>(h8, src_value, dst_value, result_value);
-    // bool src_value_27th_bit = src_value & (1 << 27);
-    // bool dst_value_27th_bit = dst_value & (1 << 27);
-    // bool result_value_27th_bit = result_value & (1 << 27);
-
-    // // (src_value の27ビット目) & not (dst_value の27ビット目) +
-    // // not (dst_value の27ビット目) & (result_value の27ビット目) +
-    // // (src_value の27ビット目) & (result_value の27ビット目)
-    // bool h = ( src_value_27th_bit && !dst_value_27th_bit) ||
-    //          (!dst_value_27th_bit &&  result_value_27th_bit) ||
-    //          ( src_value_27th_bit &&  result_value_27th_bit);
-    // h ? h8->ccr.set_h() : h8->ccr.clear_h();
-
-    // result_value < 0 ? h8->ccr.set_n() : h8->ccr.clear_n();
-    // result_value == 0 ? h8->ccr.set_z() : h8->ccr.clear_z();
-
-    // bool src_value_31th_bit = src_value & (1 << 31);
-    // bool dst_value_31th_bit = dst_value & (1 << 31);
-    // bool result_value_31th_bit = result_value & (1 << 31);
-
-    // // not (src_value の31ビット目) & (dst_value の31ビット目) & not (result_value の31ビット目) +
-    // // (src_value の31ビット目) & not (dst_value の31ビット目) & (result_value の31ビット目) +
-    // bool v = (!src_value_31th_bit &&  dst_value_31th_bit && !result_value_31th_bit) ||
-    //          ( src_value_31th_bit && !dst_value_31th_bit &&  result_value_31th_bit);
-    // v ? h8->ccr.set_v() : h8->ccr.clear_v();
-
-    // bool c = ( src_value_31th_bit && !dst_value_31th_bit) ||
-    //          (!dst_value_31th_bit &&  result_value_31th_bit) ||
-    //          ( src_value_31th_bit &&  result_value_31th_bit);
-    // c ? h8->ccr.set_c() : h8->ccr.clear_v();
 
     h8->pc += 2;
 
