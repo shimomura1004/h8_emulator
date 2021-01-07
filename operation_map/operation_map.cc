@@ -7,6 +7,7 @@
 #include "operation_map_7x.h"
 
 #include "../instructions/mov.h"
+#include "../instructions/cmp.h"
 
 instruction_handler_t OperationMap::lookup(H8300H* h8300h)
 {
@@ -24,7 +25,7 @@ instruction_handler_t OperationMap::lookup(H8300H* h8300h)
     case 0x07: return lookup_7x(h8300h);
     case 0x08: return nullptr; // ADD
     case 0x09: return nullptr; // ADDX
-    case 0x0a: return nullptr; // CMP
+    case 0x0a: return h8instructions::cmp::cmp_b;
     case 0x0b: return nullptr; // SUBX
     case 0x0c: return nullptr; // OR
     case 0x0d: return nullptr; // XOR
