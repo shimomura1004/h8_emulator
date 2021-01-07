@@ -106,6 +106,8 @@ void H8300H::run()
             pc = memory.get_vector(type);
         }
 
+        print_registers();
+
         result = step();
         if (result != 0) {
             fprintf(stderr, "Core dumped.\n");
