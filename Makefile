@@ -1,6 +1,6 @@
 CPPC = c++
 
-OBJS = elf_loader.o inner_memory.o h8300h.o main.o
+OBJS = sci.o elf_loader.o inner_memory.o h8300h.o main.o
 OBJS += operation_map/operation_map.o \
 		operation_map/operation_map_0x.o \
 		operation_map/operation_map_1x.o \
@@ -25,24 +25,19 @@ OBJS += instructions/mov.o \
 
 TARGET = h8300h
 
-CFLAGS = -Wall -I.
+CFLAGS = -Wall -I. -std=c++11 -pthread
 CFLAGS += -g
 LFLAGS = -L.
 
-.SUFFIXES: .c .o
 .SUFFIXES: .cc .o
-.SUFFIXES: .s .o
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CPPC) $(OBJS) -o $(TARGET) $(CFLAGS) $(LFLAGS)
 
-.c.o :			$<
-				$(CPPC) -c $(CFLAGS) $<
-
-.s.o :			$<
-				$(CPPC) -c $(CFLAGS) $<
+.cc.o :			$<
+				$(CPPC) -c $(CFLAGS) -o $@ $<
 
 clean:
 	rm -f $(OBJS) $(TARGET)

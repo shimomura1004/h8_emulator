@@ -4,9 +4,9 @@
 int main (int argc, char* argv[])
 {
     H8300H h8;
-    // uint32_t start_addr = h8.load_elf("/Users/shimo/src/h8_emulator/kozos/06/os/kozos");
-    // uint32_t start_addr = h8.load_elf("/Users/shimo/src/h8_emulator/kozos/01/kzload");
-    uint32_t start_addr = h8.load_elf("/Users/shimo/src/h8_emulator/osbook_03/01/bootload/kzload");
+    h8.init();
+
+    uint32_t start_addr = h8.load_elf("./osbook_03/01/bootload/kzload");
     printf("Start execution from 0x%x\n", start_addr);
 
     // todo: シリアルが割り当てられたアドレスへの書き込みを認識する必要あり

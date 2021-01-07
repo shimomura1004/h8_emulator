@@ -2,6 +2,7 @@
 #define _H8300H_INCLUDED_
 
 #include <string>
+#include <thread>
 
 #include "registers/register32.h"
 #include "registers/ccr.h"
@@ -17,6 +18,8 @@ public:
     InnerMemory memory;
     InterruptQueue interrupt_queue;
 
+    std::thread *sci[3];
+
 public:
     unsigned char fetch_instruction_byte(unsigned int offset);
     int execute_next_instruction();
@@ -31,7 +34,8 @@ public:
     void save_pc_and_ccr_to_stack();
 
 public:
-    H8300H() : pc(0), sp(reg[7]) {}
+    H8300H() : sp(reg[7]), pc(0) {}
+    ~H8300H();
 
     void init();
     uint32_t load_elf(std::string filepath);

@@ -1,5 +1,6 @@
 #include "h8300h.h"
 #include "operation_map/operation_map.h"
+#include "sci.h"
 
 unsigned char H8300H::fetch_instruction_byte(unsigned int offset)
 {
@@ -75,6 +76,25 @@ void H8300H::save_pc_and_ccr_to_stack()
 {
     uint32_t ccr_pc = pc | (ccr.raw() << 24);
     push_to_stack_l(ccr_pc);
+}
+
+H8300H::~H8300H()
+{
+    for (int i = 0; i < 3; i++) {
+        if (sci[i]) {
+            if (sci[i]->joinable()) {
+                sci[i]->join();
+            }
+            delete sci[i];
+        }
+    }
+}
+
+void H8300H::init()
+{
+    for (uint8_t i = 0; i < 3; i++) {
+        sci[i] = new std::thread(&sci::start, i, std::ref(memory));
+    }
 }
 
 uint32_t H8300H::load_elf(std::string filepath)
