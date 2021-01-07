@@ -41,8 +41,8 @@ public:
     void init();
     uint32_t load_elf(std::string filepath);
     int step();
-    void run();
-    void interrupt();
+    void run(bool debug = false);
+    // void interrupt();
 
     void print_registers();
 };

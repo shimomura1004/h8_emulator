@@ -114,7 +114,43 @@ int H8300H::step()
     return result;
 }
 
-void H8300H::run()
+static int proccess_debugger_command(H8300H* h8)
+{
+    h8->print_registers();
+
+    char c[256];
+    while (1) {
+        printf("(h for help) > ");
+        if (fgets(c, 256, stdin) == NULL) {
+            return -1;
+        }
+        switch (c[0]) {
+        case 0x0a: case 's':
+            return 0;
+        case 'h':
+            printf("  h: print help\n");
+            printf("  r: print register status\n");
+            printf("  d: dump memory\n");
+            printf("  s: next step\n");
+            printf("  q: quit\n");
+            break;
+        case 'r':
+            h8->print_registers();
+            break;
+        case 'd':
+            h8->memory.dump("core");
+            printf("Memory dumped to 'core' file\n");
+            break;
+        case 'q':
+            return -1;
+        default:
+            printf("Unknown debugger command: %c\n", c[0]);
+            break;
+        }
+    }
+}
+
+void H8300H::run(bool debug)
 {
     int result = 0;
 
@@ -127,8 +163,14 @@ void H8300H::run()
             pc = memory.get_vector(type);
         }
 
-        printf("PC : 0x%08x\n", pc);
-        // print_registers();
+        // printf("PC : 0x%08x\n", pc);
+
+        if (debug) {
+            int r = proccess_debugger_command(this);
+            if (r != 0) {
+                break;
+            }
+        }
 
         result = step();
         if (result != 0) {
