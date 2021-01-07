@@ -101,29 +101,26 @@ static int displacement_register_indirect16_b(H8300H* h8)
 
         update_ccr(h8, value);
     }
-    
+
     h8->pc += 4;
 
     return 0;
 }
 
-static int register_indirect(H8300H* h8)
-{
-    return -1;
-}
+// static int register_indirect(H8300H* h8)
+// {
+//     return -1;
+// }
 
-static int displacement_register_indirect16(H8300H* h8)
-{
-    return -1;
-}
+// static int displacement_register_indirect16(H8300H* h8)
+// {
+//     return -1;
+// }
 
 static int displacement_register_indirect24_l(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t b5 = h8->fetch_instruction_byte(5);
-    uint8_t b7 = h8->fetch_instruction_byte(7);
-    uint8_t b8 = h8->fetch_instruction_byte(8);
-    uint8_t b9 = h8->fetch_instruction_byte(9);
 
     uint8_t displacement[4];
     displacement[3] = 0;
@@ -147,9 +144,6 @@ static int displacement_register_indirect24_l(H8300H* h8)
         h8->ccr.clear_v();
     } else {
         // ERs,@(d:24,ERd)
-        uint8_t dst_register_index = (b3 & 0x70) >> 4;
-        uint8_t src_register_index = (b5 & 0x07);
-
         return -1;
     }
 
@@ -186,6 +180,8 @@ static int post_increment_register_indirect_l(H8300H* h8)
     Register32& dst = h8->reg[dst_register_index];
 
     uint32_t value = h8->pop_from_stack_l(src_register_index);
+    dst.set_er(value);
+
     update_ccr(h8, value);
     h8->pc += 4;
 
@@ -206,10 +202,10 @@ static int pre_decrement_register_indirect_l(H8300H* h8)
     return 0;
 }
 
-static int absolute_address(H8300H* h8)
-{
-    return -1;
-}
+// static int absolute_address(H8300H* h8)
+// {
+//     return -1;
+// }
 
 static int immediate_b(H8300H* h8)
 {
