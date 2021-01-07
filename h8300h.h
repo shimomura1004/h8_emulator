@@ -21,6 +21,8 @@ public:
     unsigned char fetch_instruction_byte(unsigned int offset);
     int execute_next_instruction();
 
+    void push_to_stack_b(uint8_t value, unsigned int register_index = 7);
+    uint8_t pop_from_stack_b(unsigned int register_index = 7);
     void push_to_stack_w(uint16_t value, unsigned int register_index = 7);
     uint16_t pop_from_stack_w(unsigned int register_index = 7);
     void push_to_stack_l(uint32_t value, unsigned int register_index = 7);

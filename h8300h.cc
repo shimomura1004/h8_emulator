@@ -26,19 +26,32 @@ int H8300H::execute_next_instruction()
 }
 
 // todo: スタック操作関係は別クラスに移動
+void H8300H::push_to_stack_b(uint8_t value, unsigned int register_index)
+{
+    Register32& r = reg[register_index];
+    r.set_er(r.get_er() - 1);
+    memory.write_uint8(r.get_er(), value);
+}
+
+uint8_t H8300H::pop_from_stack_b(unsigned int register_index)
+{
+    Register32& r = reg[register_index];
+    uint8_t value = memory.read_uint8(r.get_er());
+    r.set_er(r.get_er() + 1);
+    return value;
+}
+
 void H8300H::push_to_stack_w(uint16_t value, unsigned int register_index)
 {
     Register32& r = reg[register_index];
     r.set_er(r.get_er() - 2);
-    unsigned char mem = memory[r.get_er()];
-    *(uint16_t*)&mem = value;
+    memory.write_uint16(r.get_er(), value);
 }
 
 uint16_t H8300H::pop_from_stack_w(unsigned int register_index)
 {
     Register32& r = reg[register_index];
-    unsigned char mem = memory[r.get_er()];
-    unsigned short value = *(uint16_t*)&mem;
+    uint16_t value = memory.read_uint16(r.get_er());
     r.set_er(r.get_er() + 2);
     return value;
 }
@@ -47,7 +60,6 @@ void H8300H::push_to_stack_l(uint32_t value, unsigned int register_index)
 {
     Register32& r = reg[register_index];
     r.set_er(r.get_er() - 4);
-    // memory.write_uint32(r.get_er(), __builtin_bswap32(value));
     memory.write_uint32(r.get_er(), value);
 }
 
