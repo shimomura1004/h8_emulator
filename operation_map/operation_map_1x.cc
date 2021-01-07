@@ -2,6 +2,7 @@
 #include "../instructions/exts.h"
 #include "../instructions/shll.h"
 #include "../instructions/sub.h"
+#include "../instructions/subs.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -112,11 +113,11 @@ instruction_handler_t lookup_1B(H8300H* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return nullptr; // SUBS
+    case 0x00: return h8instructions::subs::subs;
     case 0x05: return nullptr; // DEC
     case 0x07: return nullptr; // DEC
     case 0x08:
-    case 0x09: return nullptr; // SUBS
+    case 0x09: return h8instructions::subs::subs;
     case 0x0d: return nullptr; // DEC
     case 0x0f: return nullptr; // DEC
     default:   return nullptr;
