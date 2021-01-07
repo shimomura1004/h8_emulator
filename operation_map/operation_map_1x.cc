@@ -90,8 +90,8 @@ instruction_handler_t lookup_17(H8300H* h8300h)
 
 instruction_handler_t lookup_1A(H8300H* h8300h)
 {
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh = (b1 & 0xf0) >> 4;
+    uint8_t b1 = h8300h->fetch_instruction_byte(1);
+    uint8_t bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
     case 0x00: return nullptr; // DEC
@@ -102,7 +102,7 @@ instruction_handler_t lookup_1A(H8300H* h8300h)
     case 0x0c:
     case 0x0d:
     case 0x0e:
-    case 0x0f: return nullptr; // SUB
+    case 0x0f: return h8instructions::sub::sub_l;
     default:   return nullptr;
     }
 }
