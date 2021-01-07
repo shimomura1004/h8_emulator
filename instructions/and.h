@@ -6,6 +6,7 @@
 namespace h8instructions {
 namespace andl {
 
+int and_immediate_b(H8300H* h8);
 int and_immediate_w(H8300H *h8);
 
 }

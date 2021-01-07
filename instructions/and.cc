@@ -17,6 +17,29 @@ static void update_ccr(H8300H* h8, uint32_t value)
     h8->ccr.clear_v();
 }
 
+int h8instructions::andl::and_immediate_b(H8300H* h8)
+{
+    uint8_t b0 = h8->fetch_instruction_byte(0);
+    uint8_t reg_index = b0 & 0x0f;
+    Register32& reg = h8->reg[reg_index % 8];
+
+    uint8_t imm = h8->fetch_instruction_byte(1);
+
+    if (reg_index < 8) {
+        uint8_t value = reg.get_rh() & imm;
+        reg.set_rh(value);
+        update_ccr(h8, value);
+    } else {
+        uint8_t value = reg.get_rl() & imm;
+        reg.set_rl(value);
+        update_ccr(h8, value);
+    }
+
+    h8->pc += 2;
+
+    return 0;
+}
+
 int h8instructions::andl::and_immediate_w(H8300H *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
