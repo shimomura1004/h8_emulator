@@ -60,7 +60,8 @@ public:
 
             // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
             putc(data, stdout);
-printf("********** %x\n", data);
+            fflush(stdout);
+printf("********** from %08x %x\n", tdr_address, data);
             // 送信が終わったらSSR_TDRE を 1 にして送信可能を通知
             set_ssr_tdre(true);
         }

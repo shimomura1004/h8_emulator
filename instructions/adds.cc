@@ -1,14 +1,12 @@
 #include "adds.h"
 
-// 32ビットレジスタ ERd の内容に 1/2/4 を加算する命令
-
-int h8instructions::adds::execute(H8300H* h8300h)
+int h8instructions::adds::adds(H8300H* h8)
 {
-    unsigned char instruction_byte_2 = h8300h->fetch_instruction_byte(1);
-    unsigned char register_index = instruction_byte_2 & 0x0f;
-    Register32& reg = h8300h->reg[register_index];
+    unsigned char b1 = h8->fetch_instruction_byte(1);
+    unsigned char register_index = b1 & 0x0f;
+    Register32& reg = h8->reg[register_index];
 
-    switch (instruction_byte_2 & 0xf0) {
+    switch (b1 & 0xf0) {
     case 0x00:
         reg.set_er(reg.get_er() + 1);
         break;
@@ -22,7 +20,7 @@ int h8instructions::adds::execute(H8300H* h8300h)
         return -1;
     }
 
-    h8300h->pc += 2;
+    h8->pc += 2;
 
     return 0;
 }

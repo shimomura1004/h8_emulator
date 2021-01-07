@@ -6,9 +6,7 @@
 namespace h8instructions {
 namespace adds {
 
-const unsigned char FIRST_BYTE = 0x0b;
-
-int execute(H8300H* h8300h);
+int adds(H8300H* h8300h);
 
 }
 }

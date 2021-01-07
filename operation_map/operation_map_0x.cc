@@ -1,5 +1,6 @@
 #include "operation_map_0x.h"
 #include "../instructions/mov.h"
+#include "../instructions/adds.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -76,10 +77,10 @@ instruction_handler_t lookup_0B(H8300H* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return nullptr; // ADDS
+    case 0x00: return h8instructions::adds::adds;
     case 0x05: return nullptr; // INC
     case 0x08:
-    case 0x09: return nullptr; // ADDS
+    case 0x09: return h8instructions::adds::adds;
     case 0x0d: return nullptr; // INC
     case 0x0f: return nullptr; // INC
     default:   return nullptr;

@@ -21,7 +21,8 @@ OBJS += instructions/mov.o \
 		instructions/bcc.o \
 		instructions/cmp.o \
 		instructions/subs.o \
-		instructions/and.o
+		instructions/and.o \
+		instructions/adds.o
 
 TARGET = h8300h
 
