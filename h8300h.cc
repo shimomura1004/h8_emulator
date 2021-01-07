@@ -94,7 +94,7 @@ void H8300H::init()
 {
     for (uint8_t i = 0; i < 3; i++) {
         if (i==1)
-        sci[i] = new std::thread(&sci::start, i, std::ref(memory), std::ref(terminate));
+        sci[i] = new std::thread(&Sci::start, i, std::ref(memory), std::ref(terminate));
     }
 }
 

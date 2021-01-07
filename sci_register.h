@@ -15,16 +15,14 @@ class SciRegister {
 
     InnerMemory& memory;
 
-    bool get_scr_re();
-    bool get_scr_te();
-    bool get_ssr_tdre();
-    void set_ssr_tdre(bool b);
-
-    bool send_requested();
-
 public:
     SciRegister(uint8_t index, InnerMemory& memory);
-    void process_send_request();
+
+    bool get_scr_re();
+    bool get_scr_te();
+    uint8_t get_tdr();
+    bool get_ssr_tdre();
+    void set_ssr_tdre(bool b);
 
 };
 

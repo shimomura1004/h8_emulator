@@ -39,6 +39,11 @@ bool SciRegister::get_scr_te()
     return memory.read_uint8(scr_address) & (1<<5);
 }
 
+uint8_t SciRegister::get_tdr()
+{
+    return memory.read_uint8(tdr_address);
+}
+
 bool SciRegister::get_ssr_tdre()
 {
     return memory.read_uint8(ssr_address) & (1<<7);
@@ -51,12 +56,6 @@ void SciRegister::set_ssr_tdre(bool b) {
     } else {
         memory.write_uint8(ssr_address, tdre & ~(1<<7));
     }
-}
-
-// CPU から送信要求がきたか？
-bool SciRegister::send_requested() {
-    // SSR_TDRE が 0 になったら、要求がきたということ
-    return get_ssr_tdre() == false;
 }
 
 SciRegister::SciRegister(uint8_t index, InnerMemory& memory)
@@ -76,17 +75,4 @@ SciRegister::SciRegister(uint8_t index, InnerMemory& memory)
     memory.write_uint8(ssr_address, 0xff);
     memory.write_uint8(rdr_address, 0);
     memory.write_uint8(scmr_address, 0);
-}
-
-void SciRegister::process_send_request() {
-    if (send_requested()) {
-        // データは TDR に入っている
-        uint8_t data = memory.read_uint8(tdr_address);
-
-        // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
-        putc(data, stdout);
-
-        // 送信が終わったらSSR_TDRE を 1 にして送信可能を通知
-        set_ssr_tdre(true);
-    }
 }
