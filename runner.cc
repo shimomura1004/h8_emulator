@@ -83,6 +83,8 @@ void Runner::run(bool debug)
             }
         }
 
+        // printf("PC: 0x%08x\n", h8.pc);
+
         result = h8.step();
         if (result != 0) {
             fprintf(stderr, "Core dumped.\n");

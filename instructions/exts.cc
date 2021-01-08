@@ -2,12 +2,12 @@
 
 int h8instructions::exts::exts_w(H8300H* h8)
 {
-    unsigned char b1 = h8->fetch_instruction_byte(1);
-    unsigned char register_index = (b1 & 0x0f);
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t register_index = (b1 & 0x0f);
     Register32& reg = h8->reg[register_index];
 
-    unsigned char rl = reg.get_rl();
-    unsigned char rl_msb = rl >> 7;
+    uint8_t rl = reg.get_rl();
+    uint8_t rl_msb = rl >> 7;
 
     if (rl_msb) {
         // 最上位ビットが1なので負数
@@ -33,23 +33,23 @@ int h8instructions::exts::exts_w(H8300H* h8)
 
 int h8instructions::exts::exts_l(H8300H* h8)
 {
-    unsigned char b1 = h8->fetch_instruction_byte(1);
-    unsigned char register_index = (b1 & 0x07);
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t register_index = (b1 & 0x07);
     Register32& reg = h8->reg[register_index];
 
-    unsigned char r = reg.get_r();
-    unsigned char r_msb = r >> 15;
+    uint16_t r = reg.get_r();
+    uint16_t r_msb = r >> 15;
 
     if (r_msb) {
         // 最上位ビットが1なので負数
-        reg.set_r(0xffff);
+        reg.set_e(0xffff);
         h8->ccr.set_n();
     } else {
-        reg.set_r(0x0000);
+        reg.set_e(0x0000);
         h8->ccr.clear_n();
     }
 
-    if (reg.get_e() == 0) {
+    if (reg.get_er() == 0) {
         h8->ccr.set_z();        
     } else {
         h8->ccr.clear_z();
