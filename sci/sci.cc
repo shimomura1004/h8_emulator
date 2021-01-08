@@ -11,7 +11,11 @@ void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex&
 }
 
 Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
-    : index(index), terminate(terminate), mutex(mutex), sci_register(index, memory)
+    : index(index)
+    , terminate(terminate)
+    , mutex(mutex)
+    , sci_register(index, memory)
+    // , buffer_len(0)
 {
 	timeout.tv_sec = 0; 
 	timeout.tv_usec = 0;
@@ -34,15 +38,25 @@ void Sci::process_recv_request()
 
 	int ret = select(0 + 1, &fdset , NULL , NULL , &timeout);
     if (ret == 1) {
-        // 標準入力にデータがきている
-
-        if (sci_register.get_ssr_rdrf()) {
-            // まだ H8 が処理していないので何もしない
-            return;
+        while (1) {
+            buffer.push(fgetc(stdin));
+            if (buffer.back() == 0x0a) {
+                break;
+            }
         }
+    }
 
+    // まだ H8 が処理していないので何もしない
+    if (sci_register.get_ssr_rdrf()) {
+        return;
+    }
+
+    // バッファにデータがあるのであれば H8 に送信
+    if (!buffer.empty()) {
         // H8 に渡すデータは RDR に書き込んでおく
-        sci_register.set_rdr(fgetc(stdin));
+        sci_register.set_rdr(buffer.front());
+        buffer.pop();
+
         // RDRF を 1 にして H8 に通知
         sci_register.set_ssr_rdrf(true);
     }
@@ -73,7 +87,7 @@ void Sci::run()
         // todo: イベントドリブンにする
 
         // 少し動作を遅くする
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         std::this_thread::sleep_for(std::chrono::microseconds(100));
 
         // 送信要求がきていたら処理
