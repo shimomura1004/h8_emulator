@@ -7,6 +7,7 @@
 #include "../instructions/mov.h"
 #include "../instructions/and.h"
 #include "../instructions/add.h"
+#include "../instructions/sub.h"
 
 instruction_handler_t lookup_7x(H8300H *h8300h)
 {
@@ -96,7 +97,7 @@ instruction_handler_t lookup_7A(H8300H* h8300h)
     case 0x00: return h8instructions::mov::mov;
     case 0x01: return h8instructions::add::add_immediate_l;
     case 0x02: return nullptr; // CMP
-    case 0x03: return nullptr; // SUB
+    case 0x03: return h8instructions::sub::sub_immediate_l;
     case 0x04: return nullptr; // OR
     case 0x05: return nullptr; // XOR
     case 0x06: return nullptr; // AND
