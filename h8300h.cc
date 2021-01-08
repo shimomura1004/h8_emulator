@@ -126,7 +126,9 @@ void H8300H::print_registers()
 {
     for (int i = 0; i < 8; i++) {
         const unsigned char* raw = reg[i].raw();
-        printf("ER%d: 0x%02x%02x%02x%02x\n", i, raw[0], raw[1], raw[2], raw[3]);
+        printf("ER%d: 0x%08x", i, reg[i].get_er());
+        printf("    E%d: 0x%04x  R%d: 0x%04x", i, reg[i].get_e(), i, reg[i].get_r());
+        printf("    RH%d: 0x%02x  RL%d: 0x%02x\n", i, reg[i].get_rh(), i, reg[i].get_rl());
     }
     printf("PC : 0x%08x\n", pc);
     printf("CCR: I:%d, UI:%d, H:%d, U:%d, N:%d, Z:%d, V:%d, C:%d\n",
