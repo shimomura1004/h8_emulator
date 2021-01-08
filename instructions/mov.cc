@@ -252,7 +252,7 @@ static int pre_decrement_register_indirect_l(H8300H* h8)
     return 0;
 }
 
-static int absolute_address_24_w(H8300H* h8)
+static int absolute_address_24_w_to_reg(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t dst_register_index = b1 & 0x0f;
@@ -263,9 +263,32 @@ static int absolute_address_24_w(H8300H* h8)
     absolute[2] = h8->fetch_instruction_byte(3);
     absolute[1] = h8->fetch_instruction_byte(4);
     absolute[0] = h8->fetch_instruction_byte(5);
-    int32_t value = *(int32_t*)absolute;
+    int32_t abs = *(int32_t*)absolute;
 
+    uint16_t value = h8->memory.read_uint16(abs);
     (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
+
+    update_ccr(h8, value);
+    h8->pc += 6;
+
+    return 0;
+}
+
+static int absolute_address_24_w_from_reg(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t src_register_index = b1 & 0x0f;
+    Register32& src = h8->reg[src_register_index];
+
+    uint8_t absolute[4];
+    absolute[3] = 0;
+    absolute[2] = h8->fetch_instruction_byte(3);
+    absolute[1] = h8->fetch_instruction_byte(4);
+    absolute[0] = h8->fetch_instruction_byte(5);
+    int32_t abs = *(int32_t*)absolute;
+
+    uint16_t value = (src_register_index < 8) ? src.get_r() : src.get_e();
+    h8->memory.write_uint16(abs, value);
 
     update_ccr(h8, value);
     h8->pc += 6;
@@ -400,9 +423,9 @@ int h8instructions::mov::mov(H8300H* h8)
         uint8_t b1h = (b1 & 0xf0) >> 4;
         switch (b1h) {
             case 0x00: return -1;
-            case 0x02: return absolute_address_24_w(h8);
+            case 0x02: return absolute_address_24_w_to_reg(h8);
             case 0x08: return -1;
-            case 0x0a: return -1;
+            case 0x0a: return absolute_address_24_w_from_reg(h8);
             default:   return -1;
         }
     }
