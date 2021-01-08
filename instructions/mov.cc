@@ -270,7 +270,7 @@ static int absolute_address_24_w(H8300H* h8)
     update_ccr(h8, value);
     h8->pc += 6;
 
-    return -1;
+    return 0;
 }
 
 static int immediate_b(H8300H* h8)
