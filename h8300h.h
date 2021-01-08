@@ -3,6 +3,7 @@
 
 #include <string>
 #include <thread>
+#include <mutex>
 
 #include "registers/register32.h"
 #include "registers/ccr.h"
@@ -19,6 +20,7 @@ public:
     InterruptQueue interrupt_queue;
 
     std::thread *sci[3];
+    std::mutex mutex;
     bool terminate;
 
 public:
@@ -35,7 +37,7 @@ public:
     void save_pc_and_ccr_to_stack();
 
 public:
-    H8300H() : sp(reg[7]), pc(0), terminate(0) {}
+    H8300H() : sp(reg[7]), pc(0), terminate(false) {}
     ~H8300H();
 
     void init();
@@ -43,6 +45,8 @@ public:
     int step();
 
     void print_registers();
+
+    std::mutex& get_mutex() { return mutex; }
 };
 
 #endif

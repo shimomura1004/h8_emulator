@@ -4,18 +4,14 @@
 #include "sci.h"
 #include "sci_register.h"
 
-// todo: 標準入出力が H8 に渡されているが、デバッガへの入力はどう扱う？
-// いったん標準入力を受け付けるクラスを作って、そこから状態に応じてふりわける
-// それか、デバッガでブレークしているときは sci を一時停止させる？
-
-void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate)
+void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
 {
-    Sci sci(index, memory, terminate);
+    Sci sci(index, memory, terminate, mutex);
     sci.run();
 }
 
-Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate)
-    : index(index), terminate(terminate), sci_register(index, memory)
+Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
+    : index(index), terminate(terminate), mutex(mutex), sci_register(index, memory)
 {
 	timeout.tv_sec = 0; 
 	timeout.tv_usec = 0;
@@ -29,6 +25,9 @@ bool Sci::send_requested() {
 
 void Sci::process_recv_request()
 {
+    // デバッガと標準入出力を奪い合わないようにロックする
+    std::lock_guard<std::mutex> lock(mutex);
+
     // select が fdset をクリアするので毎回設定する必要がある
     FD_ZERO(&fdset);
 	FD_SET(0, &fdset);
@@ -50,6 +49,9 @@ void Sci::process_recv_request()
 }
 
 void Sci::process_send_request() {
+    // デバッガと標準入出力を奪い合わないようにロックする
+    std::lock_guard<std::mutex> lock(mutex);
+
     if (send_requested()) {
         // データは TDR に入っている
         uint8_t data = sci_register.get_tdr();
@@ -69,8 +71,10 @@ void Sci::run()
 
     while (!terminate) {
         // todo: イベントドリブンにする
+
         // 少し動作を遅くする
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
 
         // 送信要求がきていたら処理
         process_send_request();

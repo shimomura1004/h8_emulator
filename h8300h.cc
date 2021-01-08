@@ -94,7 +94,7 @@ void H8300H::init()
 {
     for (uint8_t i = 0; i < 3; i++) {
         if (i==1)
-        sci[i] = new std::thread(&Sci::start, i, std::ref(memory), std::ref(terminate));
+        sci[i] = new std::thread(&Sci::start, i, std::ref(memory), std::ref(terminate), std::ref(mutex));
     }
 }
 
@@ -125,7 +125,6 @@ int H8300H::step()
 void H8300H::print_registers()
 {
     for (int i = 0; i < 8; i++) {
-        const unsigned char* raw = reg[i].raw();
         printf("ER%d: 0x%08x", i, reg[i].get_er());
         printf("    E%d: 0x%04x  R%d: 0x%04x", i, reg[i].get_e(), i, reg[i].get_r());
         printf("    RH%d: 0x%02x  RL%d: 0x%02x\n", i, reg[i].get_rh(), i, reg[i].get_rl());
