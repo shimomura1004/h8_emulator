@@ -1,6 +1,7 @@
 #include "operation_map_0x.h"
 #include "../instructions/mov.h"
 #include "../instructions/adds.h"
+#include "../instructions/add.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -66,7 +67,7 @@ instruction_handler_t lookup_0A(H8300H* h8300h)
     case 0x0c:
     case 0x0d:
     case 0x0e:
-    case 0x0f: return nullptr; // ADD
+    case 0x0f: return h8instructions::add::add_register_direct_l;
     default:   return nullptr;
     }
 }

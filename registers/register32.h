@@ -13,11 +13,11 @@ private:
     unsigned char reg[4];
 
 public:
-    uint32_t get_er() { return __builtin_bswap32(*((uint32_t*)reg)); }
-    uint16_t get_e() { return __builtin_bswap16(*((uint16_t*)reg)); }
-    uint16_t get_r() { return __builtin_bswap16(*((uint16_t*)(&reg[2]))); }
-    unsigned char get_rh() { return reg[2]; }
-    unsigned char get_rl() { return reg[3]; }
+    uint32_t get_er() const { return __builtin_bswap32(*((uint32_t*)reg)); }
+    uint16_t get_e() const { return __builtin_bswap16(*((uint16_t*)reg)); }
+    uint16_t get_r() const { return __builtin_bswap16(*((uint16_t*)(&reg[2]))); }
+    unsigned char get_rh() const { return reg[2]; }
+    unsigned char get_rl() const { return reg[3]; }
 
     void set_er(uint32_t value) { *((uint32_t*)reg) = __builtin_bswap32(value); }
     void set_e(uint16_t value) { *((uint16_t*)reg) = __builtin_bswap16(value); }
