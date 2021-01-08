@@ -20,7 +20,10 @@ public:
 
     bool get_scr_re();
     bool get_scr_te();
+    void set_rdr(uint8_t data);
     uint8_t get_tdr();
+    bool get_ssr_rdrf();
+    void set_ssr_rdrf(bool b);
     bool get_ssr_tdre();
     void set_ssr_tdre(bool b);
 

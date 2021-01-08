@@ -9,7 +9,8 @@ int main (int argc, char* argv[])
 
     // uint32_t start_addr = h8.load_elf("./osbook_03/01/bootload/kzload");
     // uint32_t start_addr = h8.load_elf("./osbook_03/02/bootload/kzload");
-    uint32_t start_addr = h8.load_elf("./osbook_03/03/bootload/kzload");
+    // uint32_t start_addr = h8.load_elf("./osbook_03/03/bootload/kzload");
+    uint32_t start_addr = h8.load_elf("./osbook_03/04/bootload/kzload");
     printf("Start execution from 0x%x\n", start_addr);
 
     // 本当はリセット割り込みを発生させて開始するべき

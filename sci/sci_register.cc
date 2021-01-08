@@ -39,9 +39,28 @@ bool SciRegister::get_scr_te()
     return memory.read_uint8(scr_address) & (1<<5);
 }
 
+void SciRegister::set_rdr(uint8_t data)
+{
+    memory.write_uint8(rdr_address, data);
+}
+
 uint8_t SciRegister::get_tdr()
 {
     return memory.read_uint8(tdr_address);
+}
+
+bool SciRegister::get_ssr_rdrf()
+{
+    return memory.read_uint8(ssr_address) & (1<<6);
+}
+
+void SciRegister::set_ssr_rdrf(bool b) {
+    uint8_t rdrf = get_ssr_rdrf();
+    if (b) {
+        memory.write_uint8(ssr_address, rdrf | (1<<6));
+    } else {
+        memory.write_uint8(ssr_address, rdrf & ~(1<<6));
+    }
 }
 
 bool SciRegister::get_ssr_tdre()

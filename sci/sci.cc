@@ -4,6 +4,10 @@
 #include "sci.h"
 #include "sci_register.h"
 
+// todo: 標準入出力が H8 に渡されているが、デバッガへの入力はどう扱う？
+// いったん標準入力を受け付けるクラスを作って、そこから状態に応じてふりわける
+// それか、デバッガでブレークしているときは sci を一時停止させる？
+
 void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate)
 {
     Sci sci(index, memory, terminate);
@@ -13,12 +17,36 @@ void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate)
 Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate)
     : index(index), terminate(terminate), sci_register(index, memory)
 {
+	timeout.tv_sec = 0; 
+	timeout.tv_usec = 0;
 }
 
 // CPU から送信要求がきたか？
 bool Sci::send_requested() {
     // SSR_TDRE が 0 になったら、要求がきたということ
     return sci_register.get_ssr_tdre() == false;
+}
+
+void Sci::process_recv_request()
+{
+    // select が fdset をクリアするので毎回設定する必要がある
+    FD_ZERO(&fdset);
+	FD_SET(0, &fdset);
+
+	int ret = select(0 + 1, &fdset , NULL , NULL , &timeout);
+    if (ret == 1) {
+        // 標準入力にデータがきている
+
+        if (sci_register.get_ssr_rdrf()) {
+            // まだ H8 が処理していないので何もしない
+            return;
+        }
+
+        // H8 に渡すデータは RDR に書き込んでおく
+        sci_register.set_rdr(fgetc(stdin));
+        // RDRF を 1 にして H8 に通知
+        sci_register.set_ssr_rdrf(true);
+    }
 }
 
 void Sci::process_send_request() {
@@ -28,6 +56,7 @@ void Sci::process_send_request() {
 
         // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
         putc(data, stdout);
+        fflush(stdout);
 
         // 送信が終わったらSSR_TDRE を 1 にして送信可能を通知
         sci_register.set_ssr_tdre(true);
@@ -45,5 +74,8 @@ void Sci::run()
 
         // 送信要求がきていたら処理
         process_send_request();
+
+        // (H8 の SCI1 がつながっている)標準入力からデータがきたら処理する
+        process_recv_request();
     }
 }
