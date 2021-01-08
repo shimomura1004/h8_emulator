@@ -4,17 +4,19 @@ int h8instructions::exts::exts_w(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t register_index = (b1 & 0x0f);
-    Register32& reg = h8->reg[register_index];
+    Register32& reg = h8->reg[register_index % 8];
 
-    uint8_t rl = reg.get_rl();
-    uint8_t rl_msb = rl >> 7;
+    uint8_t value = (register_index < 8) ? reg.get_r() : reg.get_e();
+    // 下位8ビットの MSB (符号ビット)を抜き出す
+    bool lower_sign_bit = value & 0x0080;
 
-    if (rl_msb) {
-        // 最上位ビットが1なので負数
-        reg.set_rh(0xff);
+    if (lower_sign_bit) {
+        // 最上位ビットが1なので負数、上位1バイトを1で埋める
+        (register_index < 8) ? reg.set_r(0xff00 | value) : reg.set_e(0xff00 | value);
         h8->ccr.set_n();
     } else {
-        reg.set_rh(0x00);
+        // 上位1バイトを 0 で埋める
+        (register_index < 8) ? reg.set_r(0x00ff & value) : reg.set_r(0x00ff & value);
         h8->ccr.clear_n();
     }
 
