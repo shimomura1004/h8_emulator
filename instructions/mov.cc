@@ -1,5 +1,6 @@
 #include "mov.h"
 
+// todo: テンプレートでちゃんとやる
 // todo: 種類ごとにファイルに分ける
 
 static void update_ccr(H8300H* h8300h, int32_t value) {
@@ -251,10 +252,26 @@ static int pre_decrement_register_indirect_l(H8300H* h8)
     return 0;
 }
 
-// static int absolute_address(H8300H* h8)
-// {
-//     return -1;
-// }
+static int absolute_address_24_w(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t dst_register_index = b1 & 0x0f;
+    Register32& dst = h8->reg[dst_register_index];
+
+    uint8_t absolute[4];
+    absolute[3] = 0;
+    absolute[2] = h8->fetch_instruction_byte(3);
+    absolute[1] = h8->fetch_instruction_byte(4);
+    absolute[0] = h8->fetch_instruction_byte(5);
+    int32_t value = *(int32_t*)absolute;
+
+    (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
+
+    update_ccr(h8, value);
+    h8->pc += 6;
+
+    return -1;
+}
 
 static int immediate_b(H8300H* h8)
 {
@@ -378,6 +395,17 @@ int h8instructions::mov::mov(H8300H* h8)
 
     switch (b0) {
     case 0x68: return register_indirect_b(h8);
+    case 0x6b: {
+        uint8_t b1 = h8->fetch_instruction_byte(1);
+        uint8_t b1h = (b1 & 0xf0) >> 4;
+        switch (b1h) {
+            case 0x00: return -1;
+            case 0x02: return absolute_address_24_w(h8);
+            case 0x08: return -1;
+            case 0x0a: return -1;
+            default:   return -1;
+        }
+    }
     case 0x6c: {
         uint8_t b1 = h8->fetch_instruction_byte(1);
         if ((b1 & 0x80) == 0) {
