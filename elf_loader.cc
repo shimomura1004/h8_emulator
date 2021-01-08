@@ -161,7 +161,7 @@ static int elf_load_program(struct elf_header *header, unsigned char buf[], Inne
 
 uint32_t ElfLoader::load(InnerMemory* memory, std::string filepath)
 {
-    // ヘッダ部分は実行時には不要、一時変数に展開して使う
+    // ヘッダ部分は実行時には不要、一時変数 buf に展開して使う
     // セグメントは実行時に必要、memory に書き込む
 
     FILE* fp = fopen(filepath.c_str(), "rb");

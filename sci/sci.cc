@@ -39,6 +39,7 @@ void Sci::run()
     printf("SCI(%d) started\n", index);
 
     while (!terminate) {
+        // todo: イベントドリブンにする
         // 少し動作を遅くする
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 

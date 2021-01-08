@@ -5,6 +5,10 @@
 #include <string>
 
 class InnerMemory {
+    const static uint32_t memory_size;
+    const static uint32_t rom_start_address;
+    const static uint32_t rom_end_address;
+
 private:
     uint8_t *memory;
 

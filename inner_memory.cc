@@ -2,9 +2,13 @@
 #include "inner_memory.h"
 #include "elf_loader.h"
 
+const uint32_t InnerMemory::memory_size       = 0x01000000;
+const uint32_t InnerMemory::rom_start_address = 0x00000000;
+const uint32_t InnerMemory::rom_end_address   = 0x00080000;
+
 InnerMemory::InnerMemory()
 {
-    memory = (uint8_t*)malloc(sizeof(uint8_t) * 16 * 1024 * 1024);
+    memory = (uint8_t*)malloc(sizeof(uint8_t) * memory_size);
 }
 
 InnerMemory::~InnerMemory()
@@ -35,7 +39,11 @@ uint8_t InnerMemory::read_uint8(uint32_t address)
 
 void InnerMemory::write_uint8(uint32_t address, uint8_t value)
 {
-    memory[address] = value;
+    if ((rom_start_address <= address) && (address < rom_end_address)) {
+        fprintf(stderr, "Warning: attempted to write to ROM. Ignored.\n");
+    } else {
+        memory[address] = value;
+    }
 }
 
 uint16_t InnerMemory::read_uint16(uint32_t address)
@@ -45,7 +53,11 @@ uint16_t InnerMemory::read_uint16(uint32_t address)
 
 void InnerMemory::write_uint16(uint32_t address, uint16_t value)
 {
-    *(uint16_t*)&memory[address] = __builtin_bswap16(value);
+    if ((rom_start_address <= address) && (address < rom_end_address)) {
+        fprintf(stderr, "Warning: attempted to write to ROM. Ignored.\n");
+    } else {
+        *(uint16_t*)&memory[address] = __builtin_bswap16(value);
+    }
 }
 
 uint32_t InnerMemory::read_uint32(uint32_t address)
@@ -55,7 +67,11 @@ uint32_t InnerMemory::read_uint32(uint32_t address)
 
 void InnerMemory::write_uint32(uint32_t address, uint32_t value)
 {
-    *(uint32_t*)&memory[address] = __builtin_bswap32(value);
+    if ((rom_start_address <= address) && (address < rom_end_address)) {
+        fprintf(stderr, "Warning: attempted to write to ROM. Ignored.\n");
+    } else {
+        *(uint32_t*)&memory[address] = __builtin_bswap32(value);
+    }
 }
 
 void InnerMemory::dump(std::string filepath)
@@ -65,7 +81,7 @@ void InnerMemory::dump(std::string filepath)
         return;
     }
 
-    fwrite(memory, sizeof(uint8_t), 16 * 1024 * 1024, fp);
+    fwrite(memory, sizeof(uint8_t), memory_size, fp);
 
     fclose(fp);
 }
