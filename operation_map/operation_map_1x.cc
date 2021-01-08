@@ -5,6 +5,7 @@
 #include "../instructions/subs.h"
 #include "../instructions/shlr.h"
 #include "../instructions/dec.h"
+#include "../instructions/extu.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -79,7 +80,7 @@ instruction_handler_t lookup_17(H8300H* h8300h)
     case 0x00:
     case 0x01: return nullptr; // NOT
     case 0x03: return nullptr; // NOT
-    case 0x05: return nullptr; // EXTU
+    case 0x05: return h8instructions::extu::extu_w;
     case 0x07: return nullptr; // EXTU
     case 0x08:
     case 0x09: return nullptr; // NEG
