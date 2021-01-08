@@ -72,10 +72,13 @@ int h8instructions::sub::sub_immediate_l(H8300H *h8)
     uint8_t dst_register_index = (b1 & 0x07);
     Register32& dst = h8->reg[dst_register_index];
 
-    uint8_t immediate[2];
-    immediate[1] = h8->fetch_instruction_byte(2);
-    immediate[0] = h8->fetch_instruction_byte(3);
-    int16_t src_value = *(int16_t*)immediate;
+    // H8 仕様書が間違っている…
+    uint8_t immediate[4];
+    immediate[3] = h8->fetch_instruction_byte(2);
+    immediate[2] = h8->fetch_instruction_byte(3);
+    immediate[1] = h8->fetch_instruction_byte(4);
+    immediate[0] = h8->fetch_instruction_byte(5);
+    int32_t src_value = *(int32_t*)immediate;
 
     int32_t dst_value = dst.get_er();
     int32_t result_value = dst_value - src_value;
@@ -83,7 +86,7 @@ int h8instructions::sub::sub_immediate_l(H8300H *h8)
 
     update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
 
-    h8->pc += 4;
+    h8->pc += 6;
 
     return 0;
 }
