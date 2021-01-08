@@ -23,6 +23,7 @@ void Runner::set_breakpoint(char *buf)
     }
 }
 
+// todo: メモリの内容を一部確認するコマンドがほしい
 int Runner::proccess_debugger_command()
 {
     if (continue_mode) {
