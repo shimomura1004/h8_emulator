@@ -1,7 +1,7 @@
 #include "dec.h"
 
 template<int n, class T>
-void update_ccr_n(H8300H* h8, T dst_value, T result_value)
+static void update_ccr(H8300H* h8, T dst_value, T result_value)
 {
     bool dst_value_nth_bit = dst_value & (1 << (n - 1));
     bool result_value_nth_bit = result_value & (1 << (n - 1));
@@ -37,7 +37,7 @@ int h8instructions::dec::dec_w(H8300H *h8)
     }
     (register_index < 8) ? reg.set_r(result_value) : reg.set_e(result_value);
 
-    update_ccr_n<16, int16_t>(h8, dst_value, result_value);
+    update_ccr<16, int16_t>(h8, dst_value, result_value);
 
     h8->pc += 2;
 

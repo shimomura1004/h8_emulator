@@ -1,7 +1,7 @@
 #include "add.h"
 
 template<int n, class T>
-void update_ccr_n(H8300H* h8, T src_value, T dst_value, T result_value)
+static void update_ccr(H8300H* h8, T src_value, T dst_value, T result_value)
 {
     bool src_value_nth_bit = src_value & (1 << (n - 4 - 1));
     bool dst_value_nth_bit = dst_value & (1 << (n - 4 - 1));
@@ -40,7 +40,7 @@ int h8instructions::add::add_immediate_b(H8300H* h8)
     int8_t result_value = src_value + dst_value;
     (dst_register_index < 8) ? dst.set_rh(result_value) : dst.set_rl(result_value);
 
-    update_ccr_n<8, int8_t>(h8, src_value, dst_value, result_value);
+    update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
 
     h8->pc += 2;
 
@@ -64,7 +64,7 @@ int h8instructions::add::add_immediate_l(H8300H* h8)
     int32_t result_value = src_value + dst_value;
     dst.set_er(result_value);
 
-    update_ccr_n<32, int32_t>(h8, src_value, dst_value, result_value);
+    update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
 
     h8->pc += 6;
 
