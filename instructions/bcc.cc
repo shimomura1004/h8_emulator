@@ -7,6 +7,17 @@ int h8instructions::bcc::bra_8(H8300H* h8)
     return 0;
 }
 
+int h8instructions::bcc::bra_16(H8300H* h8)
+{
+    uint8_t displacement[2];
+    displacement[1] = h8->fetch_instruction_byte(2);
+    displacement[0] = h8->fetch_instruction_byte(3);
+    int16_t disp = *(int16_t*)displacement;
+
+    h8->pc += 4 + disp;
+    return 0;
+}
+
 int h8instructions::bcc::bls_8(H8300H* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
