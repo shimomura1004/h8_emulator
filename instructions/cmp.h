@@ -6,7 +6,8 @@
 namespace h8instructions {
 namespace cmp {
 
-int cmp_b(H8300H *h8);
+int cmp_immediate_b(H8300H *h8);
+int cmp_register_direct_b(H8300H *h8);
 
 }
 }

@@ -6,6 +6,7 @@
 #include "../instructions/shlr.h"
 #include "../instructions/dec.h"
 #include "../instructions/extu.h"
+#include "../instructions/cmp.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -164,7 +165,7 @@ instruction_handler_t lookup_1x(H8300H *h8300h)
     case 0x09: return h8instructions::sub::sub_w;
     case 0x0a: return lookup_1A(h8300h);
     case 0x0b: return lookup_1B(h8300h);
-    case 0x0c:
+    case 0x0c: return h8instructions::cmp::cmp_register_direct_b;
     case 0x0d: return nullptr; // CMP
     case 0x0e: return nullptr; // SUBX 
     case 0x0f: return lookup_1F(h8300h);
