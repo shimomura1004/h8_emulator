@@ -31,11 +31,11 @@ void update_ccr_n(H8300H* h8, T src_value, T dst_value, T result_value)
 
 int h8instructions::add::add_immediate_b(H8300H* h8)
 {
-    uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t dst_register_index = (b1 & 0x0f);
+    uint8_t b0 = h8->fetch_instruction_byte(0);
+    uint8_t dst_register_index = (b0 & 0x0f);
     Register32& dst = h8->reg[dst_register_index % 8];
 
-    int8_t src_value = h8->fetch_instruction_byte(2);
+    int8_t src_value = h8->fetch_instruction_byte(1);
     int8_t dst_value = (dst_register_index < 8) ? dst.get_rh() : dst.get_rl();
     int8_t result_value = src_value + dst_value;
     (dst_register_index < 8) ? dst.set_rh(result_value) : dst.set_rl(result_value);
