@@ -22,7 +22,7 @@ instruction_handler_t lookup_4x(H8300H *h8300h)
     case 0x0c: return nullptr; // BGE
     case 0x0d: return nullptr; // BLT
     case 0x0e: return nullptr; // BGT
-    case 0x0f: return nullptr; // BLE
+    case 0x0f: return h8instructions::bcc::ble_8;
     default:   return nullptr;
     }
 }
