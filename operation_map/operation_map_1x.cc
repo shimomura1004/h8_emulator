@@ -4,6 +4,7 @@
 #include "../instructions/sub.h"
 #include "../instructions/subs.h"
 #include "../instructions/shlr.h"
+#include "../instructions/dec.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -95,7 +96,7 @@ instruction_handler_t lookup_1A(H8300H* h8300h)
     uint8_t bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return nullptr; // DEC
+    case 0x00: return h8instructions::dec::dec_b;
     case 0x08:
     case 0x09:
     case 0x0a:
@@ -115,8 +116,8 @@ instruction_handler_t lookup_1B(H8300H* h8300h)
 
     switch (bh) {
     case 0x00: return h8instructions::subs::subs;
-    case 0x05: return nullptr; // DEC
-    case 0x07: return nullptr; // DEC
+    case 0x05: return h8instructions::dec::dec_w;
+    case 0x07: return h8instructions::dec::dec_l;
     case 0x08:
     case 0x09: return h8instructions::subs::subs;
     case 0x0d: return nullptr; // DEC
