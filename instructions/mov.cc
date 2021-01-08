@@ -296,6 +296,28 @@ static int absolute_address_24_w_from_reg(H8300H* h8)
     return 0;
 }
 
+static int absolute_address_24_l_to_reg(H8300H* h8)
+{
+    uint8_t b3 = h8->fetch_instruction_byte(3);
+    uint8_t dst_register_index = b3 & 0x07;
+    Register32& dst = h8->reg[dst_register_index];
+
+    uint8_t absolute[4];
+    absolute[3] = 0;
+    absolute[2] = h8->fetch_instruction_byte(5);
+    absolute[1] = h8->fetch_instruction_byte(6);
+    absolute[0] = h8->fetch_instruction_byte(7);
+    int32_t abs = *(int32_t*)absolute;
+
+    int32_t value = h8->memory.read_uint32(abs);
+    dst.set_er(value);
+
+    update_ccr(h8, value);
+    h8->pc += 8;
+
+    return 0;
+}
+
 static int absolute_address_24_l_from_reg(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
@@ -475,7 +497,7 @@ int h8instructions::mov::mov(H8300H* h8)
             uint8_t b3 = h8->fetch_instruction_byte(3);
             switch ((b3 & 0xf0) >> 4) {
             case 0x0a: return absolute_address_24_l_from_reg(h8);
-            default:   return -1;
+            default:   return absolute_address_24_l_to_reg(h8);
             }
         }
         case 0x6d: {
