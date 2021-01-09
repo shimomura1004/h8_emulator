@@ -167,6 +167,32 @@ static int displacement_register_indirect24_b(H8300H* h8)
 //     return -1;
 // }
 
+static int displacement_register_indirect16_l_from_reg(H8300H* h8)
+{
+    uint8_t b3 = h8->fetch_instruction_byte(3);
+    uint8_t dst_register_index = (b3 & 0x70) >> 4;
+    uint8_t src_register_index = (b3 & 0x07);
+    const Register32 dst = h8->reg[dst_register_index];
+    const Register32 src = h8->reg[src_register_index];
+
+    uint8_t displacement[2];
+    displacement[1] = h8->fetch_instruction_byte(4);
+    displacement[0] = h8->fetch_instruction_byte(5);
+    int16_t disp = *(int16_t*)displacement;
+
+    int32_t value = src.get_er();
+    uint32_t address = dst.get_er() + disp;
+    h8->memory.write_uint32(address, value);
+
+    (value < 0) ? h8->ccr.set_n() : h8->ccr.clear_n();
+    (value == 0) ? h8->ccr.set_z() : h8->ccr.clear_z();
+    h8->ccr.clear_v();
+
+    h8->pc += 6;
+
+    return 0;
+}
+
 static int displacement_register_indirect24_l(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
@@ -491,7 +517,6 @@ int h8instructions::mov::mov(H8300H* h8)
         uint8_t b2 = h8->fetch_instruction_byte(2);
         switch (b2) {
         //case 0x69: return register_indirect(h8);
-        //case 0x6f: return displacement_register_indirect16(h8);
         case 0x78: return displacement_register_indirect24_l(h8);
         case 0x6b: {
             uint8_t b3 = h8->fetch_instruction_byte(3);
@@ -508,7 +533,14 @@ int h8instructions::mov::mov(H8300H* h8)
                 return pre_decrement_register_indirect_l(h8);
             }
         }
-        //case 0x6b: return absolute_address(h8);
+        case 0x6f: {
+            uint8_t b3 = h8->fetch_instruction_byte(3);
+            if (b3 & 0x80) {
+                return displacement_register_indirect16_l_from_reg(h8);
+            } else {
+                return -1;
+            }
+        }
         default: return -1;
         }
     }
