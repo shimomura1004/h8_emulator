@@ -59,6 +59,7 @@ void Runner::load_file_command(char *buf)
 }
 
 // todo: メモリの内容を一部確認するコマンドがほしい
+// todo: レジスタを書き換えるコマンドがほしい
 int Runner::proccess_debugger_command()
 {
     if (continue_mode) {

@@ -7,8 +7,6 @@
 #include "sci_register.h"
 
 class Sci {
-    // const static int buffer_size = 256;
-
 public:
     static void start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex);
 
@@ -20,11 +18,12 @@ private:
 
     fd_set fdset;
 	struct timeval timeout;
-    // char buffer[buffer_size];
-    // uint16_t buffer_len;
+    int ser_fd;
+
     std::queue<char> buffer;
 
     Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex);
+    ~Sci();
     bool send_requested();
     void process_recv_request();
     void process_send_request();
