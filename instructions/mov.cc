@@ -105,6 +105,38 @@ static int displacement_register_indirect16_b(H8300H* h8)
     return 0;
 }
 
+static int displacement_register_indirect16_w(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t b1_msb = b1 & 0x80;
+
+    uint8_t displacement[2];
+    displacement[1] = h8->fetch_instruction_byte(2);
+    displacement[0] = h8->fetch_instruction_byte(3);
+    int16_t disp = *(int16_t*)displacement;
+
+    if (b1_msb) {
+        // Rs,@(d:16,ERd)
+        uint8_t dst_register_index = (b1 & 0x70) >> 4;
+        uint8_t src_register_index = (b1 & 0x0f);
+        Register32& dst = h8->reg[dst_register_index % 8];
+        const Register32& src = h8->reg[src_register_index];
+
+        uint32_t address = src.get_er() + disp;
+        uint16_t value = h8->memory.read_uint16(address);
+        (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
+
+        update_ccr(h8, value);
+    } else {
+        // @(d:16,ERs),Rd
+        return -1;
+    }
+
+    h8->pc += 4;
+
+    return 0;
+}
+
 static int displacement_register_indirect24_b(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
@@ -147,6 +179,7 @@ static int displacement_register_indirect24_b(H8300H* h8)
         // }
 
         // update_ccr(h8, value);
+        return -1;
     } else {
         fprintf(stderr, "Unknown mov.b format\n");
         return -1;
@@ -508,6 +541,7 @@ int h8instructions::mov::mov(H8300H* h8)
         }
     }
     case 0x6e: return displacement_register_indirect16_b(h8);
+    case 0x6f: return displacement_register_indirect16_w(h8);
     case 0xf0: case 0xf1: case 0xf2: case 0xf3:
     case 0xf4: case 0xf5: case 0xf6: case 0xf7:
     case 0xf8: case 0xf9: case 0xfa: case 0xfb:
