@@ -10,8 +10,11 @@ class Runner {
     std::set<uint32_t> breakpoints;
     std::mutex& mutex;
 
-    void print_help();
-    void set_breakpoint(char *buf);
+    bool load_file_to_memory(uint32_t address, char *filename);
+
+    void print_help_command();
+    void set_breakpoint_command(char *buf);
+    void load_file_command(char *buf);
 
 public:
     Runner(H8300H& h8) : h8(h8), continue_mode(false), mutex(h8.get_mutex()) {}

@@ -1,6 +1,22 @@
 #include "runner.h"
 
-void Runner::print_help()
+bool Runner::load_file_to_memory(uint32_t address, char *filename)
+{
+    FILE* fp = fopen(filename, "rb");
+    if (!fp) {
+        return false;
+    }
+
+    int data;
+    while ((data = fgetc(fp)) != EOF) {
+        h8.memory.write_uint8(address++, data);
+    }
+
+    fclose(fp);
+    return true;
+}
+
+void Runner::print_help_command()
 {
     printf("  h: print help\n");
     printf("  r: print register status\n");
@@ -8,16 +24,35 @@ void Runner::print_help()
     printf("  s: next step\n");
     printf("  c: continue execution until breakpoint\n");
     printf("  b (address): set break point\n");
+    printf("  l (address) (filename): load file content to address\n");
     printf("  q: quit\n");
 }
 
-void Runner::set_breakpoint(char *buf)
+void Runner::set_breakpoint_command(char *buf)
 {
     uint32_t address = 0;
     int ret = sscanf(buf + 1, "%x\n", &address);
     if (ret == 1) {
         printf("Set breakpoint at 0x%08x\n", address);
         breakpoints.insert(address);
+    } else {
+        printf("Syntax error\n");
+    }
+}
+
+void Runner::load_file_command(char *buf)
+{
+    uint32_t address = 0;
+    char filename[256];
+    int ret = sscanf(buf + 1, "%x %s\n", &address, filename);
+    if (ret == 2) {
+        printf("Load %s to address 0x%08x\n", filename, address);
+       bool ret = load_file_to_memory(address, filename);
+       if (ret) {
+           printf("%s was loaded successfully.\n", filename);
+        } else {
+           printf("%s not found. Ignored.\n", filename);
+       }
     } else {
         printf("Syntax error\n");
     }
@@ -49,7 +84,7 @@ int Runner::proccess_debugger_command()
         case 0x0a:
             return 0;
         case 'h':
-            print_help();
+            print_help_command();
             break;
         case 'r':
             h8.print_registers();
@@ -64,7 +99,10 @@ int Runner::proccess_debugger_command()
             continue_mode = true;
             return 0;
         case 'b':
-            set_breakpoint(buf);
+            set_breakpoint_command(buf);
+            break;
+        case 'l':
+            load_file_command(buf);
             break;
         case 'q':
             return -1;
