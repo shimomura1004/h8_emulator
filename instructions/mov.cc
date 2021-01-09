@@ -119,6 +119,18 @@ static int displacement_register_indirect16_w(H8300H* h8)
         // Rs,@(d:16,ERd)
         uint8_t dst_register_index = (b1 & 0x70) >> 4;
         uint8_t src_register_index = (b1 & 0x0f);
+        Register32& dst = h8->reg[dst_register_index];
+        const Register32& src = h8->reg[src_register_index % 8];
+
+        uint16_t value = (src_register_index < 8) ? src.get_r() : src.get_e();
+        uint32_t address = dst.get_er() + disp;
+        h8->memory.write_uint16(address, value);
+
+        update_ccr(h8, value);
+    } else {
+        // @(d:16,ERs),Rd
+        uint8_t src_register_index = (b1 & 0x70) >> 4;
+        uint8_t dst_register_index = (b1 & 0x0f);
         Register32& dst = h8->reg[dst_register_index % 8];
         const Register32& src = h8->reg[src_register_index];
 
@@ -127,9 +139,6 @@ static int displacement_register_indirect16_w(H8300H* h8)
         (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
 
         update_ccr(h8, value);
-    } else {
-        // @(d:16,ERs),Rd
-        return -1;
     }
 
     h8->pc += 4;
