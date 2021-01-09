@@ -12,6 +12,7 @@ int bls_8(H8300H* h8);
 int bne_8(H8300H* h8);
 int bne_16(H8300H* h8);
 int beq_8(H8300H* h8);
+int beq_16(H8300H* h8);
 int bge_8(H8300H* h8);
 int ble_8(H8300H* h8);
 
