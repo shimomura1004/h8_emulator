@@ -10,6 +10,7 @@
 #include "../instructions/sub.h"
 #include "../instructions/cmp.h"
 #include "../instructions/bclr.h"
+#include "../instructions/btst.h"
 
 instruction_handler_t lookup_7x(H8300H *h8300h)
 {
@@ -20,7 +21,7 @@ instruction_handler_t lookup_7x(H8300H *h8300h)
     case 0x00: return nullptr; // BSET
     case 0x01: return nullptr; // BNOT
     case 0x02: return h8instructions::bclr::bclr_register_direct_imm;
-    case 0x03: return nullptr; // BTST
+    case 0x03: return h8instructions::btst::btst_register_direct_imm;
     case 0x04: return lookup_74(h8300h);
     case 0x05: return lookup_75(h8300h);
     case 0x06: return lookup_76(h8300h);
