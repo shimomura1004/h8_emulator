@@ -1,10 +1,11 @@
 #include "mov.h"
 
-// todo: テンプレートでちゃんとやる
 // todo: 種類ごとにファイルに分ける
 
-static void update_ccr(H8300H* h8300h, int32_t value) {
+template<class T>
+static void update_ccr(H8300H* h8300h, T value) {
     CCR& ccr = h8300h->ccr;
+
     if (value < 0) {
         ccr.set_n();
     } else {
@@ -36,7 +37,7 @@ static int register_indirect_b(H8300H* h8)
         uint32_t address = dst.get_er();
         h8->memory.write_uint8(address, value);
 
-        update_ccr(h8, value);
+        update_ccr<int8_t>(h8, value);
     } else {
         // @ERs,Rd
         uint8_t src_register_index = (b1 & 0x70) >> 4;
@@ -52,7 +53,7 @@ static int register_indirect_b(H8300H* h8)
             dst.set_rl(value);
         }
 
-        update_ccr(h8, value);
+        update_ccr<int8_t>(h8, value);
     }
 
     h8->pc += 2;
@@ -81,23 +82,19 @@ static int displacement_register_indirect16_b(H8300H* h8)
         uint32_t address = dst.get_er() + disp;
         h8->memory.write_uint8(address, value);
 
-        update_ccr(h8, value);
+        update_ccr<int8_t>(h8, value);
     } else {
         // @(d:16,ERs),Rd
         uint8_t src_register_index = (b1 & 0x70) >> 4;
         uint8_t dst_register_index = (b1 & 0x0f);
-        Register32& src = h8->reg[src_register_index];
+        const Register32& src = h8->reg[src_register_index];
         Register32& dst = h8->reg[dst_register_index % 8];
 
         uint32_t address = src.get_er() + disp;
         uint8_t value = h8->memory.read_uint8(address);
-        if (dst_register_index < 8) {
-            dst.set_rh(value);
-        } else {
-            dst.set_rl(value);
-        }
+        (dst_register_index < 8) ? dst.set_rh(value) : dst.set_rl(value);
 
-        update_ccr(h8, value);
+        update_ccr<int8_t>(h8, value);
     }
 
     h8->pc += 4;
@@ -126,7 +123,7 @@ static int displacement_register_indirect16_w(H8300H* h8)
         uint32_t address = dst.get_er() + disp;
         h8->memory.write_uint16(address, value);
 
-        update_ccr(h8, value);
+        update_ccr<int16_t>(h8, value);
     } else {
         // @(d:16,ERs),Rd
         uint8_t src_register_index = (b1 & 0x70) >> 4;
@@ -138,7 +135,7 @@ static int displacement_register_indirect16_w(H8300H* h8)
         uint16_t value = h8->memory.read_uint16(address);
         (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
 
-        update_ccr(h8, value);
+        update_ccr<int16_t>(h8, value);
     }
 
     h8->pc += 4;
@@ -170,7 +167,7 @@ static int displacement_register_indirect24_b(H8300H* h8)
         uint8_t value = h8->memory.read_uint8(address);
         (dst_register_index < 8) ? dst.set_rh(value) : dst.set_rl(value);
 
-        update_ccr(h8, value);
+        update_ccr<int8_t>(h8, value);
     } else if (b3h == 0x0a) {
         // // Rs,@(d:24,ERd)
         // uint8_t src_register_index = (b1 & 0x70) >> 4;
@@ -187,7 +184,7 @@ static int displacement_register_indirect24_b(H8300H* h8)
         //     dst.set_rl(value);
         // }
 
-        // update_ccr(h8, value);
+        // update_ccr<int8_t>(h8, value);
         return -1;
     } else {
         fprintf(stderr, "Unknown mov.b format\n");
@@ -310,7 +307,7 @@ static int post_increment_register_indirect_b(H8300H* h8)
         dst.set_rl(value);
     }
 
-    update_ccr(h8, value);
+    update_ccr<int8_t>(h8, value);
     h8->pc += 2;
 
     return 0;
@@ -326,7 +323,7 @@ static int post_increment_register_indirect_l(H8300H* h8)
     uint32_t value = h8->pop_from_stack_l(src_register_index);
     dst.set_er(value);
 
-    update_ccr(h8, value);
+    update_ccr<int32_t>(h8, value);
     h8->pc += 4;
 
     return 0;
@@ -340,7 +337,7 @@ static int pre_decrement_register_indirect_l(H8300H* h8)
     Register32& src = h8->reg[src_register_index];
 
     h8->push_to_stack_l(src.get_er(), dst_register_index);
-    update_ccr(h8, src.get_er());
+    update_ccr<int32_t>(h8, src.get_er());
     h8->pc += 4;
 
     return 0;
@@ -362,7 +359,7 @@ static int absolute_address_24_w_to_reg(H8300H* h8)
     uint16_t value = h8->memory.read_uint16(abs);
     (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
 
-    update_ccr(h8, value);
+    update_ccr<int16_t>(h8, value);
     h8->pc += 6;
 
     return 0;
@@ -384,7 +381,7 @@ static int absolute_address_24_w_from_reg(H8300H* h8)
     uint16_t value = (src_register_index < 8) ? src.get_r() : src.get_e();
     h8->memory.write_uint16(abs, value);
 
-    update_ccr(h8, value);
+    update_ccr<int16_t>(h8, value);
     h8->pc += 6;
 
     return 0;
@@ -406,7 +403,7 @@ static int absolute_address_24_l_to_reg(H8300H* h8)
     int32_t value = h8->memory.read_uint32(abs);
     dst.set_er(value);
 
-    update_ccr(h8, value);
+    update_ccr<int32_t>(h8, value);
     h8->pc += 8;
 
     return 0;
@@ -428,7 +425,7 @@ static int absolute_address_24_l_from_reg(H8300H* h8)
     uint32_t value = src.get_er();
     h8->memory.write_uint32(abs, value);
 
-    update_ccr(h8, value);
+    update_ccr<int32_t>(h8, value);
     h8->pc += 8;
 
     return 0;
@@ -447,7 +444,7 @@ static int immediate_b(H8300H* h8)
         reg.set_rl(value);
     }
 
-    update_ccr(h8, value);
+    update_ccr<int8_t>(h8, value);
     h8->pc += 2;
 
     return 0;
@@ -466,7 +463,7 @@ static int immediate_w(H8300H* h8)
     int16_t imm = *(int16_t*)immediate;
 
     reg.set_r(imm);
-    update_ccr(h8, imm);
+    update_ccr<int16_t>(h8, imm);
     h8->pc += 4;
 
     return 0;
@@ -487,7 +484,7 @@ static int immediate_l(H8300H* h8)
     int32_t imm = *(int32_t*)immediate;
 
     reg.set_er(imm);
-    update_ccr(h8, imm);
+    update_ccr<int32_t>(h8, imm);
     h8->pc += 6;
 
     return 0;
@@ -504,11 +501,9 @@ static int register_direct_b(H8300H* h8)
     uint8_t value = (src_register_index < 8)
                         ? src.get_rh()
                         : src.get_rl();
-    (dst_register_index < 8)
-        ? dst.set_rh(value)
-        : dst.set_rl(value);
+    (dst_register_index < 8) ? dst.set_rh(value) : dst.set_rl(value);
 
-    update_ccr(h8, value);
+    update_ccr<int8_t>(h8, value);
     h8->pc += 2;
 
     return 0;
@@ -525,11 +520,9 @@ static int register_direct_w(H8300H* h8)
     uint8_t value = (src_register_index < 8)
                         ? src.get_r()
                         : src.get_e();
-    (dst_register_index < 8)
-        ? dst.set_r(value)
-        : dst.set_e(value);
+    (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
 
-    update_ccr(h8, value);
+    update_ccr<int8_t>(h8, value);
     h8->pc += 2;
 
     return 0;
@@ -544,7 +537,7 @@ static int register_direct_l(H8300H* h8)
     Register32& dst = h8->reg[dst_register_index];
 
     dst.set_er(src.get_er());
-    update_ccr(h8, src.get_er());
+    update_ccr<int32_t>(h8, src.get_er());
     h8->pc += 2;
 
     return 0;
