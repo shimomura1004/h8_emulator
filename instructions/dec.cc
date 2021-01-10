@@ -46,5 +46,28 @@ int h8instructions::dec::dec_w(H8300H *h8)
 
 int h8instructions::dec::dec_l(H8300H *h8)
 {
-    return -1;
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t b1h = (b1 & 0xf0) >> 4;
+    uint8_t dst_register_index = b1 & 0x07;
+    Register32& dst = h8->reg[dst_register_index];
+
+    int32_t dst_value = dst.get_er();
+    int32_t result_value = dst_value;
+    switch (b1h) {
+    case 0x07:
+        result_value -= 1;
+        break;
+    case 0x0f:
+        result_value -= 2;
+        break;
+    default:
+        return -1;
+    }
+    dst.set_er(result_value);
+
+    update_ccr<32, int32_t>(h8, dst_value, result_value);
+
+    h8->pc += 2;
+
+    return 0;
 }
