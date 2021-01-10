@@ -1,9 +1,5 @@
 #include <thread>
 #include <chrono>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 #include "sci.h"
 #include "sci_register.h"
@@ -24,11 +20,6 @@ Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
 	timeout.tv_usec = 0;
 }
 
-Sci::~Sci()
-{
-    close(ser_fd);
-}
-
 // CPU から送信要求がきたか？
 bool Sci::send_requested() {
     // SSR_TDRE が 0 になったら、要求がきたということ
@@ -43,28 +34,14 @@ void Sci::process_recv_request()
     // select が fdset をクリアするので毎回設定する必要がある
     FD_ZERO(&fdset);
 	FD_SET(0, &fdset);
-    FD_SET(ser_fd, &fdset);
 
-	int ret = select(ser_fd + 1, &fdset , NULL , NULL , &timeout);
+    int ret = select(0 + 1, &fdset , NULL , NULL , &timeout);
     if (ret == 1) {
         // 標準入力にデータがある
         if (FD_ISSET(0, &fdset)) {
             while (1) {
                 buffer.push(fgetc(stdin));
                 if (buffer.back() == 0x0a) {
-                    break;
-                }
-            }
-        }
-
-        // 名前付きパイプにデータがある
-        if (FD_ISSET(ser_fd, &fdset)) {
-            ssize_t size;
-            char c;
-            while (1) {
-                size = read(ser_fd, &c, 1);
-                buffer.push(c);
-                if (size == 0) {
                     break;
                 }
             }
@@ -104,23 +81,8 @@ void Sci::process_send_request() {
     }
 }
 
-// 途中で標準入力からバイナリを流し込みたいので
-// sci は名前付きパイプを作ってそこからも読むようにする
 void Sci::run()
 {
-    char pipe_name[5];
-    sprintf(pipe_name, "ser%d", index);
-    int ret = mkfifo("pipe_name", 0666);
-    if (ret == -1) {
-        fprintf(stderr, "Warning: Failed to create ser1 (maybe already exits?)\n");
-    } else {
-        printf("Created named pipe: %s\n", pipe_name);
-    }
-    ser_fd = open("ser1", O_RDONLY | O_NONBLOCK);
-    if (ser_fd == -1) {
-        fprintf(stderr, "Error: Failed to open named pipe %s\n", pipe_name);
-    }
-
     printf("SCI(%d) started\n", index);
 
     while (!terminate) {

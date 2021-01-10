@@ -18,12 +18,10 @@ private:
 
     fd_set fdset;
 	struct timeval timeout;
-    int ser_fd;
 
     std::queue<char> buffer;
 
     Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex);
-    ~Sci();
     bool send_requested();
     void process_recv_request();
     void process_send_request();
