@@ -15,6 +15,7 @@ class Runner {
     void print_help_command();
     void set_breakpoint_command(char *buf);
     void load_file_command(char *buf);
+    void write_value_command(char *buf);
 
 public:
     Runner(H8300H& h8) : h8(h8), continue_mode(false), mutex(h8.get_mutex()) {}

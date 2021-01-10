@@ -25,6 +25,7 @@ void Runner::print_help_command()
     printf("  c: continue execution until breakpoint\n");
     printf("  b (address): set break point\n");
     printf("  l (address) (filename): load file content to address\n");
+    printf("  w (address) (length) (value): write value to memory\n");
     printf("  q: quit\n");
 }
 
@@ -47,14 +48,43 @@ void Runner::load_file_command(char *buf)
     int ret = sscanf(buf + 1, "%x %s\n", &address, filename);
     if (ret == 2) {
         printf("Load %s to address 0x%08x\n", filename, address);
-       bool ret = load_file_to_memory(address, filename);
-       if (ret) {
-           printf("%s was loaded successfully.\n", filename);
+        bool ret = load_file_to_memory(address, filename);
+        if (ret) {
+            printf("%s was loaded successfully.\n", filename);
         } else {
-           printf("%s not found. Ignored.\n", filename);
-       }
+            printf("%s not found. Ignored.\n", filename);
+        }
     } else {
-        printf("Syntax error\n");
+        fprintf(stderr, "Syntax error.\n");
+    }
+}
+
+void Runner::write_value_command(char *buf)
+{
+    uint32_t address = 0;
+    uint32_t length = 0;
+    uint32_t value;
+    int ret = sscanf(buf + 1, "%x %u %x\n", &address, &length, &value);
+    if (ret == 3) {
+        switch (length) {
+        case 1:
+            printf("Write 0x%x to [0x%08x]\n", value, address);
+            h8.memory.write_uint8(address, value);
+            break;
+        case 2:
+            printf("Write 0x%x to [0x%08x]\n", value, address);
+            h8.memory.write_uint16(address, value);
+            break;
+        case 4:
+            printf("Write 0x%x to [0x%08x]\n", value, address);
+            h8.memory.write_uint32(address, value);
+            break;
+        default:
+            fprintf(stderr, "Syntax error in length.\n");
+            break;
+        }
+    } else {
+        fprintf(stderr, "Syntax error.\n");
     }
 }
 
@@ -104,6 +134,9 @@ int Runner::proccess_debugger_command()
             break;
         case 'l':
             load_file_command(buf);
+            break;
+        case 'w':
+            write_value_command(buf);
             break;
         case 'q':
             return -1;
