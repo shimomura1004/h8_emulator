@@ -8,6 +8,7 @@
 #include "../instructions/extu.h"
 #include "../instructions/cmp.h"
 #include "../instructions/neg.h"
+#include "../instructions/xor.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -159,7 +160,7 @@ instruction_handler_t lookup_1x(H8300H *h8300h)
     case 0x02: return lookup_12(h8300h);
     case 0x03: return lookup_13(h8300h);
     case 0x04: return nullptr; // OR
-    case 0x05: return nullptr; // XOR
+    case 0x05: return h8instructions::xorl::xor_register_direct_b;
     case 0x06: return nullptr; // AND
     case 0x07: return lookup_17(h8300h);
     case 0x08: return h8instructions::sub::sub_b;

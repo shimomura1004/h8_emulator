@@ -4,6 +4,8 @@
 #include "sci.h"
 #include "sci_register.h"
 
+// todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう
+
 void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
 {
     Sci sci(index, memory, terminate, mutex);
