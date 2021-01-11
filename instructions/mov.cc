@@ -211,8 +211,8 @@ static int displacement_register_indirect16_l_from_reg(H8300H* h8)
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t dst_register_index = (b3 & 0x70) >> 4;
     uint8_t src_register_index = (b3 & 0x07);
-    const Register32 dst = h8->reg[dst_register_index];
-    const Register32 src = h8->reg[src_register_index];
+    const Register32& dst = h8->reg[dst_register_index];
+    const Register32& src = h8->reg[src_register_index];
 
     uint8_t displacement[2];
     displacement[1] = h8->fetch_instruction_byte(4);
@@ -237,8 +237,8 @@ static int displacement_register_indirect16_l_to_reg(H8300H* h8)
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t src_register_index = (b3 & 0x70) >> 4;
     uint8_t dst_register_index = (b3 & 0x07);
-    const Register32 src = h8->reg[src_register_index];
-    Register32 dst = h8->reg[dst_register_index];
+    const Register32& src = h8->reg[src_register_index];
+    Register32& dst = h8->reg[dst_register_index];
 
     uint8_t displacement[2];
     displacement[1] = h8->fetch_instruction_byte(4);
