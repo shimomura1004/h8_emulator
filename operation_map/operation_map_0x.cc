@@ -121,7 +121,7 @@ instruction_handler_t lookup_0x(H8300H *h8300h)
     case 0x05: return nullptr; // XORC
     case 0x06: return nullptr; // ANDC
     case 0x07: return nullptr; // LDC
-    case 0x08:
+    case 0x08: return h8instructions::add::add_register_direct_b;
     case 0x09: return nullptr; // ADD
     case 0x0a: return lookup_0A(h8300h);
     case 0x0b: return lookup_0B(h8300h);

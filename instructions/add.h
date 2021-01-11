@@ -7,6 +7,7 @@ namespace h8instructions {
 namespace add {
 
 int add_immediate_b(H8300H* h8);
+int add_register_direct_b(H8300H* h8);
 int add_immediate_l(H8300H* h8);
 int add_register_direct_l(H8300H* h8);
 
