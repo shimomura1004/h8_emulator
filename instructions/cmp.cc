@@ -56,3 +56,21 @@ int h8instructions::cmp::cmp_immediate_l(H8300H* h8)
 
     return 0;
 }
+
+int h8instructions::cmp::cmp_register_direct_l(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t src_register_index = (b1 & 0x70) >> 4;
+    uint8_t dst_register_index = b1 & 0x07;
+    const Register32& src = h8->reg[src_register_index];
+    const Register32& dst = h8->reg[dst_register_index];
+
+    int32_t src_value = src.get_er();
+    int32_t dst_value = dst.get_er();
+    int32_t result_value = dst_value - src_value;
+
+    h8instructions::sub::update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
+    h8->pc += 2;
+
+    return 0;
+}
