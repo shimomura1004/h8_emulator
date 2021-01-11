@@ -18,6 +18,7 @@ InnerMemory::~InnerMemory()
 
 uint8_t& InnerMemory::operator[](unsigned long index)
 {
+    std::lock_guard<std::mutex> lock(mutex);
     return memory[index];
 }
 
@@ -27,18 +28,22 @@ uint32_t InnerMemory::load_elf(std::string filepath)
     return elf_loader.load(this, filepath);
 }
 
-uint32_t InnerMemory::get_vector(unsigned int index) const
+uint32_t InnerMemory::get_vector(unsigned int index)
 {
+    std::lock_guard<std::mutex> lock(mutex);
     return __builtin_bswap32(*(uint32_t*)&memory[index * 4]);
 }
 
 uint8_t InnerMemory::read_uint8(uint32_t address)
 {
+    std::lock_guard<std::mutex> lock(mutex);
     return memory[address];
 }
 
 void InnerMemory::write_uint8(uint32_t address, uint8_t value)
 {
+    std::lock_guard<std::mutex> lock(mutex);
+
     if ((rom_start_address <= address) && (address < rom_end_address)) {
         fprintf(stderr, "Warning: Attempted to write to ROM(0x%08x). Ignored.\n", address);
     } else {
@@ -48,11 +53,14 @@ void InnerMemory::write_uint8(uint32_t address, uint8_t value)
 
 uint16_t InnerMemory::read_uint16(uint32_t address)
 {
+    std::lock_guard<std::mutex> lock(mutex);
     return __builtin_bswap16(*(uint16_t*)&memory[address]);
 }
 
 void InnerMemory::write_uint16(uint32_t address, uint16_t value)
 {
+    std::lock_guard<std::mutex> lock(mutex);
+
     if ((rom_start_address <= address) && (address < rom_end_address)) {
         fprintf(stderr, "Warning: Attempted to write to ROM(0x%08x). Ignored.\n", address);
     } else {
@@ -62,11 +70,14 @@ void InnerMemory::write_uint16(uint32_t address, uint16_t value)
 
 uint32_t InnerMemory::read_uint32(uint32_t address)
 {
+    std::lock_guard<std::mutex> lock(mutex);
     return __builtin_bswap32(*(uint32_t*)&memory[address]);
 }
 
 void InnerMemory::write_uint32(uint32_t address, uint32_t value)
 {
+    std::lock_guard<std::mutex> lock(mutex);
+
     if ((rom_start_address <= address) && (address < rom_end_address)) {
         fprintf(stderr, "Warning: Attempted to write to ROM(0x%08x). Ignored.\n", address);
     } else {
@@ -76,6 +87,8 @@ void InnerMemory::write_uint32(uint32_t address, uint32_t value)
 
 void InnerMemory::dump(std::string filepath)
 {
+    std::lock_guard<std::mutex> lock(mutex);
+
     FILE* fp = fopen(filepath.c_str(), "wb");
     if (fp == nullptr) {
         return;
