@@ -39,8 +39,17 @@ void Sci::process_recv_request()
     if (ret == 1) {
         // 標準入力にデータがある
         if (FD_ISSET(0, &fdset)) {
+            int c;
             while (1) {
-                buffer.push(fgetc(stdin));
+                c = fgetc(stdin);
+
+                // todo: EOF がハンドルができていない
+                if (c == EOF) {
+                    buffer.push(0x0a);
+                    break;
+                }
+
+                buffer.push(c);
                 if (buffer.back() == 0x0a) {
                     break;
                 }
@@ -55,12 +64,17 @@ void Sci::process_recv_request()
 
     // バッファにデータがあるのであれば H8 に送信
     if (!buffer.empty()) {
+        // todo: たまにコマンドをうまくひろえない
+        // 標準入力からの受け取りに漏れはない、 H8 に渡すときに漏れている
+        // スレッド間のタイミングの問題に思える
+
         // H8 に渡すデータは RDR に書き込んでおく
         sci_register.set_rdr(buffer.front());
-        buffer.pop();
 
         // RDRF を 1 にして H8 に通知
         sci_register.set_ssr_rdrf(true);
+
+        buffer.pop();
     }
 }
 
@@ -72,12 +86,12 @@ void Sci::process_send_request() {
         // データは TDR に入っている
         uint8_t data = sci_register.get_tdr();
 
+        // 送信が終わったらSSR_TDRE を 1 にして送信可能を通知
+        sci_register.set_ssr_tdre(true);
+
         // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
         putc(data, stdout);
         fflush(stdout);
-
-        // 送信が終わったらSSR_TDRE を 1 にして送信可能を通知
-        sci_register.set_ssr_tdre(true);
     }
 }
 
