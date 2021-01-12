@@ -108,6 +108,7 @@ int Runner::proccess_debugger_command()
     char buf[256];
     while (1) {
         printf("(h for help) > ");
+        fflush(stdout);
         if (fgets(buf, 256, stdin) == NULL) {
             return -1;
         }
