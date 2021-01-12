@@ -79,6 +79,7 @@ int popen2(char* command, int* fd_r, int* fd_w)
 
 int handle_send_command(char* buf)
 {
+    // ロードする OS は 8KB 以下を想定、それ以上のものを読むとスタックを壊す
 
     for (int i=0; i < strlen(buf); i++) {
         if (buf[i] == '\n') {

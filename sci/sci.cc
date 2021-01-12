@@ -6,7 +6,6 @@
 #include "sci_register.h"
 
 // todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう
-// todo: 大きなファイルを読み込むと固まる
 
 void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
 {
@@ -40,9 +39,9 @@ void Sci::process_recv_request()
 
     int c;
     while (1) {
+        errno = 0;
         c = getchar();
-        // todo: EOF がハンドルができていない
-        // todo: OS バイナリを受信しているときは EOF で終了してはいけない
+
         if (c == EOF) {
             break;
         }
