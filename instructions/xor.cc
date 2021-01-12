@@ -18,6 +18,25 @@ static void update_ccr(H8300H* h8, T value)
     h8->ccr.clear_v();
 }
 
+int h8instructions::xorl::xor_immediate_b(H8300H* h8)
+{
+    uint8_t b0 = h8->fetch_instruction_byte(0);
+    uint8_t dst_reg_index = (b0 & 0x0f);
+    Register32& dst = h8->reg[dst_reg_index % 8];
+
+    uint8_t src_value = h8->fetch_instruction_byte(1);
+    uint8_t dst_value = (dst_reg_index < 8) ? dst.get_rh() : dst.get_rl();
+    uint8_t result_value = src_value ^ dst_value;
+
+    (dst_reg_index < 8) ? dst.set_rh(result_value) : dst.set_rl(result_value);
+
+    update_ccr<int8_t>(h8, (int8_t)result_value);
+
+    h8->pc += 2;
+
+    return 0;
+}
+
 int h8instructions::xorl::xor_register_direct_b(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);

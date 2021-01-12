@@ -10,6 +10,7 @@
 #include "../instructions/cmp.h"
 #include "../instructions/and.h"
 #include "../instructions/add.h"
+#include "../instructions/xor.h"
 
 instruction_handler_t OperationMap::lookup(H8300H* h8300h)
 {
@@ -30,7 +31,7 @@ instruction_handler_t OperationMap::lookup(H8300H* h8300h)
     case 0x0a: return h8instructions::cmp::cmp_immediate_b;
     case 0x0b: return nullptr; // SUBX
     case 0x0c: return nullptr; // OR
-    case 0x0d: return nullptr; // XOR
+    case 0x0d: return h8instructions::xorl::xor_immediate_b;
     case 0x0e: return h8instructions::andl::and_immediate_b;
     case 0x0f: return h8instructions::mov::mov;
     default:   return nullptr;
