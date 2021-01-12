@@ -68,6 +68,28 @@ int h8instructions::add::add_register_direct_b(H8300H* h8)
     return 0;
 }
 
+int h8instructions::add::add_immediate_w(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t dst_register_index = (b1 & 0x0f);
+    Register32& dst = h8->reg[dst_register_index % 8];
+
+    uint8_t immediate[2];
+    immediate[1] = h8->fetch_instruction_byte(2);
+    immediate[0] = h8->fetch_instruction_byte(3);
+    int16_t src_value = *(int16_t*)immediate;
+
+    int16_t dst_value = (dst_register_index < 8) ? dst.get_r() : dst.get_e();
+    int16_t result_value = src_value + dst_value;
+    (dst_register_index < 8) ? dst.set_r(result_value) : dst.set_e(result_value);
+
+    update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
+
+    h8->pc += 4;
+
+    return 0;
+}
+
 int h8instructions::add::add_immediate_l(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);

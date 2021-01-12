@@ -124,7 +124,7 @@ instruction_handler_t lookup_1B(H8300H* h8300h)
     case 0x07: return h8instructions::dec::dec_l;
     case 0x08:
     case 0x09: return h8instructions::subs::subs;
-    case 0x0d: return nullptr; // DEC
+    case 0x0d: return h8instructions::dec::dec_w;
     case 0x0f: return nullptr; // DEC
     default:   return nullptr;
     }
