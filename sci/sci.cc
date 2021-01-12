@@ -1,5 +1,6 @@
 #include <thread>
 #include <chrono>
+#include <fcntl.h>
 
 #include "sci.h"
 #include "sci_register.h"
@@ -12,6 +13,7 @@ void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex&
     sci.run();
 }
 
+static FILE* fp;
 Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
     : index(index)
     , terminate(terminate)
@@ -20,6 +22,11 @@ Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
 {
 	timeout.tv_sec = 0; 
 	timeout.tv_usec = 0;
+
+    int flags;
+    flags = fcntl(0, F_GETFL, 0);
+    flags |= O_NONBLOCK;
+    fcntl(0, F_SETFL, flags);
 }
 
 // CPU から送信要求がきたか？
@@ -28,35 +35,130 @@ bool Sci::send_requested() {
     return sci_register.get_ssr_tdre() == false;
 }
 
+// void Sci::process_recv_request()
+// {
+//     // デバッガと標準入出力を奪い合わないようにロックする
+//     std::lock_guard<std::mutex> lock(mutex);
+
+//     // select が fdset をクリアするので毎回設定する必要がある
+//     FD_ZERO(&fdset);
+// 	FD_SET(0, &fdset);
+
+//     int ret = select(0 + 1, &fdset , NULL , NULL , &timeout);
+//     if (ret == 1) {
+//         // 標準入力にデータがある
+//         if (FD_ISSET(0, &fdset)) {
+//             int c;
+//             while (1) {
+//                 c = fgetc(stdin);
+// // printf("[%c(%02x)]\n", c, c);
+//                 // todo: EOF がハンドルができていない
+//                 if (c == EOF) {
+//                     // buffer.push(0x0a);
+//                     break;
+//                 }
+
+// // todo: OS バイナリを受信しているときは改行コードで終了してはいけない
+//                 buffer.push(c);
+//                 // if (buffer.back() == 0x0a) {
+//                 //     break;
+//                 // }
+//             }
+//         }
+//     }
+
+//     // まだ H8 が処理していないので何もしない
+//     if (sci_register.get_ssr_rdrf()) {
+//         return;
+//     }
+
+//     // バッファにデータがあるのであれば H8 に送信
+//     if (!buffer.empty()) {
+//         // todo: たまにコマンドをうまくひろえない
+//         // 標準入力からの受け取りに漏れはない、 H8 に渡すときに漏れている
+//         // スレッド間のタイミングの問題に思える
+
+//         // H8 に渡すデータは RDR に書き込んでおく
+//         sci_register.set_rdr(buffer.front());
+
+//         // RDRF を 1 にして H8 に通知
+//         sci_register.set_ssr_rdrf(true);
+
+//         buffer.pop();
+//     }
+// }
+
+// void Sci::process_recv_request()
+// {
+//     // デバッガと標準入出力を奪い合わないようにロックする
+//     std::lock_guard<std::mutex> lock(mutex);
+
+//     while (1) {
+//         // select が fdset をクリアするので毎回設定する必要がある
+//         FD_ZERO(&fdset);
+//         FD_SET(0, &fdset);
+
+//         int ret = select(0 + 1, &fdset , NULL , NULL , &timeout);
+//         if (ret == 1) {
+//             // 標準入力にデータがある
+//             int c;
+//             while (1) {
+//                 c = fgetc(stdin);
+// printf("[%c(%02x)]\n", c, c);
+//                 // todo: EOF がハンドルができていない
+//                 if (c == EOF) {
+//                     // buffer.push(0x0a);
+//                     break;
+//                 }
+
+// // todo: OS バイナリを受信しているときは改行コードで終了してはいけない
+//                 buffer.push(c);
+//                 if (buffer.back() == 0x0a) {
+//                     break;
+//                 }
+//             }
+//         } else {
+//             break;
+//         }
+//     }
+
+//     // まだ H8 が処理していないので何もしない
+//     if (sci_register.get_ssr_rdrf()) {
+//         return;
+//     }
+
+//     // バッファにデータがあるのであれば H8 に送信
+//     if (!buffer.empty()) {
+//         // todo: たまにコマンドをうまくひろえない
+//         // 標準入力からの受け取りに漏れはない、 H8 に渡すときに漏れている
+//         // スレッド間のタイミングの問題に思える
+
+//         // H8 に渡すデータは RDR に書き込んでおく
+//         sci_register.set_rdr(buffer.front());
+
+//         // RDRF を 1 にして H8 に通知
+//         sci_register.set_ssr_rdrf(true);
+
+//         buffer.pop();
+//     }
+// }
+
 void Sci::process_recv_request()
 {
     // デバッガと標準入出力を奪い合わないようにロックする
     std::lock_guard<std::mutex> lock(mutex);
 
-    // select が fdset をクリアするので毎回設定する必要がある
-    FD_ZERO(&fdset);
-	FD_SET(0, &fdset);
-
-    int ret = select(0 + 1, &fdset , NULL , NULL , &timeout);
-    if (ret == 1) {
-        // 標準入力にデータがある
-        if (FD_ISSET(0, &fdset)) {
-            int c;
-            while (1) {
-                c = fgetc(stdin);
-
-                // todo: EOF がハンドルができていない
-                if (c == EOF) {
-                    buffer.push(0x0a);
-                    break;
-                }
-
-                buffer.push(c);
-                if (buffer.back() == 0x0a) {
-                    break;
-                }
-            }
+    int c;
+    while (1) {
+        c = getchar();
+// printf("[%c(%02x)]\n", c, c);
+        // todo: EOF がハンドルができていない
+        // todo: OS バイナリを受信しているときは EOF で終了してはいけない
+        if (c == EOF) {
+            break;
         }
+
+        buffer.push(c);
     }
 
     // まだ H8 が処理していないので何もしない
@@ -105,7 +207,7 @@ void Sci::run()
         // todo: イベントドリブンにする
 
         // 少し動作を遅くする
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
         std::this_thread::sleep_for(std::chrono::microseconds(100));
 
         // 送信要求がきていたら処理
