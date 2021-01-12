@@ -18,6 +18,10 @@
 
 #define XMODEM_BLOCK_SIZE 128
 
+#define LINE_BUFFER_SIZE 256
+
+#define SEND_COMMAND (":send ")
+
 static int fd_r, fd_w;
 
 int popen2(char* command, int* fd_r, int* fd_w)
@@ -54,6 +58,8 @@ int popen2(char* command, int* fd_r, int* fd_w)
         close(pipe_c2p[W]);
 
         // h8300h を子プロセスとして起動
+        // todo: デバッガが動かない(標準入力からの読み取りが問題)
+        // 子プロセスでもブロックせずにすぐに戻ってきてしまう
         // if(execlp("./h8300h", "./h8300h", "1", NULL) < 0){
         if(execlp("./h8300h", "./h8300h", NULL) < 0){
             perror("popen2");
@@ -71,65 +77,66 @@ int popen2(char* command, int* fd_r, int* fd_w)
     return(pid);
 }
 
-int check_send(char* buf)
+int handle_send_command(char* buf)
 {
-    if (strncmp(buf, "sendos", 6) != 0)
-        return 0;
 
-    printf("Sending OS binary.\n");
+    for (int i=0; i < strlen(buf); i++) {
+        if (buf[i] == '\n') {
+            buf[i] = '\0';
+        }
+    }
+    printf("Sending [%s].\n", buf + sizeof(SEND_COMMAND) - 1);
 
-    int n;
-
-    // prepare file descriptor
-    FILE *fp = fopen("main.cc", "rb");
+    FILE *fp = fopen(buf + sizeof(SEND_COMMAND) - 1, "rb");
     if (!fp) {
-        printf("file not found.\n");
-        buf[0] = '\n';
-        buf[1] = '\0';
-        return 0;
+        fprintf(stderr, "File not found: %s.\n", buf + sizeof(SEND_COMMAND) - 1);
+        return -1;
     }
 
-    // send blocks
+    int response;
+    char c;
     unsigned char count = 1;
     unsigned char os_buf[XMODEM_BLOCK_SIZE];
     printf("Sending blocks");
     fflush(stdout);
     while (1) {
-        // printf("Sending block %d\n", count);
         putchar('.');
         fflush(stdout);
-        // read ACK or NAK
-        // とりあえずエラー(NAK)でも無視する
-        read(fd_r, &n, 1);
 
-        // send SOH
-        char c = XMODEM_SOH;
+        // とりあえずエラー(NAK)でも無視する
+        read(fd_r, &response, 1);
+
+        // send header
+        c = XMODEM_SOH;
         write(fd_w, &c, 1);
 
+        // send inverted header
         write(fd_w, &count, 1);
         char invert_count = ~count;
         write(fd_w, &invert_count, 1);
 
+        // send body
         memset(os_buf, EOF, XMODEM_BLOCK_SIZE);
         int size = fread(os_buf, sizeof(char), XMODEM_BLOCK_SIZE, fp);
         write(fd_w, os_buf, XMODEM_BLOCK_SIZE);
 
+        // send checksum
         unsigned char check_sum = 0;
         for (int i = 0; i < XMODEM_BLOCK_SIZE; i++) {
             check_sum += os_buf[i];
         }
-
         write(fd_w, &check_sum, 1);
 
+        // 末尾までデータを送った場合
         if (size != XMODEM_BLOCK_SIZE) {
             // 最後に EOT を送り、ACK を待つ
-            char c = XMODEM_EOT;
+            c = XMODEM_EOT;
             write(fd_w, &c, 1);
+            read(fd_r, &response, 1);
 
             printf("done.\n");
 
-            read(fd_r, &n, 1);
-            if (n != XMODEM_ACK) {
+            if (response != XMODEM_ACK) {
                 printf("Error in xmodem protocol.\n");
             }
             break;
@@ -145,7 +152,7 @@ int check_send(char* buf)
 
 int main(int argc, char* argv[])
 {
-    char buf[256];
+    char buf[LINE_BUFFER_SIZE];
 
     fd_set fdset;
 	struct timeval timeout;
@@ -164,20 +171,32 @@ int main(int argc, char* argv[])
         if (ret == 1) {
             // h8 からの出力
             if (FD_ISSET(fd_r, &fdset)) {
-                int size = read(fd_r, buf, 255);
-                buf[size] = '\0';
-                printf("%s", buf);
+                int size = 0;
+                while (1) {
+                    size = read(fd_r, buf, LINE_BUFFER_SIZE - 1);
+                    buf[size] = '\0';
+                    printf("%s", buf);
+                    if (size != LINE_BUFFER_SIZE - 1) {
+                        break;
+                    }
+                }
                 fflush(stdout);
             }
             // ユーザの入力
             if (FD_ISSET(0, &fdset)) {
-                int size = read(0, buf, 256);
+                int size = read(0, buf, LINE_BUFFER_SIZE - 1);
+                if (size < 0) {
+                    fprintf(stderr, "Error in reading user input.\n");
+                    return -1;
+                }
                 buf[size] = '\0';
-                if (size >= 0) {
-                    buf[size] = '\0';
-                    if (!check_send(buf)) {
-                        write(fd_w, buf, size);
-                    }
+
+                if (strncmp(buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
+                    handle_send_command(buf);
+                } else {
+                    // 特殊なコマンドでなければそのまま H8 に投げる
+                    printf("to h8: %s\n", buf);
+                    write(fd_w, buf, size);
                 }
             }
         }

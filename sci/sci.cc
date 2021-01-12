@@ -6,6 +6,7 @@
 #include "sci_register.h"
 
 // todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう
+// todo: 大きなファイルを読み込むと固まる
 
 void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
 {
