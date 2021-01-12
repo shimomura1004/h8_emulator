@@ -1,3 +1,4 @@
+CC = cc
 CPPC = c++
 
 OBJS = elf_loader.o inner_memory.o h8300h.o runner.o main.o
@@ -39,12 +40,15 @@ CFLAGS = -Wall -I. -std=c++11 -pthread
 CFLAGS += -g
 LFLAGS = -L.
 
-.SUFFIXES: .cc .o
+.SUFFIXES: .cc .c .o
 
-all: $(TARGET)
+all: $(TARGET) sender
 
 $(TARGET): $(OBJS)
 	$(CPPC) $(OBJS) -o $(TARGET) $(CFLAGS) $(LFLAGS)
+
+sender: sender.c
+	$(CC) -o sender sender.c
 
 .cc.o :			$<
 				$(CPPC) -c $(CFLAGS) -o $@ $<
