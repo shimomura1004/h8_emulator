@@ -29,6 +29,12 @@
 // #define H8_3069F_SCI_SSR_RDRF   (1<<6)
 // #define H8_3069F_SCI_SSR_TDRE   (1<<7)
 
+template<int n, class T>
+static T updater_set_bit(T value) { return value | (1<<n); }
+
+template<int n, class T>
+static T updater_clear_bit(T value) { return value & ~(1<<n); }
+
 bool SciRegister::get_scr_re()
 {
     return memory.read_uint8(scr_address) & (1<<4);
@@ -55,11 +61,10 @@ bool SciRegister::get_ssr_rdrf()
 }
 
 void SciRegister::set_ssr_rdrf(bool b) {
-    uint8_t rdrf = get_ssr_rdrf();
     if (b) {
-        memory.write_uint8(ssr_address, rdrf | (1<<6));
+        memory.update_uint8(ssr_address, updater_set_bit<6, uint8_t>);
     } else {
-        memory.write_uint8(ssr_address, rdrf & ~(1<<6));
+        memory.update_uint8(ssr_address, updater_clear_bit<6, uint8_t>);
     }
 }
 
@@ -69,11 +74,10 @@ bool SciRegister::get_ssr_tdre()
 }
 
 void SciRegister::set_ssr_tdre(bool b) {
-    uint8_t tdre = get_ssr_tdre();
     if (b) {
-        memory.write_uint8(ssr_address, tdre | (1<<7));
+        memory.update_uint8(ssr_address, updater_set_bit<7, uint8_t>);
     } else {
-        memory.write_uint8(ssr_address, tdre & ~(1<<7));
+        memory.update_uint8(ssr_address, updater_clear_bit<7, uint8_t>);
     }
 }
 

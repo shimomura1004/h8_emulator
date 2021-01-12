@@ -51,6 +51,18 @@ void InnerMemory::write_uint8(uint32_t address, uint8_t value)
     }
 }
 
+// todo: 16,32ビット用も作りたいが、エンディアンを隠蔽できなくなる
+void InnerMemory::update_uint8(uint32_t address, uint8_t(*updater)(uint8_t))
+{
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if ((rom_start_address <= address) && (address < rom_end_address)) {
+        fprintf(stderr, "Warning: Attempted to write to ROM(0x%08x). Ignored.\n", address);
+    } else {
+        memory[address] = updater(memory[address]);
+    }
+}
+
 uint16_t InnerMemory::read_uint16(uint32_t address)
 {
     std::lock_guard<std::mutex> lock(mutex);
