@@ -80,19 +80,6 @@ int check_send(char* buf)
 
     int n;
 
-    // // read NAK
-    // int size = read(fd_r, &n, 1);
-    // if (n != 0x15) {
-    //     printf("not nak.\n");
-    //     buf[0] = '\n';
-    //     buf[1] = '\0';
-    //     return 0;
-    // }
-
-    // // send SOH
-    // char c = XMODEM_SOH;
-    // write(fd_w, &c, 1);
-
     // prepare file descriptor
     FILE *fp = fopen("main.cc", "rb");
     if (!fp) {
@@ -104,7 +91,7 @@ int check_send(char* buf)
 
     // send blocks
     unsigned char count = 1;
-    unsigned char os_buf[128];
+    unsigned char os_buf[XMODEM_BLOCK_SIZE];
     printf("Sending blocks");
     fflush(stdout);
     while (1) {
@@ -123,18 +110,18 @@ int check_send(char* buf)
         char invert_count = ~count;
         write(fd_w, &invert_count, 1);
 
-        memset(os_buf, EOF, 128);
-        int size = fread(os_buf, sizeof(char), 128, fp);
-        write(fd_w, os_buf, 128);
+        memset(os_buf, EOF, XMODEM_BLOCK_SIZE);
+        int size = fread(os_buf, sizeof(char), XMODEM_BLOCK_SIZE, fp);
+        write(fd_w, os_buf, XMODEM_BLOCK_SIZE);
 
         unsigned char check_sum = 0;
-        for (int i = 0; i < 128; i++) {
+        for (int i = 0; i < XMODEM_BLOCK_SIZE; i++) {
             check_sum += os_buf[i];
         }
 
         write(fd_w, &check_sum, 1);
 
-        if (size != 128) {
+        if (size != XMODEM_BLOCK_SIZE) {
             // 最後に EOT を送り、ACK を待つ
             char c = XMODEM_EOT;
             write(fd_w, &c, 1);
@@ -142,9 +129,9 @@ int check_send(char* buf)
             printf("done.\n");
 
             read(fd_r, &n, 1);
-            printf("ACK is %02x\n", n);
-            buf[0] = '\n';
-            buf[1] = '\0';
+            if (n != XMODEM_ACK) {
+                printf("Error in xmodem protocol.\n");
+            }
             break;
         }
 
