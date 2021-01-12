@@ -195,7 +195,6 @@ int main(int argc, char* argv[])
                     handle_send_command(buf);
                 } else {
                     // 特殊なコマンドでなければそのまま H8 に投げる
-                    printf("to h8: %s\n", buf);
                     write(fd_w, buf, size);
                 }
             }

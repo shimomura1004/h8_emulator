@@ -16,9 +16,6 @@ private:
     std::mutex& mutex;
     SciRegister sci_register;
 
-    fd_set fdset;
-	struct timeval timeout;
-
     std::queue<char> buffer;
 
     Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex);

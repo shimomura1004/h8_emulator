@@ -14,16 +14,12 @@ void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex&
     sci.run();
 }
 
-static FILE* fp;
 Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
     : index(index)
     , terminate(terminate)
     , mutex(mutex)
     , sci_register(index, memory)
 {
-	timeout.tv_sec = 0; 
-	timeout.tv_usec = 0;
-
     int flags;
     flags = fcntl(0, F_GETFL, 0);
     flags |= O_NONBLOCK;
@@ -36,6 +32,7 @@ bool Sci::send_requested() {
     return sci_register.get_ssr_tdre() == false;
 }
 
+// ユーザの入力を H8 に送信
 void Sci::process_recv_request()
 {
     // デバッガと標準入出力を奪い合わないようにロックする
@@ -44,7 +41,6 @@ void Sci::process_recv_request()
     int c;
     while (1) {
         c = getchar();
-// printf("[%c(%02x)]\n", c, c);
         // todo: EOF がハンドルができていない
         // todo: OS バイナリを受信しているときは EOF で終了してはいけない
         if (c == EOF) {
@@ -61,10 +57,6 @@ void Sci::process_recv_request()
 
     // バッファにデータがあるのであれば H8 に送信
     if (!buffer.empty()) {
-        // todo: たまにコマンドをうまくひろえない
-        // 標準入力からの受け取りに漏れはない、 H8 に渡すときに漏れている
-        // スレッド間のタイミングの問題に思える
-
         // H8 に渡すデータは RDR に書き込んでおく
         sci_register.set_rdr(buffer.front());
 
@@ -75,6 +67,7 @@ void Sci::process_recv_request()
     }
 }
 
+// H8 からの出力をユーザ(標準出力)に表示
 void Sci::process_send_request() {
     // デバッガと標準入出力を奪い合わないようにロックする
     std::lock_guard<std::mutex> lock(mutex);
