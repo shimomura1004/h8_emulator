@@ -61,7 +61,7 @@ static int register_indirect_b(H8300H* h8)
     return 0;
 }
 
-static int register_indirect_l(H8300H* h8)
+static int register_indirect_l_from_reg(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
 
@@ -72,7 +72,27 @@ static int register_indirect_l(H8300H* h8)
 
     int32_t value = src.get_er();
     uint32_t address = dst.get_er();
-    h8->memory.write_uint8(address, value);
+    h8->memory.write_uint32(address, value);
+
+    update_ccr<int32_t>(h8, value);
+
+    h8->pc += 4;
+
+    return 0;
+}
+
+static int register_indirect_l_to_reg(H8300H* h8)
+{
+    uint8_t b3 = h8->fetch_instruction_byte(3);
+
+    uint8_t src_register_index = (b3 & 0x70) >> 4;
+    uint8_t dst_register_index = (b3 & 0x07);
+    const Register32& src = h8->reg[src_register_index];
+    Register32& dst = h8->reg[dst_register_index];
+
+    uint32_t address = src.get_er();
+    int32_t value = h8->memory.read_uint32(address);
+    dst.set_er(value);
 
     update_ccr<int32_t>(h8, value);
 
@@ -601,9 +621,9 @@ int h8instructions::mov::mov(H8300H* h8)
         case 0x69: {
             uint8_t b3 = h8->fetch_instruction_byte(3);
             if (b3 & 0x80) {
-                return register_indirect_l(h8);
+                return register_indirect_l_from_reg(h8);
             } else {
-                return -1;
+                return register_indirect_l_to_reg(h8);
             }
         }
         case 0x6b: {
