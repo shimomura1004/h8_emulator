@@ -12,7 +12,7 @@ instruction_handler_t lookup_4x(H8300H *h8300h)
     case 0x02: return nullptr; // BHI
     case 0x03: return h8instructions::bcc::bls_8;
     case 0x04: return h8instructions::bcc::bcc_8;
-    case 0x05: return nullptr; // BCS
+    case 0x05: return h8instructions::bcc::bcs_8;
     case 0x06: return h8instructions::bcc::bne_8;
     case 0x07: return h8instructions::bcc::beq_8;
     case 0x08: return nullptr; // BVC
