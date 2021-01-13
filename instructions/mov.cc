@@ -236,16 +236,6 @@ static int displacement_register_indirect24_b(H8300H* h8)
     return 0;
 }
 
-// static int register_indirect(H8300H* h8)
-// {
-//     return -1;
-// }
-
-// static int displacement_register_indirect16(H8300H* h8)
-// {
-//     return -1;
-// }
-
 static int displacement_register_indirect16_l_from_reg(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
@@ -325,7 +315,18 @@ static int displacement_register_indirect24_l(H8300H* h8)
         h8->ccr.clear_v();
     } else {
         // ERs,@(d:24,ERd)
-        return -1;
+        uint8_t dst_register_index = (b3 & 0x70) >> 4;
+        uint8_t src_register_index = (b5 & 0x07);
+        const Register32& dst = h8->reg[dst_register_index];
+        const Register32& src = h8->reg[src_register_index];
+
+        uint32_t value = src.get_er();
+        uint32_t address = dst.get_er() + disp;
+        h8->memory.write_uint32(address, value);
+
+        (value < 0) ? h8->ccr.set_n() : h8->ccr.clear_n();
+        (value == 0) ? h8->ccr.set_z() : h8->ccr.clear_z();
+        h8->ccr.clear_v();
     }
 
     h8->pc += 10;
