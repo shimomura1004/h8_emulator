@@ -34,7 +34,8 @@ OBJS += instructions/mov.o \
 		instructions/neg.o \
 		instructions/xor.o \
 		instructions/shar.o \
-		instructions/mulxs.o
+		instructions/mulxs.o \
+		instructions/nop.o
 
 TARGET = h8300h
 

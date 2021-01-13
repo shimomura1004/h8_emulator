@@ -3,6 +3,7 @@
 #include "../instructions/adds.h"
 #include "../instructions/add.h"
 #include "../instructions/mulxs.h"
+#include "../instructions/nop.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -114,7 +115,7 @@ instruction_handler_t lookup_0x(H8300H *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x00: return nullptr; // NOP
+    case 0x00: return h8instructions::nop::nop;
     case 0x01: return lookup_01(h8300h);
     case 0x02: return nullptr; // STC
     case 0x03: return nullptr; // LDC
