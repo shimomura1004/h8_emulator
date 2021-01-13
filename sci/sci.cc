@@ -39,7 +39,6 @@ void Sci::process_recv_request()
 
     int c;
     while (1) {
-        errno = 0;
         c = getchar();
 
         if (c == EOF) {

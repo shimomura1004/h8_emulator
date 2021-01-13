@@ -1,6 +1,7 @@
 .vscode
 *.o
 h8300h
+sender
 
 osbook_03
 kozos

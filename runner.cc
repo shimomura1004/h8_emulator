@@ -109,9 +109,25 @@ int Runner::proccess_debugger_command()
     while (1) {
         printf("(h for help) > ");
         fflush(stdout);
-        if (fgets(buf, 256, stdin) == NULL) {
-            return -1;
+
+        int i = 0;
+        while (1) {
+            // 標準入力はノンブロッキングで動作するため getchar はすぐに戻る
+            int c = getchar();
+
+            // EOF がきたら、単にデータがないということ
+            if (c == EOF) {
+                continue;
+            }
+
+            buf[i++] = c;
+
+            // 改行コードがきたらコマンドを処理する
+            if (c == '\n') {
+                break;
+            }
         }
+
         switch (buf[0]) {
         case 0x0a:
             return 0;
