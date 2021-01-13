@@ -2,14 +2,15 @@
 #include "../instructions/mov.h"
 #include "../instructions/adds.h"
 #include "../instructions/add.h"
+#include "../instructions/mulxs.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
     unsigned char b2 = h8300h->fetch_instruction_byte(2);
     unsigned char cl = b2 & 0x0f;
     switch (cl) {
-    case 0x00: return nullptr; // MULXS
-    case 0x02: return nullptr; // MULXS
+    case 0x00: return h8instructions::mulxs::mulxs_b;
+    case 0x02: return h8instructions::mulxs::mulxs_w;
     default:   return nullptr;
     }
 }
