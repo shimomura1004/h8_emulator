@@ -11,12 +11,14 @@ int main (int argc, char* argv[])
     // uint32_t start_addr = h8.load_elf("./osbook_03/02/bootload/kzload");
     // uint32_t start_addr = h8.load_elf("./osbook_03/03/bootload/kzload");
     // uint32_t start_addr = h8.load_elf("./osbook_03/04/bootload/kzload");
+    uint32_t start_addr = h8.load_elf("./osbook_03/05/bootload/kzload");
 
     // uint32_t start_addr = h8.load_elf("./kozos/01/kzload.elf");
     // uint32_t start_addr = h8.load_elf("./kozos/02/kzload.elf");
     // uint32_t start_addr = h8.load_elf("./kozos/03/kzload.elf");
     // uint32_t start_addr = h8.load_elf("./kozos/04/kzload.elf");
-    uint32_t start_addr = h8.load_elf("./kozos/05/kzload.elf");
+    // uint32_t start_addr = h8.load_elf("./kozos/05/kzload.elf");
+    // uint32_t start_addr = h8.load_elf("./kozos/06/kzload.elf");
     
     printf("Start execution from 0x%x\n", start_addr);
 

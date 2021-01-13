@@ -21,7 +21,7 @@ instruction_handler_t lookup_58(H8300H *h8)
     case 0x09: return nullptr; // BVS
     case 0x0a: return nullptr; // BPL
     case 0x0b: return nullptr; // BMI
-    case 0x0c: return nullptr; // BGE
+    case 0x0c: return h8instructions::bcc::bge_16;
     case 0x0d: return h8instructions::bcc::blt_16;
     case 0x0e: return h8instructions::bcc::bgt_16;
     case 0x0f: return nullptr; // BLE
