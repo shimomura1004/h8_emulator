@@ -11,6 +11,7 @@
 #include "../instructions/cmp.h"
 #include "../instructions/bclr.h"
 #include "../instructions/btst.h"
+#include "../instructions/bset.h"
 
 instruction_handler_t lookup_7x(H8300H *h8300h)
 {
@@ -18,7 +19,7 @@ instruction_handler_t lookup_7x(H8300H *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x00: return nullptr; // BSET
+    case 0x00: return h8instructions::bset::bset_register_direct_imm;
     case 0x01: return nullptr; // BNOT
     case 0x02: return h8instructions::bclr::bclr_register_direct_imm;
     case 0x03: return h8instructions::btst::btst_register_direct_imm;
