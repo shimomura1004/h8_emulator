@@ -15,7 +15,7 @@ int h8instructions::mulxs::mulxs_w(H8300H* h8)
 
     int16_t src_value = (src_reg_index < 8) ? src.get_r() : src.get_e();
     // ER の下位16ビット(= R)を抜き出す
-    int16_t dst_value = dst.get_r() >> 16;
+    int16_t dst_value = dst.get_r();
     int32_t result_value = dst_value * src_value;
 
     dst.set_er(result_value);
