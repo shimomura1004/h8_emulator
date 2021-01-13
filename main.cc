@@ -19,7 +19,8 @@ int main (int argc, char* argv[])
     // uint32_t start_addr = h8.load_elf("./kozos/03/kzload.elf");
     // uint32_t start_addr = h8.load_elf("./kozos/04/kzload.elf");
     // uint32_t start_addr = h8.load_elf("./kozos/05/kzload.elf");
-    uint32_t start_addr = h8.load_elf("./kozos/06/bootload/kzload.elf");
+    // uint32_t start_addr = h8.load_elf("./kozos/06/bootload/kzload.elf");
+    uint32_t start_addr = h8.load_elf("./kozos/07/bootload/kzload.elf");
     
     printf("Start execution from 0x%x\n", start_addr);
 

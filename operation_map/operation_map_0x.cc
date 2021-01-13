@@ -4,6 +4,7 @@
 #include "../instructions/add.h"
 #include "../instructions/mulxs.h"
 #include "../instructions/nop.h"
+#include "../instructions/orc.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -119,7 +120,7 @@ instruction_handler_t lookup_0x(H8300H *h8300h)
     case 0x01: return lookup_01(h8300h);
     case 0x02: return nullptr; // STC
     case 0x03: return nullptr; // LDC
-    case 0x04: return nullptr; // ORC
+    case 0x04: return h8instructions::orc::orc;
     case 0x05: return nullptr; // XORC
     case 0x06: return nullptr; // ANDC
     case 0x07: return nullptr; // LDC
