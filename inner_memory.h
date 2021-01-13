@@ -10,9 +10,13 @@ class InnerMemory {
     const static uint32_t rom_start_address;
     const static uint32_t rom_end_address;
 
+    static bool check_if_valid_read_address(uint32_t address);
+    static bool check_if_valid_write_address(uint32_t address);
+
 private:
     uint8_t *memory;
     std::mutex mutex;
+
 
 public:
     InnerMemory();

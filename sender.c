@@ -60,8 +60,8 @@ int popen2(char* command, int* fd_r, int* fd_w)
         // h8300h を子プロセスとして起動
         // todo: デバッガが動かない(標準入力からの読み取りが問題)
         // 子プロセスでもブロックせずにすぐに戻ってきてしまう
-        if(execlp("./h8300h", "./h8300h", "1", NULL) < 0){
-        // if(execlp("./h8300h", "./h8300h", NULL) < 0){
+        // if(execlp("./h8300h", "./h8300h", "1", NULL) < 0){
+        if(execlp("./h8300h", "./h8300h", NULL) < 0){
             perror("popen2");
             close(pipe_p2c[R]);
             close(pipe_c2p[W]);
