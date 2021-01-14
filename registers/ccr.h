@@ -3,11 +3,12 @@
 
 class CCR {
 private:
-    unsigned char ccr;
+    uint8_t ccr;
 
 public:
     CCR() : ccr(0) {}
     const unsigned char raw() const { return ccr; }
+    void set(uint8_t new_ccr) { ccr = new_ccr; }
 
     bool i()  { return (this->ccr & 0x80) != 0; }
     bool ui() { return (this->ccr & 0x40) != 0; }

@@ -78,6 +78,13 @@ void H8300H::save_pc_and_ccr_to_stack()
     push_to_stack_l(ccr_pc);
 }
 
+void H8300H::restore_pc_and_ccr_from_stack()
+{
+    uint32_t ccr_pc = pop_from_stack_l();
+    ccr.set((ccr_pc & 0xf000) >> 24);
+    pc = ccr_pc & 0x0fff;
+}
+
 H8300H::~H8300H()
 {
     for (int i = 0; i < 3; i++) {
