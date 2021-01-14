@@ -1,4 +1,3 @@
-#include <thread>
 #include <chrono>
 #include <fcntl.h>
 
@@ -7,23 +6,6 @@
 
 // todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう
 
-void Sci::start(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
-{
-    Sci sci(index, memory, terminate, mutex);
-    sci.run();
-}
-
-Sci::Sci(uint8_t index, InnerMemory& memory, bool& terminate, std::mutex& mutex)
-    : index(index)
-    , terminate(terminate)
-    , mutex(mutex)
-    , sci_register(index, memory)
-{
-    int flags;
-    flags = fcntl(0, F_GETFL, 0);
-    flags |= O_NONBLOCK;
-    fcntl(0, F_SETFL, flags);
-}
 
 // CPU から送信要求がきたか？
 bool Sci::send_requested() {
@@ -62,6 +44,9 @@ void Sci::process_recv_request()
         sci_register.set_ssr_rdrf(true);
 
         buffer.pop();
+
+        // 割り込みを発生させる
+        interrupt_controller.set(interrupt_t::RXI1);
     }
 }
 
@@ -99,5 +84,30 @@ void Sci::run()
 
         // (H8 の SCI1 がつながっている)標準入力からデータがきたら処理する
         process_recv_request();
+    }
+}
+
+Sci::Sci(uint8_t index, InnerMemory& memory, InterruptController& interrupt_controller, bool& terminate, std::mutex& mutex)
+    : index(index)
+    , terminate(terminate)
+    , mutex(mutex)
+    , sci_register(index, memory)
+    , interrupt_controller(interrupt_controller)
+{
+    sci_thread = new std::thread(&Sci::run, this);
+
+    int flags;
+    flags = fcntl(0, F_GETFL, 0);
+    flags |= O_NONBLOCK;
+    fcntl(0, F_SETFL, flags);
+}
+
+Sci::~Sci()
+{
+    if (sci_thread) {
+        if (sci_thread->joinable()) {
+            sci_thread->join();
+        }
+        delete sci_thread;
     }
 }

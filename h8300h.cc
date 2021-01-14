@@ -85,24 +85,23 @@ void H8300H::restore_pc_and_ccr_from_stack()
     pc = ccr_pc & 0x0fff;
 }
 
+H8300H::H8300H()
+    : sp(reg[7])
+    , pc(0)
+    , terminate(false)
+    , is_sleep(false)
+{}
+
 H8300H::~H8300H()
 {
-    for (int i = 0; i < 3; i++) {
-        if (sci[i]) {
-            if (sci[i]->joinable()) {
-                sci[i]->join();
-            }
-            delete sci[i];
-        }
+    if (sci1) {
+        delete sci1;
     }
 }
 
 void H8300H::init()
 {
-    for (uint8_t i = 0; i < 3; i++) {
-        if (i==1)
-        sci[i] = new std::thread(&Sci::start, i, std::ref(memory), std::ref(terminate), std::ref(mutex));
-    }
+    sci1 = new Sci(1, memory, interrupt_controller, terminate, mutex);
 }
 
 uint32_t H8300H::load_elf(std::string filepath)
@@ -112,18 +111,33 @@ uint32_t H8300H::load_elf(std::string filepath)
 
 int H8300H::step()
 {
-    if (interrupt_queue.hasInterrupt()) {
-        // todo: 多重割り込みのブロック
-
+    interrupt_t type = interrupt_controller.getInterruptType();
+    if (type != interrupt_t::NONE && !ccr.i()) {
+        // CCR と PC を退避
+        // H8 では、現在のスタックポインタの指す場所に退避される
         save_pc_and_ccr_to_stack();
-        interrupt_t type = interrupt_queue.pop();
+
+        // H8 では、割り込みが発生すると勝手に CCR.I がセットされる
+        ccr.set_i();
+
+        // 割り込みベクタに設定されたアドレスにジャンプ
+        printf("before: 0x%06x\n", pc);
         pc = memory.get_vector(type);
+        printf("after: 0x%06x %d %d\n", pc, type, memory.get_vector(type));
     }
 
+    // PC が指す命令を実行
     int result = execute_next_instruction();
 
     if (result != 0) {
         fprintf(stderr, "Abort.\n");
+    }
+
+    if (is_sleep) {
+        // スリープ状態の場合は wait する
+        // 復帰するときは別スレッドから notify する必要がある
+        printf("SLEEP!\n");
+        interrupt_controller.wait_for_interruption();
     }
 
     return result;

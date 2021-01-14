@@ -2,13 +2,13 @@
 #define _H8300H_INCLUDED_
 
 #include <string>
-#include <thread>
 #include <mutex>
 
 #include "registers/register32.h"
 #include "registers/ccr.h"
 #include "inner_memory.h"
-#include "interrupt_queue.h"
+#include "sci/sci.h"
+#include "interrupt/interrupt_controller.h"
 
 class H8300H {
 public:
@@ -17,11 +17,13 @@ public:
     CCR ccr;
     uint32_t pc;
     InnerMemory memory;
-    InterruptQueue interrupt_queue;
 
-    std::thread *sci[3];
+    Sci* sci1;
     std::mutex mutex;
     bool terminate;
+
+    InterruptController interrupt_controller;
+    bool is_sleep;
 
 public:
     unsigned char fetch_instruction_byte(unsigned int offset);
@@ -35,9 +37,10 @@ public:
     uint32_t pop_from_stack_l(unsigned int register_index = 7);
 
     void save_pc_and_ccr_to_stack();
+    void restore_pc_and_ccr_from_stack();
 
 public:
-    H8300H() : sp(reg[7]), pc(0), terminate(false) {}
+    H8300H();
     ~H8300H();
 
     void init();
