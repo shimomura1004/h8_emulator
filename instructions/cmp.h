@@ -9,6 +9,7 @@ namespace cmp {
 int cmp_immediate_b(H8300H *h8);
 int cmp_register_direct_b(H8300H* h8);
 
+int cmp_immediate_w(H8300H* h8);
 int cmp_register_direct_w(H8300H* h8);
 
 int cmp_immediate_l(H8300H* h8);

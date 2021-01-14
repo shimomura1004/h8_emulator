@@ -35,6 +35,26 @@ int h8instructions::cmp::cmp_register_direct_b(H8300H *h8)
     return 0;
 }
 
+int h8instructions::cmp::cmp_immediate_w(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t register_index = b1 & 0x0f;
+    const Register32& reg = h8->reg[register_index % 8];
+
+    uint8_t immediate[2];
+    immediate[1] = h8->fetch_instruction_byte(2);
+    immediate[0] = h8->fetch_instruction_byte(3);
+    int16_t src_value = *(int16_t*)immediate;
+
+    int8_t dst_value = (register_index < 8) ? reg.get_r() : reg.get_e();
+    int8_t result_value = dst_value - src_value;
+
+    h8instructions::sub::update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
+    h8->pc += 4;
+
+    return 0;
+}
+
 int h8instructions::cmp::cmp_register_direct_w(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
