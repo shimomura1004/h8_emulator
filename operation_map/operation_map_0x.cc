@@ -6,6 +6,7 @@
 #include "../instructions/nop.h"
 #include "../instructions/orc.h"
 #include "../instructions/andc.h"
+#include "../instructions/sleep.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -49,7 +50,7 @@ instruction_handler_t lookup_01(H8300H* h8300h)
     switch (bh) {
     case 0x00: return h8instructions::mov::mov;
     case 0x04: return nullptr; // LDC/STC
-    case 0x08: return nullptr; // SLEEP
+    case 0x08: return h8instructions::sleep::sleep;
     case 0x0c: return lookup_01C05x(h8300h);
     case 0x0d: return lookup_01D05x(h8300h);
     case 0x0f: return lookup_01F06x(h8300h);
