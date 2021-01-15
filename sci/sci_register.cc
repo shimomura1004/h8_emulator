@@ -45,6 +45,34 @@ bool SciRegister::get_scr_te()
     return memory.read_uint8(scr_address) & (1<<5);
 }
 
+bool SciRegister::get_scr_rie()
+{
+    return memory.read_uint8(scr_address) & (1<<6);
+}
+
+void SciRegister::set_scr_rie(bool b)
+{
+    if (b) {
+        memory.update_uint8(scr_address, updater_set_bit<6, uint8_t>);
+    } else {
+        memory.update_uint8(scr_address, updater_clear_bit<6, uint8_t>);
+    }
+}
+
+bool SciRegister::get_scr_tie()
+{
+    return memory.read_uint8(scr_address) & (1<<7);
+}
+
+void SciRegister::set_scr_tie(bool b)
+{
+    if (b) {
+        memory.update_uint8(scr_address, updater_set_bit<7, uint8_t>);
+    } else {
+        memory.update_uint8(scr_address, updater_clear_bit<7, uint8_t>);
+    }
+}
+
 void SciRegister::set_rdr(uint8_t data)
 {
     memory.write_uint8(rdr_address, data);

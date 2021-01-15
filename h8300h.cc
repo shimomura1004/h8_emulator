@@ -2,7 +2,7 @@
 #include "operation_map/operation_map.h"
 #include "sci/sci.h"
 
-// todo: load コマンドが異常に遅い
+// todo: load コマンドで受信開始が異常に遅いことがある
 
 unsigned char H8300H::fetch_instruction_byte(unsigned int offset)
 {

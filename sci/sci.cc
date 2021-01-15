@@ -45,8 +45,13 @@ void Sci::process_recv_request()
 
         buffer.pop();
 
-        // 割り込みを発生させる
-        interrupt_controller.set(interrupt_t::RXI1);
+        // シリアル受信割り込みが有効な場合は割り込みを発生させる
+        if (sci_register.get_scr_rie()) {
+            static interrupt_t RXI_TABLE[] = {
+                interrupt_t::RXI0, interrupt_t::RXI1, interrupt_t::RXI2
+            };
+            interrupt_controller.set(RXI_TABLE[index]);
+        }
     }
 }
 
@@ -77,6 +82,7 @@ void Sci::run()
 
     while (!terminate) {
         // todo: ビジーループがつらいのでイベントドリブンにする
+        // 送信・受信をスレッドを2つにわけたらブロッキングで実現できるのでは？
 
         // 少し動作を遅くする
         // std::this_thread::sleep_for(std::chrono::milliseconds(1));
