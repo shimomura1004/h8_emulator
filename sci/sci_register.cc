@@ -127,3 +127,4 @@ SciRegister::SciRegister(uint8_t index, InnerMemory& memory)
     memory.write_uint8(rdr_address, 0);
     memory.write_uint8(scmr_address, 0);
 }
+

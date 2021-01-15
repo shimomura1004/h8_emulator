@@ -92,6 +92,7 @@ H8300H::H8300H()
     , pc(0)
     , terminate(false)
     , is_sleep(false)
+    , mcu(interrupt_controller, mutex)
 {}
 
 H8300H::~H8300H()

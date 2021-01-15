@@ -7,6 +7,7 @@
 #include "registers/register32.h"
 #include "registers/ccr.h"
 #include "inner_memory.h"
+#include "mcu.h"
 #include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"
 
@@ -17,6 +18,7 @@ public:
     CCR ccr;
     uint32_t pc;
     InnerMemory memory;
+    MCU mcu;
 
     Sci* sci1;
     std::mutex mutex;

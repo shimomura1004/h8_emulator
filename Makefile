@@ -1,7 +1,7 @@
 CC = cc
 CPPC = c++
 
-OBJS = elf_loader.o inner_memory.o h8300h.o runner.o main.o
+OBJS = elf_loader.o mcu.o inner_memory.o h8300h.o runner.o main.o
 OBJS += interrupt/interrupt_controller.o
 OBJS += sci/sci.o sci/sci_register.o
 OBJS += operation_map/operation_map.o \
