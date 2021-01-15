@@ -58,8 +58,8 @@ int popen2(char* command, int* fd_r, int* fd_w)
         close(pipe_c2p[W]);
 
         // h8300h を子プロセスとして起動
-        // if(execlp("./h8300h", "./h8300h", "1", NULL) < 0){
-        if(execlp("./h8300h", "./h8300h", NULL) < 0){
+        if(execlp("./h8300h", "./h8300h", "1", NULL) < 0){
+        // if(execlp("./h8300h", "./h8300h", NULL) < 0){
             perror("popen2");
             close(pipe_p2c[R]);
             close(pipe_c2p[W]);

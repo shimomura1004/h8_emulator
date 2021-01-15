@@ -5,7 +5,7 @@
 #include "sci_register.h"
 
 // todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう
-
+// todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
 
 // CPU から送信要求がきたか？
 bool Sci::send_requested() {
@@ -65,6 +65,9 @@ void Sci::process_send_request() {
         // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
         putc(data, stdout);
         fflush(stdout);
+
+        // 割り込みを発生させる
+        interrupt_controller.set(interrupt_t::TXI1);
     }
 }
 
@@ -73,7 +76,7 @@ void Sci::run()
     printf("SCI(%d) started\n", index);
 
     while (!terminate) {
-        // todo: イベントドリブンにする
+        // todo: ビジーループがつらいのでイベントドリブンにする
 
         // 少し動作を遅くする
         // std::this_thread::sleep_for(std::chrono::milliseconds(1));

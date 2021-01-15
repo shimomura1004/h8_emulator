@@ -81,8 +81,8 @@ void H8300H::save_pc_and_ccr_to_stack()
 void H8300H::restore_pc_and_ccr_from_stack()
 {
     uint32_t ccr_pc = pop_from_stack_l();
-    ccr.set((ccr_pc & 0xf000) >> 24);
-    pc = ccr_pc & 0x0fff;
+    ccr.set(ccr_pc >> 24);
+    pc = ccr_pc & 0x00ffffff;
 }
 
 H8300H::H8300H()
@@ -111,6 +111,7 @@ uint32_t H8300H::load_elf(std::string filepath)
 
 int H8300H::step()
 {
+    // 割り込みがあれば処理
     interrupt_t type = interrupt_controller.getInterruptType();
     if (type != interrupt_t::NONE && !ccr.i()) {
         // CCR と PC を退避
@@ -121,9 +122,7 @@ int H8300H::step()
         ccr.set_i();
 
         // 割り込みベクタに設定されたアドレスにジャンプ
-        printf("before: 0x%06x\n", pc);
         pc = memory.get_vector(type);
-        printf("after: 0x%06x %d %d\n", pc, type, memory.get_vector(type));
     }
 
     // PC が指す命令を実行
@@ -136,8 +135,8 @@ int H8300H::step()
     if (is_sleep) {
         // スリープ状態の場合は wait する
         // 復帰するときは別スレッドから notify する必要がある
-        printf("SLEEP!\n");
         interrupt_controller.wait_for_interruption();
+        is_sleep = false;
     }
 
     return result;
