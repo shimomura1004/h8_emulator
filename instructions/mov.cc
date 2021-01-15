@@ -209,23 +209,17 @@ static int displacement_register_indirect24_b(H8300H* h8)
 
         update_ccr<int8_t>(h8, value);
     } else if (b3h == 0x0a) {
-        // // Rs,@(d:24,ERd)
-        // uint8_t src_register_index = (b1 & 0x70) >> 4;
-        // uint8_t dst_register_index = (b1 & 0x0f);
-        // Register32& src = h8->reg[src_register_index];
-        // Register32& dst = h8->reg[dst_register_index % 8];
+        // Rs,@(d:24,ERd)
+        uint8_t dst_register_index = (b1 & 0x70) >> 4;
+        uint8_t src_register_index = (b3 & 0x0f);
+        const Register32& dst = h8->reg[dst_register_index];
+        const Register32& src = h8->reg[src_register_index % 8];
 
+        uint8_t value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
+        uint32_t address = dst.get_er() + disp;
+        h8->memory.write_uint8(address, value);
 
-        // uint32_t address = src.get_er() + disp;
-        // uint8_t value = h8->memory.read_uint8(address);
-        // if (dst_register_index < 8) {
-        //     dst.set_rh(value);
-        // } else {
-        //     dst.set_rl(value);
-        // }
-
-        // update_ccr<int8_t>(h8, value);
-        return -1;
+        update_ccr<int8_t>(h8, value);
     } else {
         fprintf(stderr, "Unknown mov.b format\n");
         return -1;
