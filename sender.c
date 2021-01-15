@@ -24,7 +24,7 @@
 
 static int fd_r, fd_w;
 
-int popen2(char* command, int* fd_r, int* fd_w)
+int popen2(int argc, char* argv[], int* fd_r, int* fd_w)
 {
     int pipe_c2p[2],pipe_p2c[2];
     int pid;
@@ -58,8 +58,9 @@ int popen2(char* command, int* fd_r, int* fd_w)
         close(pipe_c2p[W]);
 
         // h8300h を子プロセスとして起動
-        if(execlp("./h8300h", "./h8300h", "1", NULL) < 0){
-        // if(execlp("./h8300h", "./h8300h", NULL) < 0){
+        // argv[argc] は C の仕様上 null なので、execv に直接渡していい
+        argv[0] = "./h8300h";
+        if (execvp(argv[0], argv) < 0) {
             perror("popen2");
             close(pipe_p2c[R]);
             close(pipe_c2p[W]);
@@ -158,7 +159,7 @@ int main(int argc, char* argv[])
 	timeout.tv_sec = 0; 
 	timeout.tv_usec = 0;
 
-    popen2(NULL, &fd_r, &fd_w);
+    popen2(argc, argv, &fd_r, &fd_w);
 
     while (1) {
         FD_ZERO(&fdset);

@@ -4,24 +4,15 @@
 
 int main (int argc, char* argv[])
 {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s (ELF file) (option)\n", argv[0]);
+        exit(1);
+    }
+
     H8300H h8;
     h8.init();
 
-    // uint32_t start_addr = h8.load_elf("./osbook_03/01/bootload/kzload");
-    // uint32_t start_addr = h8.load_elf("./osbook_03/02/bootload/kzload");
-    // uint32_t start_addr = h8.load_elf("./osbook_03/03/bootload/kzload");
-    // uint32_t start_addr = h8.load_elf("./osbook_03/04/bootload/kzload");
-    // uint32_t start_addr = h8.load_elf("./osbook_03/05/bootload/kzload");
-    // uint32_t start_addr = h8.load_elf("./osbook_03/06/bootload/kzload");
-    uint32_t start_addr = h8.load_elf("./osbook_03/07/bootload/kzload");
-
-    // uint32_t start_addr = h8.load_elf("./kozos/01/kzload.elf");
-    // uint32_t start_addr = h8.load_elf("./kozos/02/kzload.elf");
-    // uint32_t start_addr = h8.load_elf("./kozos/03/kzload.elf");
-    // uint32_t start_addr = h8.load_elf("./kozos/04/kzload.elf");
-    // uint32_t start_addr = h8.load_elf("./kozos/05/kzload.elf");
-    // uint32_t start_addr = h8.load_elf("./kozos/06/bootload/kzload.elf");
-    // uint32_t start_addr = h8.load_elf("./kozos/07/bootload/kzload.elf");
+    uint32_t start_addr = h8.load_elf(argv[1]);
     
     printf("Start execution from 0x%x\n", start_addr);
 
@@ -29,7 +20,7 @@ int main (int argc, char* argv[])
     h8.pc = start_addr;
 
     Runner runner(h8);
-    runner.run(argc != 1);
+    runner.run(argc > 2);
 
     return 0;
 }

@@ -46,8 +46,8 @@ OBJS += instructions/mov.o \
 
 TARGET = h8300h
 
-CFLAGS = -Wall -I. -std=c++11 -pthread
-CFLAGS += -g
+CPPFLAGS = -Wall -I. -std=c++11 -pthread
+CPPFLAGS += -g
 LFLAGS = -L.
 
 .SUFFIXES: .cc .c .o
@@ -55,13 +55,14 @@ LFLAGS = -L.
 all: $(TARGET) sender
 
 $(TARGET): $(OBJS)
-	$(CPPC) $(OBJS) -o $(TARGET) $(CFLAGS) $(LFLAGS)
-
-sender: sender.c
-	$(CC) -o sender sender.c
+	$(CPPC) $(OBJS) -o $(TARGET) $(CPPFLAGS) $(LFLAGS)
 
 .cc.o :			$<
-				$(CPPC) -c $(CFLAGS) -o $@ $<
+				$(CPPC) -c $(CPPFLAGS) -o $@ $<
+
+CFLAGS = -Wall -I. -g
+sender: sender.c
+	$(CC) -o sender $(CFLAGS) sender.c
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) sender

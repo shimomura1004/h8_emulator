@@ -2,6 +2,7 @@
 *.o
 h8300h
 sender
+core
 
 osbook_03
 kozos
