@@ -10,7 +10,7 @@ bool Runner::load_file_to_memory(uint32_t address, char *filename)
 
     int data;
     while ((data = fgetc(fp)) != EOF) {
-        h8.memory.write_uint8(address++, data);
+        h8.mcu.write<8, uint8_t>(address++, data);
     }
 
     fclose(fp);
@@ -69,16 +69,16 @@ void Runner::write_value_command(char *buf)
     if (ret == 3) {
         switch (length) {
         case 1:
-            printf("Write 0x%x to [0x%08x]\n", value, address);
-            h8.memory.write_uint8(address, value);
+            printf("Write 0x%x to [0x%06x]\n", value, address);
+            h8.mcu.write<8, uint8_t>(address, value);
             break;
         case 2:
-            printf("Write 0x%x to [0x%08x]\n", value, address);
-            h8.memory.write_uint16(address, value);
+            printf("Write 0x%x to [0x%06x]\n", value, address);
+            h8.mcu.write<16, uint16_t>(address, value);
             break;
         case 4:
-            printf("Write 0x%x to [0x%08x]\n", value, address);
-            h8.memory.write_uint32(address, value);
+            printf("Write 0x%x to [0x%06x]\n", value, address);
+            h8.mcu.write<32, uint32_t>(address, value);
             break;
         default:
             fprintf(stderr, "Syntax error in length.\n");
@@ -139,7 +139,7 @@ int Runner::proccess_debugger_command()
             h8.print_registers();
             break;
         case 'd':
-            h8.memory.dump("core");
+            h8.mcu.dump("core");
             printf("Memory dumped to 'core' file\n");
             break;
         case 's':
@@ -200,7 +200,7 @@ void Runner::run(bool debug)
         result = h8.step();
         if (result != 0) {
             fprintf(stderr, "Core dumped.\n");
-            h8.memory.dump("core");
+            h8.mcu.dump("core");
             break;
         }
     }

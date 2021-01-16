@@ -6,7 +6,7 @@ private:
     uint8_t ccr;
 
 public:
-    CCR() : ccr(0) {}
+    CCR() : ccr(0x80) {}
     const unsigned char raw() const { return ccr; }
     void set(uint8_t new_ccr) { ccr = new_ccr; }
 

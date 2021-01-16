@@ -35,7 +35,7 @@ static int register_indirect_b(H8300H* h8)
 
         uint8_t value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
         uint32_t address = dst.get_er();
-        h8->memory.write_uint8(address, value);
+        h8->mcu.write<8, uint8_t>(address, value);
 
         update_ccr<int8_t>(h8, value);
     } else {
@@ -46,7 +46,7 @@ static int register_indirect_b(H8300H* h8)
         Register32& dst = h8->reg[dst_register_index % 8];
 
         uint32_t address = src.get_er();
-        uint8_t value = h8->memory.read_uint8(address);
+        uint8_t value = h8->mcu.read<8, uint8_t>(address);
         if (dst_register_index < 8) {
             dst.set_rh(value);
         } else {
@@ -72,7 +72,7 @@ static int register_indirect_l_from_reg(H8300H* h8)
 
     int32_t value = src.get_er();
     uint32_t address = dst.get_er();
-    h8->memory.write_uint32(address, value);
+    h8->mcu.write<32, uint32_t>(address, value);
 
     update_ccr<int32_t>(h8, value);
 
@@ -91,7 +91,7 @@ static int register_indirect_l_to_reg(H8300H* h8)
     Register32& dst = h8->reg[dst_register_index];
 
     uint32_t address = src.get_er();
-    int32_t value = h8->memory.read_uint32(address);
+    int32_t value = h8->mcu.read<32, uint32_t>(address);
     dst.set_er(value);
 
     update_ccr<int32_t>(h8, value);
@@ -120,7 +120,7 @@ static int displacement_register_indirect16_b(H8300H* h8)
 
         uint8_t value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
         uint32_t address = dst.get_er() + disp;
-        h8->memory.write_uint8(address, value);
+        h8->mcu.write<8, uint8_t>(address, value);
 
         update_ccr<int8_t>(h8, value);
     } else {
@@ -131,7 +131,7 @@ static int displacement_register_indirect16_b(H8300H* h8)
         Register32& dst = h8->reg[dst_register_index % 8];
 
         uint32_t address = src.get_er() + disp;
-        uint8_t value = h8->memory.read_uint8(address);
+        uint8_t value = h8->mcu.read<8, uint8_t>(address);
         (dst_register_index < 8) ? dst.set_rh(value) : dst.set_rl(value);
 
         update_ccr<int8_t>(h8, value);
@@ -161,7 +161,7 @@ static int displacement_register_indirect16_w(H8300H* h8)
 
         uint16_t value = (src_register_index < 8) ? src.get_r() : src.get_e();
         uint32_t address = dst.get_er() + disp;
-        h8->memory.write_uint16(address, value);
+        h8->mcu.write<16, uint16_t>(address, value);
 
         update_ccr<int16_t>(h8, value);
     } else {
@@ -172,7 +172,7 @@ static int displacement_register_indirect16_w(H8300H* h8)
         const Register32& src = h8->reg[src_register_index];
 
         uint32_t address = src.get_er() + disp;
-        uint16_t value = h8->memory.read_uint16(address);
+        uint16_t value = h8->mcu.read<16, uint16_t>(address);
         (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
 
         update_ccr<int16_t>(h8, value);
@@ -204,7 +204,7 @@ static int displacement_register_indirect24_b(H8300H* h8)
         Register32& dst = h8->reg[dst_register_index % 8];
 
         uint32_t address = src.get_er() + disp;
-        uint8_t value = h8->memory.read_uint8(address);
+        uint8_t value = h8->mcu.read<8, uint8_t>(address);
         (dst_register_index < 8) ? dst.set_rh(value) : dst.set_rl(value);
 
         update_ccr<int8_t>(h8, value);
@@ -217,7 +217,7 @@ static int displacement_register_indirect24_b(H8300H* h8)
 
         uint8_t value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
         uint32_t address = dst.get_er() + disp;
-        h8->memory.write_uint8(address, value);
+        h8->mcu.write<8, uint8_t>(address, value);
 
         update_ccr<int8_t>(h8, value);
     } else {
@@ -245,7 +245,7 @@ static int displacement_register_indirect16_l_from_reg(H8300H* h8)
 
     int32_t value = src.get_er();
     uint32_t address = dst.get_er() + disp;
-    h8->memory.write_uint32(address, value);
+    h8->mcu.write<32, uint32_t>(address, value);
 
     (value < 0) ? h8->ccr.set_n() : h8->ccr.clear_n();
     (value == 0) ? h8->ccr.set_z() : h8->ccr.clear_z();
@@ -270,7 +270,7 @@ static int displacement_register_indirect16_l_to_reg(H8300H* h8)
     int16_t disp = *(int16_t*)displacement;
 
     uint32_t address = src.get_er() + disp;
-    int32_t value = h8->memory.read_uint32(address);
+    int32_t value = h8->mcu.read<32, uint32_t>(address);
     dst.set_er(value);
 
     (value < 0) ? h8->ccr.set_n() : h8->ccr.clear_n();
@@ -301,7 +301,7 @@ static int displacement_register_indirect24_l(H8300H* h8)
         Register32& src = h8->reg[src_register_index];
         Register32& dst = h8->reg[dst_register_index];
         uint32_t address = src.get_er() + disp;
-        uint32_t value = h8->memory.read_uint32(address);
+        uint32_t value = h8->mcu.read<32, uint32_t>(address);
         dst.set_er(value);
 
         (value < 0) ? h8->ccr.set_n() : h8->ccr.clear_n();
@@ -316,7 +316,7 @@ static int displacement_register_indirect24_l(H8300H* h8)
 
         uint32_t value = src.get_er();
         uint32_t address = dst.get_er() + disp;
-        h8->memory.write_uint32(address, value);
+        h8->mcu.write<32, uint32_t>(address, value);
 
         (value < 0) ? h8->ccr.set_n() : h8->ccr.clear_n();
         (value == 0) ? h8->ccr.set_z() : h8->ccr.clear_z();
@@ -392,7 +392,7 @@ static int absolute_address_24_b_from_reg(H8300H* h8)
     int32_t abs = *(int32_t*)absolute;
 
     uint8_t value = (src_register_index < 8) ? src.get_rh() : src.get_rl();
-    h8->memory.write_uint8(abs, value);
+    h8->mcu.write<8, uint8_t>(abs, value);
 
     update_ccr<int8_t>(h8, (int8_t)value);
     h8->pc += 6;
@@ -413,7 +413,7 @@ static int absolute_address_24_w_to_reg(H8300H* h8)
     absolute[0] = h8->fetch_instruction_byte(5);
     int32_t abs = *(int32_t*)absolute;
 
-    uint16_t value = h8->memory.read_uint16(abs);
+    uint16_t value = h8->mcu.read<16, uint16_t>(abs);
     (dst_register_index < 8) ? dst.set_r(value) : dst.set_e(value);
 
     update_ccr<int16_t>(h8, value);
@@ -436,7 +436,7 @@ static int absolute_address_24_w_from_reg(H8300H* h8)
     int32_t abs = *(int32_t*)absolute;
 
     uint16_t value = (src_register_index < 8) ? src.get_r() : src.get_e();
-    h8->memory.write_uint16(abs, value);
+    h8->mcu.write<16, uint16_t>(abs, value);
 
     update_ccr<int16_t>(h8, value);
     h8->pc += 6;
@@ -457,7 +457,7 @@ static int absolute_address_24_l_to_reg(H8300H* h8)
     absolute[0] = h8->fetch_instruction_byte(7);
     int32_t abs = *(int32_t*)absolute;
 
-    int32_t value = h8->memory.read_uint32(abs);
+    int32_t value = h8->mcu.read<32, uint32_t>(abs);
     dst.set_er(value);
 
     update_ccr<int32_t>(h8, value);
@@ -480,7 +480,7 @@ static int absolute_address_24_l_from_reg(H8300H* h8)
     int32_t abs = *(int32_t*)absolute;
 
     uint32_t value = src.get_er();
-    h8->memory.write_uint32(abs, value);
+    h8->mcu.write<32, uint32_t>(abs, value);
 
     update_ccr<int32_t>(h8, value);
     h8->pc += 8;

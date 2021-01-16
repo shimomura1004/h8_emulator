@@ -29,102 +29,147 @@
 // #define H8_3069F_SCI_SSR_RDRF   (1<<6)
 // #define H8_3069F_SCI_SSR_TDRE   (1<<7)
 
-template<int n, class T>
-static T updater_set_bit(T value) { return value | (1<<n); }
-
-template<int n, class T>
-static T updater_clear_bit(T value) { return value & ~(1<<n); }
-
-bool SciRegister::get_scr_re()
-{
-    return memory.read_uint8(scr_address) & (1<<4);
+SCIRegister::SCIRegister() {
+    regs[SSR] = 0x84;
 }
 
-bool SciRegister::get_scr_te()
+uint8_t SCIRegister::read(uint32_t index)
 {
-    return memory.read_uint8(scr_address) & (1<<5);
+    return regs[index];
 }
 
-bool SciRegister::get_scr_rie()
+void SCIRegister::write(uint32_t index, uint8_t value)
 {
-    return memory.read_uint8(scr_address) & (1<<6);
-}
 
-void SciRegister::set_scr_rie(bool b)
-{
-    if (b) {
-        memory.update_uint8(scr_address, updater_set_bit<6, uint8_t>);
-    } else {
-        memory.update_uint8(scr_address, updater_clear_bit<6, uint8_t>);
+    uint8_t prev_value = regs[index];
+    regs[index] = value;
+
+    switch (index) {
+    case SCI::SSR: {
+        uint8_t prev_tdre = (prev_value & (1 << SCI_SSR::TDRE));
+        uint8_t new_tdre = (value & (1 << SCI_SSR::TDRE));
+        if (prev_tdre && !new_tdre) {
+            // TDRE が 1->0 と変化したら通知
+// printf(" NOTIFY by write (%d)\n", std::this_thread::get_id());
+            tdre_cv.notify_all();
+        }
+        break;
+    }
+    default:
+        break;
     }
 }
 
-bool SciRegister::get_scr_tie()
+bool SCIRegister::get_scr_re()
 {
-    return memory.read_uint8(scr_address) & (1<<7);
+    return regs[SCR] & (1 << SCI_SCR::RE);
 }
 
-void SciRegister::set_scr_tie(bool b)
+bool SCIRegister::get_scr_te()
+{
+    return regs[SCR] & (1 << SCI_SCR::TE);
+}
+
+bool SCIRegister::get_scr_rie()
+{
+    return regs[SCR] & (1 << SCI_SCR::RIE);
+}
+
+void SCIRegister::set_scr_rie(bool b)
 {
     if (b) {
-        memory.update_uint8(scr_address, updater_set_bit<7, uint8_t>);
+        regs[SCR] |= (1 << SCI_SCR::RIE);
     } else {
-        memory.update_uint8(scr_address, updater_clear_bit<7, uint8_t>);
+        regs[SCR] &= ~(1 << SCI_SCR::RIE);
     }
 }
 
-void SciRegister::set_rdr(uint8_t data)
+bool SCIRegister::get_scr_tie()
 {
-    memory.write_uint8(rdr_address, data);
+    return regs[SCR] & (1 << SCI_SCR::TIE);
 }
 
-uint8_t SciRegister::get_tdr()
+void SCIRegister::set_scr_tie(bool b)
 {
-    return memory.read_uint8(tdr_address);
-}
-
-bool SciRegister::get_ssr_rdrf()
-{
-    return memory.read_uint8(ssr_address) & (1<<6);
-}
-
-void SciRegister::set_ssr_rdrf(bool b) {
     if (b) {
-        memory.update_uint8(ssr_address, updater_set_bit<6, uint8_t>);
+        regs[SCR] |= (1 << SCI_SCR::TIE);
     } else {
-        memory.update_uint8(ssr_address, updater_clear_bit<6, uint8_t>);
+        regs[SCR] &= ~(1 << SCI_SCR::TIE);
     }
 }
 
-bool SciRegister::get_ssr_tdre()
+void SCIRegister::set_rdr(uint8_t data)
 {
-    return memory.read_uint8(ssr_address) & (1<<7);
+    regs[RDR] = data;
 }
 
-void SciRegister::set_ssr_tdre(bool b) {
+uint8_t SCIRegister::get_tdr() {
+    return regs[TDR];
+}
+
+bool SCIRegister::get_ssr_rdrf()
+{
+    return regs[SSR] & (1 << SCI_SSR::RDRF);
+}
+
+void SCIRegister::set_ssr_rdrf(bool b)
+{
     if (b) {
-        memory.update_uint8(ssr_address, updater_set_bit<7, uint8_t>);
+        regs[SSR] |= (1 << SCI_SSR::RDRF);
     } else {
-        memory.update_uint8(ssr_address, updater_clear_bit<7, uint8_t>);
+        regs[SSR] &= ~(1 << SCI_SSR::RDRF);
+        rdrf_cv.notify_all();
     }
 }
 
-SciRegister::SciRegister(uint8_t index, InnerMemory& memory)
-    : smr_address(sci_base_address[index] + 0)
-    , brr_address(sci_base_address[index] + 1)
-    , scr_address(sci_base_address[index] + 2)
-    , tdr_address(sci_base_address[index] + 3)
-    , ssr_address(sci_base_address[index] + 4)
-    , rdr_address(sci_base_address[index] + 5)
-    , scmr_address(sci_base_address[index] + 6)
-    , memory(memory)
+void SCIRegister::wait_rdrf()
 {
-    memory.write_uint8(smr_address, 0);
-    memory.write_uint8(brr_address, 0);
-    memory.write_uint8(scr_address, 0);
-    memory.write_uint8(tdr_address, 0);
-    memory.write_uint8(ssr_address, 0xff);
-    memory.write_uint8(rdr_address, 0);
-    memory.write_uint8(scmr_address, 0);
+    // ビジーループなら問題なし
+    while (regs[SSR] & (1 << SCI_SSR::RDRF)) {}
+    return;
+
+    std::unique_lock<std::mutex> rdrf_lock(rdrf_mut);
+    rdrf_cv.wait(rdrf_lock);
 }
 
+bool SCIRegister::get_ssr_tdre()
+{
+    return regs[SSR] & (1 << SCI_SSR::TDRE);
+}
+
+void SCIRegister::set_ssr_tdre(bool b)
+{
+    if (b) {
+        regs[SSR] |= (1 << SCI_SSR::TDRE);
+    } else {
+        regs[SSR] &= ~(1 << SCI_SSR::TDRE);
+// printf(" NOTIFY BY set (%d)\n", std::this_thread::get_id());
+        tdre_cv.notify_all();
+    }
+}
+
+void SCIRegister::wait_tdre()
+{
+    std::unique_lock<std::mutex> tdre_lock(tdre_mut);
+    tdre_cv.wait(tdre_lock);
+}
+
+void SCIRegister::wait_tdre_if_up()
+{
+    while(regs[SSR] & (1 << SCI_SSR::TDRE)){
+    }
+    return;
+
+    if (regs[SSR] & (1 << SCI_SSR::TDRE)) {
+        std::unique_lock<std::mutex> lock(tdre_mut);
+        tdre_cv.wait(lock);
+    }
+}
+
+void SCIRegister::dump(FILE* fp)
+{
+    for (int i = 0; i < SCIRegister::SCI::SIZE; i++) {
+        fputc(regs[i], fp);
+    }
+    fputc(0, fp);
+}

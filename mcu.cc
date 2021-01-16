@@ -1,89 +1,45 @@
 #include "mcu.h"
+#include "elf_loader.h"
 
-template<uint8_t n, class T>
-T MCU::read(uint32_t address)
+uint32_t MCU::load_elf(std::string filepath)
 {
-    std::lock_guard<std::mutex> lock(mutex);
-
-    if (rom_start <= address && address <= rom_end) {
-        switch (n) {
-        case  8: return rom[address - rom_start];
-        case 16: return __builtin_bswap16(*(uint16_t*)&rom[address - rom_start]);
-        case 32: return __builtin_bswap32(*(uint32_t*)&rom[address - rom_start]);
-        default: break;
-        }
-    } else if (ram_start <= address && address <= ram_end) {
-        switch (n) {
-        case  8: return ram[address - ram_start];
-        case 16: return __builtin_bswap16(*(uint16_t*)&ram[address - ram_start]);
-        case 32: return __builtin_bswap32(*(uint32_t*)&ram[address - ram_start]);
-        default: break;
-        }
-    } else if (sci1_start <= address && address <= sci1_end) {
-        if (n == 8) {
-            return sci1.read(address - sci1_start);
-        }
-    }
-
-    fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
+    return ElfLoader::load(rom, filepath);
 }
 
-template<uint8_t n, class T>
-void MCU::write(uint32_t address, T value)
+uint32_t MCU::get_vector(uint8_t index)
 {
-    std::lock_guard<std::mutex> lock(mutex);
-
-    if (ram_start <= address && address <= ram_end) {
-        switch (n) {
-        case  8:
-            ram[address - ram_start] = value;
-            return;
-        case 16:
-            *(T*)&ram[address - ram_start] = __builtin_bswap16(value);
-            return;
-        case 32:
-            *(T*)&ram[address - ram_start] = __builtin_bswap32(value);
-            return;
-        default: break;
-        }
-    } else if (sci1_start <= address && address <= sci1_end) {
-        if (n == 8) {
-            sci1.write(address - sci1_start, value);
-            return;
-        }
-    }
-
-    fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
+    return read<32, uint32_t>(index) * 4;
 }
 
-template<uint8_t n, class T>
-void MCU::update(uint32_t address, T(*f)(T))
+void MCU::dump(std::string filepath)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
-    if (ram_start <= address && address <= ram_end) {
-        switch (n) {
-        case  8:
-            ram[address - ram_start] = f(ram[address- ram_start]);
-            return;
-        case 16: {
-            uint16_t value = __builtin_bswap16(*(uint16_t*)&ram[address - ram_start]);
-            *(uint16_t*)&ram[address - ram_start] = __builtin_bswap16(f(value));
-            return;
-        }
-        case 32: {
-            uint32_t value = __builtin_bswap32(*(uint32_t*)&ram[address - ram_start]);
-            *(uint32_t*)&ram[address - ram_start] = __builtin_bswap32(value);
-            return;
-        }
-        default: break;
-        }
-    } else if (sci1_start <= address && address <= sci1_end) {
-        if (n == 8) {
-            sci1.write(address - sci1_start, f(sci1.read(address - sci1_start)));
-            return;
-        }
+    FILE* fp = fopen(filepath.c_str(), "wb");
+    if (fp == nullptr) {
+        return;
     }
 
-    fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
+    // 内蔵ROMを出力
+    fwrite(rom, sizeof(uint8_t), rom_end - vec_start + 1, fp);
+    // 内蔵RAMまでは0で埋める(外部アドレス空間 + 内部I/Oレジスタ)
+    for (uint32_t i = rom_end + 1; i < ram_start; i++) {
+        fputc(0, fp);
+    }
+    // 内蔵RAMを出力
+    fwrite(ram, sizeof(uint8_t), ram_end - ram_start + 1, fp);
+    // 内部I/Oレジスタ(SCI を含む)
+    // SCI1 以外は 0 埋めする
+    sci1_start - (ram_end + 1);
+    for (uint32_t i = ram_end + 1; i < sci1_start; i++) {
+        fputc(0, fp);
+    }
+    // SCI1 を出力
+    sci1.dump(fp);
+    // 末尾まで0 埋めする
+    for (uint32_t i=sci2_start; i < all_end + 1; i++) {
+        fputc(0, fp);
+    }
+
+    fclose(fp);
 }

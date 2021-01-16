@@ -6,9 +6,7 @@
 
 #include "registers/register32.h"
 #include "registers/ccr.h"
-#include "inner_memory.h"
 #include "mcu.h"
-#include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"
 
 class H8300H {
@@ -17,10 +15,8 @@ public:
     Register32& sp;
     CCR ccr;
     uint32_t pc;
-    InnerMemory memory;
     MCU mcu;
 
-    Sci* sci1;
     std::mutex mutex;
     bool terminate;
 
@@ -28,15 +24,15 @@ public:
     bool is_sleep;
 
 public:
-    unsigned char fetch_instruction_byte(unsigned int offset);
+    uint8_t fetch_instruction_byte(uint8_t offset);
     int execute_next_instruction();
 
-    void push_to_stack_b(uint8_t value, unsigned int register_index = 7);
-    uint8_t pop_from_stack_b(unsigned int register_index = 7);
-    void push_to_stack_w(uint16_t value, unsigned int register_index = 7);
-    uint16_t pop_from_stack_w(unsigned int register_index = 7);
-    void push_to_stack_l(uint32_t value, unsigned int register_index = 7);
-    uint32_t pop_from_stack_l(unsigned int register_index = 7);
+    void push_to_stack_b(uint8_t value, uint8_t register_index = 7);
+    uint8_t pop_from_stack_b(uint8_t register_index = 7);
+    void push_to_stack_w(uint16_t value, uint8_t register_index = 7);
+    uint16_t pop_from_stack_w(uint8_t register_index = 7);
+    void push_to_stack_l(uint32_t value, uint8_t register_index = 7);
+    uint32_t pop_from_stack_l(uint8_t register_index = 7);
 
     void save_pc_and_ccr_to_stack();
     void restore_pc_and_ccr_from_stack();

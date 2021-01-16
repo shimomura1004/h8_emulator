@@ -106,7 +106,7 @@ static int elf_check(struct elf_header *header)
     return 0;
 }
 
-static int elf_load_program(struct elf_header *header, unsigned char buf[], InnerMemory* memory)
+static int elf_load_program(struct elf_header *header, unsigned char buf[], uint8_t* memory)
 {
     int i;
     struct elf_program_header *phdr;
@@ -134,7 +134,7 @@ static int elf_load_program(struct elf_header *header, unsigned char buf[], Inne
         // elf ヘッダの先頭からオフセット分だけずらした位置から、
         // 物理アドレスの場所に対象のセグメントをロードする
         for (int i = 0; i < phdr->file_size; i++) {
-            (*memory)[phdr->physical_addr + i] = (unsigned char)buf[phdr->offset + i];
+            memory[phdr->physical_addr + i] = (unsigned char)buf[phdr->offset + i];
         }
 
         // RAM 領域で、セグメントをコピーしたところから後ろをゼロクリアする
@@ -143,7 +143,7 @@ static int elf_load_program(struct elf_header *header, unsigned char buf[], Inne
         // ここはゼロクリアする
         // おそらく elf ファイル上に実体がない領域はセグメントの後ろ側に集められる仕様になっている
         for (int i = 0; i < phdr->memory_size - phdr->file_size; i++) {
-            (*memory)[phdr->physical_addr + phdr->file_size + i] = 0;
+            memory[phdr->physical_addr + phdr->file_size + i] = 0;
         }
 
         // セグメントの情報を出力する
@@ -159,7 +159,7 @@ static int elf_load_program(struct elf_header *header, unsigned char buf[], Inne
     return 0;
 }
 
-uint32_t ElfLoader::load(InnerMemory* memory, std::string filepath)
+uint32_t ElfLoader::load(uint8_t* memory, std::string filepath)
 {
     // ヘッダ部分は実行時には不要、一時変数 buf に展開して使う
     // セグメントは実行時に必要、memory に書き込む
