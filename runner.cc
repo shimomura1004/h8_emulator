@@ -1,4 +1,5 @@
 #include "runner.h"
+#include <signal.h>
 
 bool Runner::load_file_to_memory(uint32_t address, char *filename)
 {
@@ -164,12 +165,30 @@ int Runner::proccess_debugger_command()
     }
 }
 
+// Ctrl-c でデバッグモードに入る
+static bool debug_mode;
+static void sig_handler(int signo)
+{
+    switch (signo) {
+    case SIGINT:
+        if (!debug_mode) {
+            debug_mode = true;
+        } else {
+            exit(1);
+        }
+        break;
+    }
+}
+
 void Runner::run(bool debug)
 {
+    debug_mode = debug;
+    signal(SIGINT, sig_handler);
+
     int result = 0;
 
     while (1) {
-        if (debug) {
+        if (debug_mode) {
             int r = proccess_debugger_command();
             if (r != 0) {
                 break;
