@@ -5,6 +5,7 @@
 #include <condition_variable>
 
 class SCIRegister {
+public:
     typedef enum {
         SMR = 0,
         BRR,
@@ -38,8 +39,14 @@ class SCIRegister {
         TDRE
     } SCI_SSR;
 
+    static bool get(uint8_t byte, uint8_t bit_index);
+    static uint8_t set(uint8_t byte, uint8_t bit_index, bool b);
+
+private:
     uint8_t regs[SCIRegister::SCI::SIZE];
-    std::mutex mutex;
+
+    std::mutex ssr_mutex;
+    std::mutex tdr_mutex;
 
     std::mutex rdrf_mut;
     std::condition_variable rdrf_cv;
@@ -65,9 +72,12 @@ public:
 
     bool get_ssr_rdrf();
     void set_ssr_rdrf(bool b);
+
     void wait_rdrf();
+
     bool get_ssr_tdre();
     void set_ssr_tdre(bool b);
+
     void wait_tdre();
     void wait_tdre_if_up();
 

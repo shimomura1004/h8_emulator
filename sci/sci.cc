@@ -54,9 +54,7 @@ void SCI::run_send_to_h8() {
         }
 
         // H8 が受信するまで待つ
-        if (sci_register.get_ssr_rdrf()) {
-            sci_register.wait_rdrf();
-        }
+        sci_register.wait_rdrf();
 
         // H8 に渡すデータは RDR に書き込んでおく
         sci_register.set_rdr(c);
@@ -64,13 +62,13 @@ void SCI::run_send_to_h8() {
         // RDRF を 1 にして H8 に通知
         sci_register.set_ssr_rdrf(true);
 
-        // シリアル受信割り込みが有効な場合は割り込みを発生させる
-        if (sci_register.get_scr_rie()) {
-            static interrupt_t RXI_TABLE[] = {
-                interrupt_t::RXI0, interrupt_t::RXI1, interrupt_t::RXI2
-            };
-            interrupt_controller.set(RXI_TABLE[index]);
-        }
+        // // シリアル受信割り込みが有効な場合は割り込みを発生させる
+        // if (sci_register.get_scr_rie()) {
+        //     static interrupt_t RXI_TABLE[] = {
+        //         interrupt_t::RXI0, interrupt_t::RXI1, interrupt_t::RXI2
+        //     };
+        //     interrupt_controller.set(RXI_TABLE[index]);
+        // }
     }
 }
 
