@@ -8,7 +8,7 @@ uint32_t MCU::load_elf(std::string filepath)
 
 uint32_t MCU::get_vector(uint8_t index)
 {
-    return read<32, uint32_t>(index) * 4;
+    return read<32, uint32_t>(index * 4);
 }
 
 void MCU::dump(std::string filepath)
