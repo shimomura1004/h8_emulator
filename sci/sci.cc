@@ -15,23 +15,13 @@ void SCI::run_recv_from_h8() {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
 
-        // todo: タイミング次第で、TDRE が 0 のままになる
-        // H8 はいつまでも 0 なのでループしてまつ
-        // 0 が入ったのに、 notify されていないということ
-
-        // todo: 確認と wait をアトミックにしたほうがいいかも
-        // if (sci_register.get_ssr_tdre()) {
-        //     sci_register.wait_tdre();
-        // }
-        // printf(" LOCK\n");
-        sci_register.wait_tdre_if_up();
-        // printf(" RESUME\n");
+        sci_register.wait_tdre();
 
         // データは TDR に入っている
-        uint8_t data = sci_register.get_tdr();
+        uint8_t data = sci_register.get(SCIRegister::SCI::SSR);
 
         // データを TDR から取得したら SSR_TDRE を 1 にして送信可能を通知
-        sci_register.set_ssr_tdre(true);
+        sci_register.set_bit(SCIRegister::SCI::SSR, SCIRegister::SCI_SSR::TDRE, true);
 
         // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
         putc(data, stdout);
@@ -57,10 +47,10 @@ void SCI::run_send_to_h8() {
         sci_register.wait_rdrf();
 
         // H8 に渡すデータは RDR に書き込んでおく
-        sci_register.set_rdr(c);
+       sci_register.set(SCIRegister::RDR, (uint8_t)c);
 
         // RDRF を 1 にして H8 に通知
-        sci_register.set_ssr_rdrf(true);
+        sci_register.set_bit(SCIRegister::SSR, SCIRegister::SCI_SSR::RDRF, true);
 
         // // シリアル受信割り込みが有効な場合は割り込みを発生させる
         // if (sci_register.get_scr_rie()) {
@@ -113,12 +103,10 @@ void SCI::dump(FILE* fp)
 // H8 上で動くアプリからはこちらの API で SCI にアクセスされる
 uint8_t SCI::read(uint32_t address)
 {
-// printf("read sci memory 0x%x from 0x%x\n", sci_register.read(address), address);
     return sci_register.read(address);
 }
 
 void SCI::write(uint32_t address, uint8_t value)
 {
-// printf("write sci memory 0x%x to 0x%x\n", value, address);
     sci_register.write(address, value);
 }

@@ -24,6 +24,10 @@
 
 static int fd_r, fd_w;
 
+// todo: sender が止まったあと、h8300h を止める
+// todo: h8300h が止まったあと、それを検知する
+// todo: h8300h への signal の伝達
+
 int popen2(int argc, char* argv[], int* fd_r, int* fd_w)
 {
     int pipe_c2p[2],pipe_p2c[2];

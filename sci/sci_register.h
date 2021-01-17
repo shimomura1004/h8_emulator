@@ -7,13 +7,13 @@
 class SCIRegister {
 public:
     typedef enum {
-        SMR = 0,
-        BRR,
-        SCR,
-        TDR,
-        SSR,
-        RDR,
-        SCMR,
+        SMR = 0,    // シリアルモードレジスタ
+        BRR,        // ビットレートレジスタ
+        SCR,        // シリアルコントロールレジスタ
+        TDR,        // トランスミットレジスタ
+        SSR,        // シリアルステータスレジスタ
+        RDR,        // レシーブデータレジスタ
+        SCMR,       // スマートカードモードレジスタ
         SIZE
     } SCI;
 
@@ -39,14 +39,10 @@ public:
         TDRE
     } SCI_SSR;
 
-    static bool get(uint8_t byte, uint8_t bit_index);
-    static uint8_t set(uint8_t byte, uint8_t bit_index, bool b);
-
 private:
     uint8_t regs[SCIRegister::SCI::SIZE];
-
-    std::mutex ssr_mutex;
-    std::mutex tdr_mutex;
+    // エミュレータと OS の両方から SCI のレジスタにアクセスするので、排他が必要
+    std::recursive_mutex sci_mutex;
 
     std::mutex rdrf_mut;
     std::condition_variable rdrf_cv;
@@ -56,30 +52,36 @@ private:
 public:
     SCIRegister();
 
-    uint8_t read(uint32_t index);
-    void write(uint32_t index, uint8_t value);
+    uint8_t get(uint8_t register_index);
+    void set(uint8_t register_index, uint8_t byte);
+    bool get_bit(uint8_t register_index, uint8_t bit_index);
+    uint8_t set_bit(uint8_t register_index, uint8_t bit_index, bool b);
+    static bool get_bit_from(uint8_t value, uint8_t bit_index);
 
-    bool get_scr_re();
-    bool get_scr_te();
-    bool get_scr_rie();
-    void set_scr_rie(bool b);
-    bool get_scr_tie();
-    void set_scr_tie(bool b);
+    // OS 側へのインタフェース
+    uint8_t read(uint32_t register_index);
+    void write(uint32_t register_index, uint8_t byte);
 
-    void set_rdr(uint8_t data);
+    // bool get_scr_re();
+    // bool get_scr_te();
+    // bool get_scr_rie();
+    // void set_scr_rie(bool b);
+    // bool get_scr_tie();
+    // void set_scr_tie(bool b);
 
-    uint8_t get_tdr();
+    // void set_rdr(uint8_t data);
 
-    bool get_ssr_rdrf();
-    void set_ssr_rdrf(bool b);
+    // uint8_t get_tdr();
+
+    // bool get_ssr_rdrf();
+    // void set_ssr_rdrf(bool b);
 
     void wait_rdrf();
 
-    bool get_ssr_tdre();
-    void set_ssr_tdre(bool b);
+    // bool get_ssr_tdre();
+    // void set_ssr_tdre(bool b);
 
     void wait_tdre();
-    void wait_tdre_if_up();
 
     void dump(FILE* fp);
 
