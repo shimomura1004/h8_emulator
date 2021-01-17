@@ -27,6 +27,7 @@ static int fd_r, fd_w;
 // todo: sender が止まったあと、h8300h を止める
 // todo: h8300h が止まったあと、それを検知する
 // todo: h8300h への signal の伝達
+// todo: sender の cpu 消費量が100%
 
 int popen2(int argc, char* argv[], int* fd_r, int* fd_w)
 {

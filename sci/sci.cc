@@ -4,9 +4,6 @@
 #include "sci.h"
 #include "sci_register.h"
 
-// まずビジーループにしてみる -> OK
-// なぜ2回連続で notify されるのか？
-
 // todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう
 // todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
 
@@ -18,7 +15,7 @@ void SCI::run_recv_from_h8() {
         sci_register.wait_tdre();
 
         // データは TDR に入っている
-        uint8_t data = sci_register.get(SCIRegister::SCI::SSR);
+        uint8_t data = sci_register.get(SCIRegister::SCI::TDR);
 
         // データを TDR から取得したら SSR_TDRE を 1 にして送信可能を通知
         sci_register.set_bit(SCIRegister::SCI::SSR, SCIRegister::SCI_SSR::TDRE, true);

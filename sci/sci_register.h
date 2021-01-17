@@ -6,6 +6,7 @@
 
 class SCIRegister {
 public:
+    // todo: enum は別ヘッダに移す
     typedef enum {
         SMR = 0,    // シリアルモードレジスタ
         BRR,        // ビットレートレジスタ
@@ -55,32 +56,14 @@ public:
     uint8_t get(uint8_t register_index);
     void set(uint8_t register_index, uint8_t byte);
     bool get_bit(uint8_t register_index, uint8_t bit_index);
-    uint8_t set_bit(uint8_t register_index, uint8_t bit_index, bool b);
+    void set_bit(uint8_t register_index, uint8_t bit_index, bool b);
     static bool get_bit_from(uint8_t value, uint8_t bit_index);
 
     // OS 側へのインタフェース
     uint8_t read(uint32_t register_index);
     void write(uint32_t register_index, uint8_t byte);
 
-    // bool get_scr_re();
-    // bool get_scr_te();
-    // bool get_scr_rie();
-    // void set_scr_rie(bool b);
-    // bool get_scr_tie();
-    // void set_scr_tie(bool b);
-
-    // void set_rdr(uint8_t data);
-
-    // uint8_t get_tdr();
-
-    // bool get_ssr_rdrf();
-    // void set_ssr_rdrf(bool b);
-
     void wait_rdrf();
-
-    // bool get_ssr_tdre();
-    // void set_ssr_tdre(bool b);
-
     void wait_tdre();
 
     void dump(FILE* fp);

@@ -91,6 +91,7 @@ void Runner::write_value_command(char *buf)
 
 // todo: メモリの内容を一部確認するコマンドがほしい
 // todo: レジスタを書き換えるコマンドがほしい
+// todo: SCI のレジスタを見るコマンドがほしい
 int Runner::proccess_debugger_command()
 {
     if (continue_mode) {
