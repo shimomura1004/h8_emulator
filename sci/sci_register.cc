@@ -1,12 +1,5 @@
 #include "sci_register.h"
 
-// #define debug_log
-#ifdef debug_log
-#define log(...) std::printf(__VA_ARGS__)
-#else
-#define log(...)
-#endif
-
 uint8_t SCIRegister::get(uint8_t register_index)
 {
     std::lock_guard<std::recursive_mutex> lock(sci_mutex);

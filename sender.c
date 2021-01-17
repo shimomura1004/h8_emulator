@@ -21,13 +21,12 @@
 #define LINE_BUFFER_SIZE 256
 
 #define SEND_COMMAND (":send ")
+#define QUIT_COMMAND (":quit")
 
 static int fd_r, fd_w;
 
-// todo: sender が止まったあと、h8300h を止める
-// todo: h8300h が止まったあと、それを検知する
 // todo: h8300h への signal の伝達
-// todo: sender の cpu 消費量が100%
+// 単純に SIGINT を転送するとクラッシュする
 
 int popen2(int argc, char* argv[], int* fd_r, int* fd_w)
 {
@@ -155,25 +154,37 @@ int handle_send_command(char* buf)
     return 1;
 }
 
+static int h8300h_pid;
+static void sig_handler(int signo)
+{
+    switch (signo) {
+    case SIGCHLD:
+        fprintf(stderr, "h8300h crashed.\n");
+        exit(1);
+    case SIGINT:
+        kill(h8300h_pid, SIGKILL);
+        exit(1);
+    }
+}
+
 int main(int argc, char* argv[])
 {
+    signal(SIGCHLD, sig_handler);
+    signal(SIGINT, sig_handler);
+
     char buf[LINE_BUFFER_SIZE];
 
     fd_set fdset;
-	struct timeval timeout;
-	timeout.tv_sec = 0; 
-	timeout.tv_usec = 0;
 
-    popen2(argc, argv, &fd_r, &fd_w);
+    h8300h_pid = popen2(argc, argv, &fd_r, &fd_w);
 
     while (1) {
         FD_ZERO(&fdset);
         FD_SET(0, &fdset);
         FD_SET(fd_r, &fdset);
 
-        int ret = select(fd_r + 1, &fdset , NULL , NULL , &timeout);
-
-        if (ret == 1) {
+        int ret = select(fd_r + 1, &fdset , NULL, NULL, NULL);
+        if (ret != 0) {
             // h8 からの出力
             if (FD_ISSET(fd_r, &fdset)) {
                 int size = 0;
@@ -198,6 +209,10 @@ int main(int argc, char* argv[])
 
                 if (strncmp(buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
                     handle_send_command(buf);
+                } else if (strncmp(buf, QUIT_COMMAND, sizeof(QUIT_COMMAND) - 1) == 0) {
+                    // kill h8300h proc
+                    kill(h8300h_pid, SIGKILL);
+                    break;
                 } else {
                     // 特殊なコマンドでなければそのまま H8 に投げる
                     write(fd_w, buf, size);
