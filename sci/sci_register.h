@@ -46,6 +46,13 @@ private:
     std::mutex sci_mutex;
     std::condition_variable sci_cv;
 
+    static bool get_bit_from_nolock(uint8_t value, uint8_t bit_index);
+
+    uint8_t get_nolock(uint8_t register_index);
+    void set_nolock(uint8_t register_index, uint8_t byte);
+    bool get_bit_nolock(uint8_t register_index, uint8_t bit_index);
+    void set_bit_nolock(uint8_t register_index, uint8_t bit_index, bool b);
+
 public:
     SCIRegister();
 
@@ -53,7 +60,6 @@ public:
     void set(uint8_t register_index, uint8_t byte);
     bool get_bit(uint8_t register_index, uint8_t bit_index);
     void set_bit(uint8_t register_index, uint8_t bit_index, bool b);
-    static bool get_bit_from(uint8_t value, uint8_t bit_index);
 
     // OS 側へのインタフェース
     uint8_t read(uint32_t register_index);
