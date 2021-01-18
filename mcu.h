@@ -47,7 +47,7 @@ T read(uint32_t address)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
-    if (rom_start <= address && address <= rom_end) {
+    if (vec_start <= address && address <= rom_end) {
         switch (n) {
         case  8: return rom[address];
         case 16: return __builtin_bswap16(*(uint16_t*)&rom[address]);
