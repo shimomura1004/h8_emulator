@@ -7,6 +7,8 @@
 // todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう
 // todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
 
+// todo: load に失敗する
+
 void SCI::run_recv_from_h8() {
     while (!terminate_flag) {
         // H8 からデータがくるのを待つ

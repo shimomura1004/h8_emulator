@@ -154,16 +154,16 @@ int handle_send_command(char* buf)
     return 1;
 }
 
-static int h8300h_pid;
 static void sig_handler(int signo)
 {
     switch (signo) {
     case SIGCHLD:
-        fprintf(stderr, "h8300h crashed.\n");
         exit(1);
+        break;
     case SIGINT:
-        kill(h8300h_pid, SIGKILL);
-        exit(1);
+        break;
+    case SIGINFO:
+        break;
     }
 }
 
@@ -172,11 +172,12 @@ int main(int argc, char* argv[])
     signal(SIGCHLD, sig_handler);
     signal(SIGINT, sig_handler);
 
-    char buf[LINE_BUFFER_SIZE];
+    char h8_buf[LINE_BUFFER_SIZE];
+    char user_buf[LINE_BUFFER_SIZE];
 
     fd_set fdset;
 
-    h8300h_pid = popen2(argc, argv, &fd_r, &fd_w);
+    int h8300h_pid = popen2(argc, argv, &fd_r, &fd_w);
 
     while (1) {
         FD_ZERO(&fdset);
@@ -189,9 +190,9 @@ int main(int argc, char* argv[])
             if (FD_ISSET(fd_r, &fdset)) {
                 int size = 0;
                 while (1) {
-                    size = read(fd_r, buf, LINE_BUFFER_SIZE - 1);
-                    buf[size] = '\0';
-                    printf("%s", buf);
+                    size = read(fd_r, h8_buf, LINE_BUFFER_SIZE - 1);
+                    h8_buf[size] = '\0';
+                    printf("%s", h8_buf);
                     if (size != LINE_BUFFER_SIZE - 1) {
                         break;
                     }
@@ -200,22 +201,21 @@ int main(int argc, char* argv[])
             }
             // ユーザの入力
             if (FD_ISSET(0, &fdset)) {
-                int size = read(0, buf, LINE_BUFFER_SIZE - 1);
+                int size = read(0, user_buf, LINE_BUFFER_SIZE - 1);
                 if (size < 0) {
                     fprintf(stderr, "Error in reading user input.\n");
                     return -1;
                 }
-                buf[size] = '\0';
+                user_buf[size] = '\0';
 
-                if (strncmp(buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
-                    handle_send_command(buf);
-                } else if (strncmp(buf, QUIT_COMMAND, sizeof(QUIT_COMMAND) - 1) == 0) {
-                    // kill h8300h proc
+                if (strncmp(user_buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
+                    handle_send_command(user_buf);
+                } else if (strncmp(user_buf, QUIT_COMMAND, sizeof(QUIT_COMMAND) - 1) == 0) {
                     kill(h8300h_pid, SIGKILL);
                     break;
                 } else {
                     // 特殊なコマンドでなければそのまま H8 に投げる
-                    write(fd_w, buf, size);
+                    write(fd_w, user_buf, size);
                 }
             }
         }

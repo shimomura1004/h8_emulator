@@ -6,7 +6,6 @@
 
 class Runner {
     H8300H& h8;
-    bool continue_mode;
     std::set<uint32_t> breakpoints;
     std::mutex& mutex;
 
@@ -18,7 +17,7 @@ class Runner {
     void write_value_command(char *buf);
 
 public:
-    Runner(H8300H& h8) : h8(h8), continue_mode(false), mutex(h8.get_mutex()) {}
+    Runner(H8300H& h8) : h8(h8), mutex(h8.get_mutex()) {}
 
     int proccess_debugger_command();
     void run(bool debug = false);

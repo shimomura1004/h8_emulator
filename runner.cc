@@ -1,6 +1,28 @@
 #include "runner.h"
 #include <signal.h>
 
+// Ctrl-c or Ctrl-t でデバッグモードに入る
+// コマンドラインからのシグナルはプロセスグループに対して発行されるので
+// sender から明示的にシグナルを伝える必要はない
+static volatile sig_atomic_t debug_mode = 0;
+static volatile sig_atomic_t continue_mode = 0;
+static void sig_handler(int signo)
+{
+    switch (signo) {
+    case SIGINFO:
+    case SIGINT:
+        if (debug_mode && continue_mode) {
+            continue_mode = false;
+        } else if (!debug_mode) {
+            debug_mode = true;
+            continue_mode = false;
+        } else if (debug_mode && !continue_mode) {
+            exit(1);
+        }
+        break;
+    }
+}
+
 bool Runner::load_file_to_memory(uint32_t address, char *filename)
 {
     FILE* fp = fopen(filename, "rb");
@@ -92,6 +114,8 @@ void Runner::write_value_command(char *buf)
 // todo: メモリの内容を一部確認するコマンドがほしい
 // todo: レジスタを書き換えるコマンドがほしい
 // todo: SCI のレジスタを見るコマンドがほしい
+
+// todo: continue mode と debug mode の違いは？
 int Runner::proccess_debugger_command()
 {
     if (continue_mode) {
@@ -166,25 +190,11 @@ int Runner::proccess_debugger_command()
     }
 }
 
-// Ctrl-c でデバッグモードに入る
-static bool debug_mode;
-static void sig_handler(int signo)
-{
-    switch (signo) {
-    case SIGINT:
-        if (!debug_mode) {
-            debug_mode = true;
-        } else {
-            exit(1);
-        }
-        break;
-    }
-}
-
 void Runner::run(bool debug)
 {
     debug_mode = debug;
     signal(SIGINT, sig_handler);
+    signal(SIGINFO, sig_handler);
 
     int result = 0;
 
