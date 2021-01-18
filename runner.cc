@@ -41,15 +41,15 @@ bool Runner::load_file_to_memory(uint32_t address, char *filename)
 
 void Runner::print_help_command()
 {
-    printf("  h: print help\n");
-    printf("  r: print register status\n");
-    printf("  d: dump memory\n");
-    printf("  s: next step\n");
-    printf("  c: continue execution until breakpoint\n");
-    printf("  b (address): set break point\n");
-    printf("  l (address) (filename): load file content to address\n");
-    printf("  w (address) (length) (value): write value to memory\n");
-    printf("  q: quit\n");
+    fprintf(stderr, "  h: print help\n");
+    fprintf(stderr, "  r: print register status\n");
+    fprintf(stderr, "  d: dump memory\n");
+    fprintf(stderr, "  s: next step\n");
+    fprintf(stderr, "  c: continue execution until breakpoint\n");
+    fprintf(stderr, "  b (address): set break point\n");
+    fprintf(stderr, "  l (address) (filename): load file content to address\n");
+    fprintf(stderr, "  w (address) (length) (value): write value to memory\n");
+    fprintf(stderr, "  q: quit\n");
 }
 
 void Runner::set_breakpoint_command(char *buf)
@@ -57,10 +57,10 @@ void Runner::set_breakpoint_command(char *buf)
     uint32_t address = 0;
     int ret = sscanf(buf + 1, "%x\n", &address);
     if (ret == 1) {
-        printf("Set breakpoint at 0x%08x\n", address);
+        fprintf(stderr, "Set breakpoint at 0x%08x\n", address);
         breakpoints.insert(address);
     } else {
-        printf("Syntax error\n");
+        fprintf(stderr, "Syntax error\n");
     }
 }
 
@@ -70,12 +70,12 @@ void Runner::load_file_command(char *buf)
     char filename[256];
     int ret = sscanf(buf + 1, "%x %s\n", &address, filename);
     if (ret == 2) {
-        printf("Load %s to address 0x%08x\n", filename, address);
+        fprintf(stderr, "Load %s to address 0x%08x\n", filename, address);
         bool ret = load_file_to_memory(address, filename);
         if (ret) {
-            printf("%s was loaded successfully.\n", filename);
+            fprintf(stderr, "%s was loaded successfully.\n", filename);
         } else {
-            printf("%s not found. Ignored.\n", filename);
+            fprintf(stderr, "%s not found. Ignored.\n", filename);
         }
     } else {
         fprintf(stderr, "Syntax error.\n");
@@ -91,15 +91,15 @@ void Runner::write_value_command(char *buf)
     if (ret == 3) {
         switch (length) {
         case 1:
-            printf("Write 0x%x to [0x%06x]\n", value, address);
+            fprintf(stderr, "Write 0x%x to [0x%06x]\n", value, address);
             h8.mcu.write<8, uint8_t>(address, value);
             break;
         case 2:
-            printf("Write 0x%x to [0x%06x]\n", value, address);
+            fprintf(stderr, "Write 0x%x to [0x%06x]\n", value, address);
             h8.mcu.write<16, uint16_t>(address, value);
             break;
         case 4:
-            printf("Write 0x%x to [0x%06x]\n", value, address);
+            fprintf(stderr, "Write 0x%x to [0x%06x]\n", value, address);
             h8.mcu.write<32, uint32_t>(address, value);
             break;
         default:
@@ -126,20 +126,24 @@ int Runner::proccess_debugger_command()
         }
     }
 
-    // SCI1(標準入出力につながっている)と標準入出力を奪い合わないようにロックする
-    std::lock_guard<std::mutex> lock(mutex);
-
     h8.print_registers();
 
     char buf[256];
     while (1) {
-        printf("(h for help) > ");
+        fprintf(stderr, "(h for help) > ");
         fflush(stdout);
 
         int i = 0;
         while (1) {
+            int c;
+
+{
+            // SCI1(標準入出力につながっている)と標準入出力を奪い合わないようにロックする
+            std::lock_guard<std::mutex> lock(mutex);
+
             // 標準入力はノンブロッキングで動作するため getchar はすぐに戻る
-            int c = getchar();
+            c = getchar();
+}
 
             // EOF がきたら、単にデータがないということ
             if (c == EOF) {
@@ -165,7 +169,7 @@ int Runner::proccess_debugger_command()
             break;
         case 'd':
             h8.mcu.dump("core");
-            printf("Memory dumped to 'core' file\n");
+            fprintf(stderr, "Memory dumped to 'core' file\n");
             break;
         case 's':
             return 0;
@@ -184,7 +188,7 @@ int Runner::proccess_debugger_command()
         case 'q':
             return -1;
         default:
-            printf("Unknown debugger command: %c\n", buf[0]);
+            fprintf(stderr, "Unknown debugger command: %c\n", buf[0]);
             break;
         }
     }

@@ -148,11 +148,11 @@ int H8300H::step()
 void H8300H::print_registers()
 {
     for (int i = 0; i < 8; i++) {
-        printf("ER%d: 0x%08x", i, reg[i].get_er());
-        printf("    E%d: 0x%04x  R%d: 0x%04x", i, reg[i].get_e(), i, reg[i].get_r());
-        printf("    RH%d: 0x%02x  RL%d: 0x%02x\n", i, reg[i].get_rh(), i, reg[i].get_rl());
+        fprintf(stderr, "ER%d: 0x%08x", i, reg[i].get_er());
+        fprintf(stderr, "    E%d: 0x%04x  R%d: 0x%04x", i, reg[i].get_e(), i, reg[i].get_r());
+        fprintf(stderr, "    RH%d: 0x%02x  RL%d: 0x%02x\n", i, reg[i].get_rh(), i, reg[i].get_rl());
     }
-    printf("PC : 0x%08x\n", pc);
-    printf("CCR: I:%d, UI:%d, H:%d, U:%d, N:%d, Z:%d, V:%d, C:%d\n",
+    fprintf(stderr, "PC : 0x%08x\n", pc);
+    fprintf(stderr, "CCR: I:%d, UI:%d, H:%d, U:%d, N:%d, Z:%d, V:%d, C:%d\n",
            ccr.i(), ccr.ui(), ccr.h(), ccr.u(), ccr.n(), ccr.z(), ccr.v(), ccr.c());
 }

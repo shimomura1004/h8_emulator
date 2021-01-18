@@ -78,7 +78,8 @@ void SCIRegister::write(uint32_t register_index, uint8_t byte)
             // SSR::TDRE が 1 のときは、有効なデータがないことを示す
             bool next_tdre = get_bit_from(byte, SCI_SSR::TDRE);
             set_bit(register_index, SCI_SSR::TDRE, next_tdre);
-            if (prev_tdre && !next_tdre) {
+            if (prev_tdre != next_tdre) {
+                printf("NOTIFY TDRE\n");
                 tdre_cv.notify_all();
             }
         }
@@ -87,7 +88,8 @@ void SCIRegister::write(uint32_t register_index, uint8_t byte)
             bool prev_rdrf = get_bit(register_index, SCI_SSR::RDRF);
             bool next_rdrf = get_bit_from(byte, SCI_SSR::RDRF);
             set_bit(register_index, SCI_SSR::RDRF, next_rdrf);
-            if (prev_rdrf && !next_rdrf) {
+            if (prev_rdrf != next_rdrf) {
+                printf("NOTIFY RDRF\n");
                 rdrf_cv.notify_all();
             }
         }
@@ -111,32 +113,24 @@ void SCIRegister::write(uint32_t register_index, uint8_t byte)
     }
 }
 
-void SCIRegister::wait_rdrf()
-{
-    // ビジーループなら問題なし
-    while (get_bit(SSR, SCI_SSR::RDRF))
-        ;
-    return;
-    
-    // std::unique_lock<std::mutex> rdrf_lock(rdrf_mut);
-    // // printf(" wait RDRF\n");
-    // rdrf_cv.wait(rdrf_lock, [this]{
-    //     return !(regs[SSR] & (1 << SCI_SSR::RDRF));
-    // });
-    // // printf(" restart RDRF\n");
+void SCIRegister::wait_rdrf_to_be(bool b)
+{   
+    std::unique_lock<std::mutex> rdrf_lock(rdrf_mut);
+    printf("LOCK RDRF\n");
+    rdrf_cv.wait(rdrf_lock, [&]{
+        return b == get_bit(SCI::SSR, SCI_SSR::RDRF);
+    });
+    printf("RESUME RDRF\n");
 }
 
-void SCIRegister::wait_tdre()
+void SCIRegister::wait_tdre_to_be(bool b)
 {
-    // ビジーループなら問題なし
-    while (get_bit(SSR, SCI_SSR::TDRE))
-        ;
-    return;
-
-    // std::unique_lock<std::mutex> tdre_lock(tdre_mut);
-    // tdre_cv.wait(tdre_lock, [this]{
-    //     return !(regs[SSR] & (1 << SCI_SSR::TDRE));
-    // });
+    std::unique_lock<std::mutex> tdre_lock(tdre_mut);
+    printf("LOCK TDRE\n");
+    tdre_cv.wait(tdre_lock, [&]{
+        return b == get_bit(SCI::SSR, SCI_SSR::TDRE);
+    });
+    printf("RESUME TDRE\n");
 }
 
 void SCIRegister::dump(FILE* fp)

@@ -14,7 +14,7 @@ void SCI::run_recv_from_h8() {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
 
-        sci_register.wait_tdre();
+        sci_register.wait_tdre_to_be(false);
 
         // データは TDR に入っている
         uint8_t data = sci_register.get(SCIRegister::SCI::TDR);
@@ -34,16 +34,19 @@ void SCI::run_recv_from_h8() {
 
 void SCI::run_send_to_h8() {
     while (!terminate_flag) {
-        // // デバッガと標準入出力を奪い合わないようにロックする
-        // std::lock_guard<std::mutex> lock(mutex);
+        int c;
+        {
+        // デバッガと標準入出力を奪い合わないようにロックする
+        std::lock_guard<std::mutex> lock(mutex);
 
-        int c = getchar();
+        c = getchar();
         if (c == EOF) {
             break;
         }
+        }
 
         // H8 が受信するまで待つ
-        sci_register.wait_rdrf();
+        sci_register.wait_rdrf_to_be(false);
 
         // H8 に渡すデータは RDR に書き込んでおく
        sci_register.set(SCIRegister::RDR, (uint8_t)c);

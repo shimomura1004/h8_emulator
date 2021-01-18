@@ -30,7 +30,6 @@ void MCU::dump(std::string filepath)
     fwrite(ram, sizeof(uint8_t), ram_end - ram_start + 1, fp);
     // 内部I/Oレジスタ(SCI を含む)
     // SCI1 以外は 0 埋めする
-    sci1_start - (ram_end + 1);
     for (uint32_t i = ram_end + 1; i < sci1_start; i++) {
         fputc(0, fp);
     }

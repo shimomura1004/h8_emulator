@@ -63,8 +63,9 @@ public:
     uint8_t read(uint32_t register_index);
     void write(uint32_t register_index, uint8_t byte);
 
-    void wait_rdrf();
-    void wait_tdre();
+    // rdrf/tdre が b になるのを待つ
+    void wait_rdrf_to_be(bool b);
+    void wait_tdre_to_be(bool b);
 
     void dump(FILE* fp);
 
