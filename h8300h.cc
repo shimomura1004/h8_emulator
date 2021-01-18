@@ -3,6 +3,7 @@
 #include "sci/sci.h"
 
 // todo: load コマンドで受信開始が異常に遅いことがある
+// todo: 次の命令を判別だけする関数がほしい
 
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
 {
@@ -95,16 +96,8 @@ H8300H::H8300H()
     , is_sleep(false)
 {}
 
-H8300H::~H8300H()
-{
-    // if (sci1) {
-    //     delete sci1;
-    // }
-}
-
 void H8300H::init()
 {
-    // sci1 = new Sci(1, memory, interrupt_controller, terminate, mutex);
 }
 
 uint32_t H8300H::load_elf(std::string filepath)

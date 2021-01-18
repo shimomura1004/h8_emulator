@@ -39,7 +39,6 @@ public:
 
 public:
     H8300H();
-    ~H8300H();
 
     void init();
     uint32_t load_elf(std::string filepath);

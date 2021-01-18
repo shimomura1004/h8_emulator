@@ -158,7 +158,7 @@ static void sig_handler(int signo)
 {
     switch (signo) {
     case SIGCHLD:
-        exit(1);
+        exit(0);
         break;
     case SIGINT:
         break;

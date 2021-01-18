@@ -7,7 +7,7 @@
 // todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう
 // todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
 
-// todo: load に失敗する
+// todo: load が開始されるまでに少し待ち時間がある
 
 void SCI::run_recv_from_h8() {
     while (!terminate_flag) {
@@ -34,15 +34,16 @@ void SCI::run_recv_from_h8() {
 
 void SCI::run_send_to_h8() {
     while (!terminate_flag) {
+        // todo: このロックは必要か？
         int c;
         {
-        // デバッガと標準入出力を奪い合わないようにロックする
-        std::lock_guard<std::mutex> lock(mutex);
+            // デバッガと標準入出力を奪い合わないようにロックする
+            std::lock_guard<std::mutex> lock(mutex);
 
-        c = getchar();
-        if (c == EOF) {
-            break;
-        }
+            c = getchar();
+            if (c == EOF) {
+                break;
+            }
         }
 
         // H8 が受信するまで待つ
