@@ -2,28 +2,28 @@
 
 uint8_t SCIRegister::get(uint8_t register_index)
 {
-    std::lock_guard<std::recursive_mutex> lock(sci_mutex);
+    std::lock_guard<std::mutex> lock(sci_mutex);
     return regs[register_index];
 }
 
 void SCIRegister::set(uint8_t register_index, uint8_t byte)
 {
-    std::lock_guard<std::recursive_mutex> lock(sci_mutex);
+    std::lock_guard<std::mutex> lock(sci_mutex);
     regs[register_index] = byte;
 }
 
 bool SCIRegister::get_bit(uint8_t register_index, uint8_t bit_index)
 {
-    std::lock_guard<std::recursive_mutex> lock(sci_mutex);
-    return get(register_index) & (1 << bit_index);
+    std::lock_guard<std::mutex> lock(sci_mutex);
+    return regs[register_index] & (1 << bit_index);
 }
 
 void SCIRegister::set_bit(uint8_t register_index, uint8_t bit_index, bool b)
 {
-    std::lock_guard<std::recursive_mutex> lock(sci_mutex);
-    uint8_t byte = get(register_index);
+    std::lock_guard<std::mutex> lock(sci_mutex);
+    uint8_t byte = regs[register_index];
     byte = b ? (byte | (1 << bit_index)) : (byte & ~(1 << bit_index));
-    set(register_index, byte);
+    regs[register_index] = byte;
 }
 
 bool SCIRegister::get_bit_from(uint8_t value, uint8_t bit_index)
@@ -44,14 +44,14 @@ SCIRegister::SCIRegister() {
 
 uint8_t SCIRegister::read(uint32_t register_index)
 {
-    std::lock_guard<std::recursive_mutex> lock(sci_mutex);
+    std::lock_guard<std::mutex> lock(sci_mutex);
     return regs[register_index];
 }
 
 // todo: CPU 側の関数を使って設定するほうがいい
 void SCIRegister::write(uint32_t register_index, uint8_t byte)
 {
-    std::lock_guard<std::recursive_mutex> lock(sci_mutex);
+    // std::lock_guard<std::mutex> lock(sci_mutex);
 
     switch (register_index) {
     case SCI::SMR: {
@@ -72,25 +72,33 @@ void SCIRegister::write(uint32_t register_index, uint8_t byte)
     }
     case SCI::SSR: {
         {
-            std::lock_guard<std::mutex> lock(tdre_mut);
-            bool prev_tdre = get_bit(register_index, SCI_SSR::TDRE);
+            std::lock_guard<std::mutex> lock(sci_mutex);
+            // bool prev_tdre = get_bit(register_index, SCI_SSR::TDRE);
+            bool prev_tdre = regs[register_index] & (1 << SCI_SSR::TDRE);
+
             // SCR::TE ビットが 0 のときは SSR::TDRE は 1 に固定される
             // SSR::TDRE が 1 のときは、有効なデータがないことを示す
             bool next_tdre = get_bit_from(byte, SCI_SSR::TDRE);
-            set_bit(register_index, SCI_SSR::TDRE, next_tdre);
+            // set_bit(register_index, SCI_SSR::TDRE, next_tdre);
+            uint8_t byte = regs[register_index];
+            byte = next_tdre ? (byte | (1 << SCI_SSR::TDRE)) : (byte & ~(1 << SCI_SSR::TDRE));
+            regs[register_index] = byte;
+
             if (prev_tdre != next_tdre) {
-                printf("NOTIFY TDRE\n");
-                tdre_cv.notify_all();
+                sci_cv.notify_all();
             }
         }
         {
-            std::lock_guard<std::mutex> lock(rdrf_mut);
-            bool prev_rdrf = get_bit(register_index, SCI_SSR::RDRF);
+            std::lock_guard<std::mutex> lock(sci_mutex);
+            // bool prev_rdrf = get_bit(register_index, SCI_SSR::RDRF);
+            bool prev_rdrf = regs[register_index] & (1 << SCI_SSR::RDRF);
             bool next_rdrf = get_bit_from(byte, SCI_SSR::RDRF);
-            set_bit(register_index, SCI_SSR::RDRF, next_rdrf);
+            // set_bit(register_index, SCI_SSR::RDRF, next_rdrf);
+            uint8_t byte = regs[register_index];
+            byte = next_rdrf ? (byte | (1 << SCI_SSR::RDRF)) : (byte & ~(1 << SCI_SSR::RDRF));
+            regs[register_index] = byte;
             if (prev_rdrf != next_rdrf) {
-                printf("NOTIFY RDRF\n");
-                rdrf_cv.notify_all();
+                sci_cv.notify_all();
             }
         }
 
@@ -115,22 +123,18 @@ void SCIRegister::write(uint32_t register_index, uint8_t byte)
 
 void SCIRegister::wait_rdrf_to_be(bool b)
 {   
-    std::unique_lock<std::mutex> rdrf_lock(rdrf_mut);
-    printf("LOCK RDRF\n");
-    rdrf_cv.wait(rdrf_lock, [&]{
-        return b == get_bit(SCI::SSR, SCI_SSR::RDRF);
+    std::unique_lock<std::mutex> rdrf_lock(sci_mutex);
+    sci_cv.wait(rdrf_lock, [&]{
+        return b == (regs[SCI::SSR] & (1 << SCI_SSR::RDRF));
     });
-    printf("RESUME RDRF\n");
 }
 
 void SCIRegister::wait_tdre_to_be(bool b)
 {
-    std::unique_lock<std::mutex> tdre_lock(tdre_mut);
-    printf("LOCK TDRE\n");
-    tdre_cv.wait(tdre_lock, [&]{
-        return b == get_bit(SCI::SSR, SCI_SSR::TDRE);
+    std::unique_lock<std::mutex> tdre_lock(sci_mutex);
+    sci_cv.wait(tdre_lock, [&]{
+        return b == (regs[SCI::SSR] & (1 << SCI_SSR::TDRE));
     });
-    printf("RESUME TDRE\n");
 }
 
 void SCIRegister::dump(FILE* fp)

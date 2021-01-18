@@ -43,12 +43,8 @@ public:
 private:
     uint8_t regs[SCIRegister::SCI::SIZE];
     // エミュレータと OS の両方から SCI のレジスタにアクセスするので、排他が必要
-    std::recursive_mutex sci_mutex;
-
-    std::mutex rdrf_mut;
-    std::condition_variable rdrf_cv;
-    std::mutex tdre_mut;
-    std::condition_variable tdre_cv;
+    std::mutex sci_mutex;
+    std::condition_variable sci_cv;
 
 public:
     SCIRegister();
