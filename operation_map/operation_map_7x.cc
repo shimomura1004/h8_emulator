@@ -12,6 +12,7 @@
 #include "../instructions/bclr.h"
 #include "../instructions/btst.h"
 #include "../instructions/bset.h"
+#include "../instructions/or.h"
 
 instruction_handler_t lookup_7x(H8300H *h8300h)
 {
@@ -85,7 +86,7 @@ instruction_handler_t lookup_79(H8300H* h8300h)
     case 0x01: return h8instructions::add::add_immediate_w;
     case 0x02: return h8instructions::cmp::cmp_immediate_w;
     case 0x03: return nullptr; // SUB
-    case 0x04: return nullptr; // OR
+    case 0x04: return h8instructions::orl::or_immediate_w;
     case 0x05: return nullptr; // XOR
     case 0x06: return h8instructions::andl::and_immediate_w;
     default:   return nullptr;
