@@ -45,9 +45,8 @@ public:
 template<uint8_t n, class T>
 T read(uint32_t address)
 {
-    std::lock_guard<std::mutex> lock(mutex);
-
     if (vec_start <= address && address <= rom_end) {
+        // ROM は更新されないのでロック不要
         switch (n) {
         case  8: return rom[address];
         case 16: return __builtin_bswap16(*(uint16_t*)&rom[address]);
@@ -55,6 +54,7 @@ T read(uint32_t address)
         default: break;
         }
     } else if (ram_start <= address && address <= ram_end) {
+        std::lock_guard<std::mutex> lock(mutex);
         switch (n) {
         case  8: return ram[address - ram_start];
         case 16: return __builtin_bswap16(*(uint16_t*)&ram[address - ram_start]);
@@ -62,6 +62,7 @@ T read(uint32_t address)
         default: break;
         }
     } else if (sci1_start <= address && address <= sci1_end) {
+        // SCI のロックは SCI 側で実施
         if (n == 8) {
             return sci1.read(address - sci1_start);
         }
@@ -74,9 +75,8 @@ T read(uint32_t address)
 template<uint8_t n, class T>
 void write(uint32_t address, T value)
 {
-    std::lock_guard<std::mutex> lock(mutex);
-
     if (ram_start <= address && address <= ram_end) {
+        std::lock_guard<std::mutex> lock(mutex);
         switch (n) {
         case  8:
             ram[address - ram_start] = value;
@@ -90,6 +90,7 @@ void write(uint32_t address, T value)
         default: break;
         }
     } else if (sci1_start <= address && address <= sci1_end) {
+        // SCI のロックは SCI 側で実施
         if (n == 8) {
             sci1.write(address - sci1_start, value);
             return;
@@ -102,9 +103,8 @@ void write(uint32_t address, T value)
 template<uint8_t n, class T>
 void update(uint32_t address, T(*f)(T))
 {
-    std::lock_guard<std::mutex> lock(mutex);
-
     if (ram_start <= address && address <= ram_end) {
+        std::lock_guard<std::mutex> lock(mutex);
         switch (n) {
         case  8:
             ram[address - ram_start] = f(ram[address- ram_start]);
@@ -122,6 +122,7 @@ void update(uint32_t address, T(*f)(T))
         default: break;
         }
     } else if (sci1_start <= address && address <= sci1_end) {
+        // SCI のロックは SCI 側で実施
         if (n == 8) {
             sci1.write(address - sci1_start, f(sci1.read(address - sci1_start)));
             return;

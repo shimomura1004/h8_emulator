@@ -36,7 +36,7 @@ void SCI::run_send_to_h8() {
     while (!terminate_flag) {
         // todo: このロックは必要か？
         int c;
-        {
+        // {
             // デバッガと標準入出力を奪い合わないようにロックする
             std::lock_guard<std::mutex> lock(mutex);
 
@@ -44,7 +44,7 @@ void SCI::run_send_to_h8() {
             if (c == EOF) {
                 break;
             }
-        }
+        // }
 
         // H8 が受信するまで待つ
         sci_register.wait_rdrf_to_be(false);
