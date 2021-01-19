@@ -13,6 +13,9 @@ int main (int argc, char* argv[])
     h8.init();
 
     uint32_t start_addr = h8.load_elf(argv[1]);
+    if (start_addr == 0) {
+        exit(1);
+    }
     
     printf("Start execution from 0x%x\n", start_addr);
 

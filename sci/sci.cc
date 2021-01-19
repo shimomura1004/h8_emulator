@@ -80,6 +80,7 @@ SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& m
 SCI::~SCI()
 {
     terminate();
+    printf("SCI(%d) stopped\n", index);
 }
 
 void SCI::run() {
