@@ -3,6 +3,7 @@
 #include "../instructions/rts.h"
 #include "../instructions/bcc.h"
 #include "../instructions/rte.h"
+#include "../instructions/trapa.h"
 
 instruction_handler_t lookup_58(H8300H *h8)
 {
@@ -43,7 +44,7 @@ instruction_handler_t lookup_5x(H8300H *h8)
     case 0x04: return h8instructions::rts::rts;
     case 0x05: return nullptr; // BSR
     case 0x06: return h8instructions::rte::rte;
-    case 0x07: return nullptr; // TRAPA
+    case 0x07: return h8instructions::trapa::trapa;
     case 0x08: return lookup_58(h8);
     case 0x09:
     case 0x0a:
