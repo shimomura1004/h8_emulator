@@ -8,6 +8,7 @@
 // todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
 
 // todo: load が開始されるまでに少し待ち時間がある
+// todo: (OS側から)送信割り込みが有効化されてない？
 
 void SCI::run_recv_from_h8() {
     while (!terminate_flag) {
@@ -27,8 +28,12 @@ void SCI::run_recv_from_h8() {
         fflush(stdout);
 
         // H8 に送信準備完了の割り込みを発生させる
-        // todo: index に応じた処理
-        interrupt_controller.set(interrupt_t::TXI1);
+        if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::TIE)) {
+            static interrupt_t TXI_TABLE[] = {
+                interrupt_t::TXI0, interrupt_t::TXI1, interrupt_t::TXI2
+            };
+            interrupt_controller.set(TXI_TABLE[index]);
+        }
     }
 }
 
@@ -36,21 +41,21 @@ void SCI::run_send_to_h8() {
     while (!terminate_flag) {
         // todo: このロックは必要か？
         int c;
-        // {
+        {
             // デバッガと標準入出力を奪い合わないようにロックする
-            std::lock_guard<std::mutex> lock(mutex);
+            // std::lock_guard<std::mutex> lock(mutex);
 
             c = getchar();
             if (c == EOF) {
                 break;
             }
-        // }
+        }
 
         // H8 が受信するまで待つ
         sci_register.wait_rdrf_to_be(false);
 
         // H8 に渡すデータは RDR に書き込んでおく
-       sci_register.set(SCIRegister::RDR, (uint8_t)c);
+        sci_register.set(SCIRegister::RDR, (uint8_t)c);
 
         // RDRF を 1 にして H8 に通知
         sci_register.set_bit(SCIRegister::SSR, SCIRegister::SCI_SSR::RDRF, true);

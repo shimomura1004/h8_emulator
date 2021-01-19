@@ -110,6 +110,10 @@ int H8300H::step()
     // 割り込みがあれば処理
     interrupt_t type = interrupt_controller.getInterruptType();
     if (type != interrupt_t::NONE && !ccr.i()) {
+        // 内部割込みの場合はすぐにクリアする
+        // todo: 外部割り込みの場合は勝手にクリアしてはいけない
+        interrupt_controller.clear(type);
+
         // CCR と PC を退避
         // H8 では、現在のスタックポインタの指す場所に退避される
         save_pc_and_ccr_to_stack();

@@ -91,25 +91,22 @@ void SCIRegister::write(uint32_t register_index, uint8_t byte)
         break;
     }
     case SCI::SSR: {
-        {
-            // SCR::TE ビットが 0 のときは SSR::TDRE は 1 に固定される
-            // SSR::TDRE が 1 のときは、有効なデータがないことを示す
-            bool prev_tdre = get_bit_nolock(register_index, SCI_SSR::TDRE);
-            bool next_tdre = get_bit_from_nolock(byte, SCI_SSR::TDRE);
-            set_bit_nolock(register_index, SCI_SSR::TDRE, next_tdre);
+        // SCR::TE ビットが 0 のときは SSR::TDRE は 1 に固定される
+        // SSR::TDRE が 1 のときは、有効なデータがないことを示す
+        bool prev_tdre = get_bit_nolock(register_index, SCI_SSR::TDRE);
+        bool next_tdre = get_bit_from_nolock(byte, SCI_SSR::TDRE);
+        set_bit_nolock(register_index, SCI_SSR::TDRE, next_tdre);
 
-            if (prev_tdre != next_tdre) {
-                sci_cv.notify_all();
-            }
+        if (prev_tdre != next_tdre) {
+            sci_cv.notify_all();
         }
-        {
-            bool prev_rdrf = get_bit_nolock(register_index, SCI_SSR::RDRF);
-            bool next_rdrf = get_bit_from_nolock(byte, SCI_SSR::RDRF);
-            set_bit_nolock(register_index, SCI_SSR::RDRF, next_rdrf);
 
-            if (prev_rdrf != next_rdrf) {
-                sci_cv.notify_all();
-            }
+        bool prev_rdrf = get_bit_nolock(register_index, SCI_SSR::RDRF);
+        bool next_rdrf = get_bit_from_nolock(byte, SCI_SSR::RDRF);
+        set_bit_nolock(register_index, SCI_SSR::RDRF, next_rdrf);
+
+        if (prev_rdrf != next_rdrf) {
+            sci_cv.notify_all();
         }
 
         // todo: 他のビットも反映する
