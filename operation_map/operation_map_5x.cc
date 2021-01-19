@@ -13,7 +13,7 @@ instruction_handler_t lookup_58(H8300H *h8)
     switch (bh) {
     case 0x00: return h8instructions::bcc::bra_16;
     case 0x01: return nullptr; // BRN
-    case 0x02: return nullptr; // BHI
+    case 0x02: return h8instructions::bcc::bhi_16;
     case 0x03: return nullptr; // BLS
     case 0x04: return nullptr; // BCC
     case 0x05: return nullptr; // BCS
