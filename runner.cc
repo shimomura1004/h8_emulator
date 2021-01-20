@@ -1,5 +1,7 @@
 #include "runner.h"
 #include <signal.h>
+#include "operation_map/operation_map.h"
+#include "instructions/instruction_table.h"
 
 // Ctrl-c or Ctrl-t でデバッグモードに入る
 // コマンドラインからのシグナルはプロセスグループに対して発行されるので
@@ -47,7 +49,7 @@ void Runner::print_help_command()
     fprintf(stderr, "  s: next step\n");
     fprintf(stderr, "  c: continue execution until breakpoint\n");
     fprintf(stderr, "  b (address): set break point\n");
-    fprintf(stderr, "  l (address) (filename): load file content to address\n");
+    fprintf(stderr, "  l: display next instruction\n");
     fprintf(stderr, "  w (address) (length) (value): write value to memory\n");
     fprintf(stderr, "  q: quit\n");
 }
@@ -61,24 +63,6 @@ void Runner::set_breakpoint_command(char *buf)
         breakpoints.insert(address);
     } else {
         fprintf(stderr, "Syntax error\n");
-    }
-}
-
-void Runner::load_file_command(char *buf)
-{
-    uint32_t address = 0;
-    char filename[256];
-    int ret = sscanf(buf + 1, "%x %s\n", &address, filename);
-    if (ret == 2) {
-        fprintf(stderr, "Load %s to address 0x%08x\n", filename, address);
-        bool ret = load_file_to_memory(address, filename);
-        if (ret) {
-            fprintf(stderr, "%s was loaded successfully.\n", filename);
-        } else {
-            fprintf(stderr, "%s not found. Ignored.\n", filename);
-        }
-    } else {
-        fprintf(stderr, "Syntax error.\n");
     }
 }
 
@@ -179,9 +163,11 @@ int Runner::proccess_debugger_command()
         case 'b':
             set_breakpoint_command(buf);
             break;
-        case 'l':
-            load_file_command(buf);
+        case 'l': {
+            instruction_handler_t handler = OperationMap::lookup(&h8);
+            fprintf(stderr, "%s\n", lookup_instruction_name(handler));
             break;
+        }
         case 'w':
             write_value_command(buf);
             break;

@@ -15,7 +15,8 @@ OBJS += operation_map/operation_map.o \
 		operation_map/operation_map_7Ex.o \
 		operation_map/operation_map_7Fx.o \
 		operation_map/operation_map_7x.o
-OBJS += instructions/mov.o \
+OBJS += instructions/instruction_table.o \
+		instructions/mov.o \
 		instructions/jsr.o \
 		instructions/exts.o \
 		instructions/shll.o \

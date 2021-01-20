@@ -50,8 +50,8 @@ instruction_handler_t lookup_5x(H8300H *h8)
     case 0x0a:
     case 0x0b: return nullptr; // JMP
     case 0x0c: return nullptr; // BSR
-    case 0x0d: return h8instructions::jsr::register_indirect;
-    case 0x0e: return h8instructions::jsr::absolute_address;
+    case 0x0d: return h8instructions::jsr::jsr_register_indirect;
+    case 0x0e: return h8instructions::jsr::jsr_absolute_address;
     case 0x0f: return nullptr; // JSR
     default:   return nullptr;
     }

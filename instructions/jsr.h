@@ -6,8 +6,8 @@
 namespace h8instructions {
 namespace jsr {
 
-int register_indirect(H8300H* h8);
-int absolute_address(H8300H* h8);
+int jsr_register_indirect(H8300H* h8);
+int jsr_absolute_address(H8300H* h8);
 
 }
 }
