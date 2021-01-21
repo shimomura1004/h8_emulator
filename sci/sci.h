@@ -11,6 +11,9 @@
 class SCI {
 private:
     std::thread* sci_thread[2];
+    char tx_pipe_name[16];
+    char rx_pipe_name[16];
+
     uint8_t index;
     bool terminate_flag;
     std::mutex& mutex;

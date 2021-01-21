@@ -1,5 +1,7 @@
 #include <chrono>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "sci.h"
 #include "sci_register.h"
@@ -11,6 +13,17 @@
 // todo: (OS側から)送信割り込みが有効化されてない？
 
 void SCI::run_recv_from_h8() {
+    sprintf(this->tx_pipe_name, "tx_%d", this->index);
+    if (mkfifo(this->tx_pipe_name, 0666) == -1) {
+        fprintf(stderr, "Warn: Failed to create named pipe %s\n", this->tx_pipe_name);
+    }
+
+    FILE *fp = fopen(tx_pipe_name, "w");
+    if (!fp) {
+        fprintf(stderr, "Error: Failed to open named pipe %s\n", this->tx_pipe_name);
+        return;
+    }
+    
     while (!terminate_flag) {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
@@ -24,7 +37,9 @@ void SCI::run_recv_from_h8() {
         sci_register.set_bit(SCIRegister::SCI::SSR, SCIRegister::SCI_SSR::TDRE, true);
 
         // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
-        putc(data, stdout);
+        fputc(data, fp);
+        fflush(fp);
+        fputc(data, stdout);
         fflush(stdout);
 
         // H8 に送信準備完了の割り込みを発生させる
@@ -38,6 +53,17 @@ void SCI::run_recv_from_h8() {
 }
 
 void SCI::run_send_to_h8() {
+    sprintf(this->rx_pipe_name, "rx_%d", index);
+    if (mkfifo(this->rx_pipe_name, 0666) == -1) {
+        fprintf(stderr, "Warn: Failed to create named pipe %s\n", this->rx_pipe_name);
+    }
+
+    FILE *fp = fopen(this->rx_pipe_name, "r");
+    if (!fp) {
+        fprintf(stderr, "Error: Failed to open named pipe %s\n", this->rx_pipe_name);
+        return;
+    }
+
     while (!terminate_flag) {
         // todo: このロックは必要か？
         int c;
@@ -45,9 +71,15 @@ void SCI::run_send_to_h8() {
             // デバッガと標準入出力を奪い合わないようにロックする
             // std::lock_guard<std::mutex> lock(mutex);
 
-            c = getchar();
+            c = fgetc(fp);
             if (c == EOF) {
-                break;
+                fclose(fp);
+                fp = fopen(this->rx_pipe_name, "r");
+                if (!fp) {
+                    fprintf(stderr, "Error: Failed to open named pipe %s\n", this->rx_pipe_name);
+                    break;
+                }
+                continue;
             }
         }
 
@@ -68,6 +100,8 @@ void SCI::run_send_to_h8() {
             interrupt_controller.set(RXI_TABLE[index]);
         }
     }
+
+    printf("quit! %d\n", this->index);
 }
 
 SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex)
@@ -80,6 +114,8 @@ SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& m
 SCI::~SCI()
 {
     terminate();
+    remove(this->tx_pipe_name);
+    remove(this->rx_pipe_name);
     printf("SCI(%d) stopped\n", index);
 }
 

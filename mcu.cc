@@ -1,6 +1,16 @@
 #include "mcu.h"
 #include "elf_loader.h"
 
+MCU::MCU(InterruptController& interrupt_controller, std::mutex& mutex)
+    : sci0(0, interrupt_controller, mutex)
+    , sci1(1, interrupt_controller, mutex)
+    , sci2(2, interrupt_controller, mutex)
+{
+    sci0.run();
+    sci1.run();
+    sci2.run();
+}
+
 uint32_t MCU::load_elf(std::string filepath)
 {
     return ElfLoader::load(rom, filepath);

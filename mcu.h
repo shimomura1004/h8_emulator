@@ -31,16 +31,15 @@ class MCU {
     static const uint32_t sci2_start = 0xffffc0;
     static const uint32_t sci2_end   = 0xffffc6;
 
+    SCI sci0;
     SCI sci1;
+    SCI sci2;
 
+    // 標準入力を奪い合わないためのロック
     std::mutex mutex;
 
 public:
-    MCU(InterruptController& interrupt_controller, std::mutex& mutex)
-        : sci1(1, interrupt_controller, mutex)
-    {
-        sci1.run();
-    }
+    MCU(InterruptController& interrupt_controller, std::mutex& mutex);
 
 template<uint8_t n, class T>
 T read(uint32_t address)
