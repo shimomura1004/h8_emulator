@@ -28,7 +28,7 @@ private:
     SCIRegister sci_register;
     InterruptController& interrupt_controller;
 
-    bool open_pipe(const char *pipe_name, FILE** fp, DIRECTION dir);
+    bool open_pipe(const char *pipe_name, FILE*& fp, DIRECTION dir);
 
     void run_recv_from_h8();
     void run_send_to_h8();

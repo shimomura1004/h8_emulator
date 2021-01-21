@@ -12,7 +12,7 @@
 // todo: load が開始されるまでに少し待ち時間がある
 // todo: (OS側から)送信割り込みが有効化されてない？
 
-bool SCI::open_pipe(const char *pipe_name, FILE** fp, DIRECTION dir)
+bool SCI::open_pipe(const char *pipe_name, FILE*& fp, DIRECTION dir)
 {
     mkfifo(pipe_name, 0666);
 
@@ -23,8 +23,8 @@ bool SCI::open_pipe(const char *pipe_name, FILE** fp, DIRECTION dir)
         return false;
     }
 
-    *fp = fopen(pipe_name, dir == TX ? "w" : "r");
-    if (!*fp) {
+    fp = fopen(pipe_name, dir == TX ? "w" : "r");
+    if (!fp) {
         fprintf(stderr, "Error: Failed to open named pipe %s\n", pipe_name);
         return false;
     }
@@ -35,7 +35,8 @@ bool SCI::open_pipe(const char *pipe_name, FILE** fp, DIRECTION dir)
 void SCI::run_recv_from_h8() {
     if (!this->tx) {
         sprintf(this->tx_pipe_name, "tx_%d", this->index);
-        bool ret = open_pipe(this->tx_pipe_name, &this->tx, TX);
+        bool ret = open_pipe(this->tx_pipe_name, this->tx, TX);
+
         if (!ret) {
             return;
         }
@@ -68,8 +69,9 @@ void SCI::run_recv_from_h8() {
 
 void SCI::run_send_to_h8() {
     if (!this->rx) {
-        sprintf(this->rx_pipe_name, "rx_%d", index);
-        bool ret = open_pipe(this->rx_pipe_name, &this->rx, RX);
+        sprintf(this->rx_pipe_name, "rx_%d", this->index);
+        bool ret = open_pipe(this->rx_pipe_name, this->rx, RX);
+
         if (!ret) {
             return;
         }
@@ -83,12 +85,12 @@ void SCI::run_send_to_h8() {
             // std::lock_guard<std::mutex> lock(mutex);
 
             c = fgetc(this->rx);
-
+putchar(c);
             if (c == EOF) {
                 // 読み取りに失敗したら開き直してみる
                 fclose(this->rx);
 
-                bool ret = open_pipe(this->rx_pipe_name, &this->rx, RX);
+                bool ret = open_pipe(this->rx_pipe_name, this->rx, RX);
                 if (!ret) {
                     break;
                 }
