@@ -12,22 +12,38 @@
 // todo: load が開始されるまでに少し待ち時間がある
 // todo: (OS側から)送信割り込みが有効化されてない？
 
-void SCI::run_recv_from_h8() {
-    sprintf(this->tx_pipe_name, "tx_%d", this->index);
-    if (mkfifo(this->tx_pipe_name, 0666) == -1) {
-        fprintf(stderr, "Warn: Failed to create named pipe %s\n", this->tx_pipe_name);
+bool SCI::open_pipe(const char *pipe_name, FILE** fp, DIRECTION dir)
+{
+    mkfifo(pipe_name, 0666);
+
+    struct stat st;
+    stat(pipe_name, &st);
+    if (!S_ISFIFO(st.st_mode)) {
+        fprintf(stderr, "Error: %s is not a named pipe\n", pipe_name);
+        return false;
     }
 
-    FILE *fp = fopen(tx_pipe_name, "w");
-    if (!fp) {
-        fprintf(stderr, "Error: Failed to open named pipe %s\n", this->tx_pipe_name);
-        return;
+    *fp = fopen(pipe_name, dir == TX ? "w" : "r");
+    if (!*fp) {
+        fprintf(stderr, "Error: Failed to open named pipe %s\n", pipe_name);
+        return false;
+    }
+
+    return true;
+}
+
+void SCI::run_recv_from_h8() {
+    if (!this->tx) {
+        sprintf(this->tx_pipe_name, "tx_%d", this->index);
+        bool ret = open_pipe(this->tx_pipe_name, &this->tx, TX);
+        if (!ret) {
+            return;
+        }
     }
     
     while (!terminate_flag) {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
-
         sci_register.wait_tdre_to_be(false);
 
         // データは TDR に入っている
@@ -37,10 +53,8 @@ void SCI::run_recv_from_h8() {
         sci_register.set_bit(SCIRegister::SCI::SSR, SCIRegister::SCI_SSR::TDRE, true);
 
         // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
-        fputc(data, fp);
-        fflush(fp);
-        fputc(data, stdout);
-        fflush(stdout);
+        fputc(data, this->tx);
+        fflush(this->tx);
 
         // H8 に送信準備完了の割り込みを発生させる
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::TIE)) {
@@ -53,15 +67,12 @@ void SCI::run_recv_from_h8() {
 }
 
 void SCI::run_send_to_h8() {
-    sprintf(this->rx_pipe_name, "rx_%d", index);
-    if (mkfifo(this->rx_pipe_name, 0666) == -1) {
-        fprintf(stderr, "Warn: Failed to create named pipe %s\n", this->rx_pipe_name);
-    }
-
-    FILE *fp = fopen(this->rx_pipe_name, "r");
-    if (!fp) {
-        fprintf(stderr, "Error: Failed to open named pipe %s\n", this->rx_pipe_name);
-        return;
+    if (!this->rx) {
+        sprintf(this->rx_pipe_name, "rx_%d", index);
+        bool ret = open_pipe(this->rx_pipe_name, &this->rx, RX);
+        if (!ret) {
+            return;
+        }
     }
 
     while (!terminate_flag) {
@@ -71,15 +82,18 @@ void SCI::run_send_to_h8() {
             // デバッガと標準入出力を奪い合わないようにロックする
             // std::lock_guard<std::mutex> lock(mutex);
 
-            c = fgetc(fp);
+            c = fgetc(this->rx);
+
             if (c == EOF) {
-                fclose(fp);
-                fp = fopen(this->rx_pipe_name, "r");
-                if (!fp) {
-                    fprintf(stderr, "Error: Failed to open named pipe %s\n", this->rx_pipe_name);
+                // 読み取りに失敗したら開き直してみる
+                fclose(this->rx);
+
+                bool ret = open_pipe(this->rx_pipe_name, &this->rx, RX);
+                if (!ret) {
                     break;
                 }
-                continue;
+
+                return;
             }
         }
 
@@ -100,22 +114,34 @@ void SCI::run_send_to_h8() {
             interrupt_controller.set(RXI_TABLE[index]);
         }
     }
-
-    printf("quit! %d\n", this->index);
 }
 
 SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex)
-    : index(index)
+    : SCI(index, interrupt_controller, mutex, nullptr, nullptr)
+{}
+
+SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex, FILE* tx, FILE* rx)
+    : tx(tx)
+    , rx(rx)
+    , index(index)
     , terminate_flag(false)
     , mutex(mutex)
     , interrupt_controller(interrupt_controller)
-{}
+{
+}
 
 SCI::~SCI()
 {
     terminate();
-    remove(this->tx_pipe_name);
-    remove(this->rx_pipe_name);
+
+    if (this->tx) {
+        fclose(this->tx);
+    }
+
+    if (this->rx) {
+        fclose(this->rx);
+    }
+
     printf("SCI(%d) stopped\n", index);
 }
 

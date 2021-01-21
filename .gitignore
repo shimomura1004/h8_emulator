@@ -3,6 +3,8 @@
 h8300h
 sender
 core
+*.dSYM
 
 osbook_03
 kozos
+tmp
