@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/select.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 
 #define XMODEM_SOH 0x01
 #define XMODEM_STX 0x02
@@ -91,55 +94,53 @@ void handle_send_command(FILE* rx, char* buf)
 int main(int argc, char *argv[])
 {
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s (ser num)\n", argv[0]);
+        fprintf(stderr, "Usage: %s (serial socket)\n", argv[0]);
         return 0;
     }
 
-    uint8_t index;
-    int ret = sscanf(argv[1], "%hhu", &index);
-    if (ret != 1) {
-        fprintf(stderr, "Usage: %s (ser num)\n", argv[0]);
+    int h8_serial_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (h8_serial_sock == -1)
+    {
+        fprintf(stderr, "Error: Failed to create socket.\n");
         return 1;
     }
 
-    char tx_pipe_name[16];
-    char rx_pipe_name[16];
+    struct sockaddr_un sa = {0};
+    sa.sun_family = AF_UNIX;
+    strcpy(sa.sun_path, argv[1]);
 
-    sprintf(tx_pipe_name, "tx_%d", index);
-    sprintf(rx_pipe_name, "rx_%d", index);
-
-    // H8 の RX にデータを送信する、TX からデータを読み取る
-    FILE* tx = fopen(tx_pipe_name, "r");
-    FILE* rx = fopen(rx_pipe_name, "w");
-
-    if (!tx || !rx) {
-        fprintf(stderr, "Failed to open serial port\n");
+    if (connect(h8_serial_sock, (struct sockaddr*) &sa, sizeof(struct sockaddr_un)) == -1)
+    {
+        fprintf(stderr, "Error: Failed to connect.\n");
+        close(h8_serial_sock);
         return 1;
     }
 
     fd_set fdset;
-    const int tx_fd = fileno(tx);
+    char h8_buf[LINE_BUFFER_SIZE];
     char user_buf[LINE_BUFFER_SIZE];
 
     while (1) {
         FD_ZERO(&fdset);
         FD_SET(0, &fdset);
-        FD_SET(tx_fd, &fdset);
+        FD_SET(h8_serial_sock, &fdset);
 
-        int ret = select(tx_fd + 1, &fdset , NULL, NULL, NULL);
+        int ret = select(h8_serial_sock + 1, &fdset , NULL, NULL, NULL);
         if (ret != 0) {
             // h8 からの出力
-            if (FD_ISSET(tx_fd, &fdset)) {
-                printf("from h8\n");
-                int c;
-                while ((c = fgetc(tx)) != EOF) {
-                    putchar(c);
+            if (FD_ISSET(h8_serial_sock, &fdset)) {
+                while (1) {
+                    int size = read(h8_serial_sock, h8_buf, LINE_BUFFER_SIZE);
+                    h8_buf[size++] = '\0';
+                    printf("%s", h8_buf);
+                    if (size != LINE_BUFFER_SIZE) {
+                        break;
+                    }
                 }
                 fflush(stdout);
             }
             // ユーザの入力を H8 に転送
             if (FD_ISSET(0, &fdset)) {
-                printf("user input!\n");
                 int size = read(0, user_buf, LINE_BUFFER_SIZE - 1);
                 if (size < 0) {
                     fprintf(stderr, "Error in reading user input.\n");
@@ -148,13 +149,10 @@ int main(int argc, char *argv[])
                 user_buf[size] = '\0';
 
                 if (strncmp(user_buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
-                    handle_send_command(rx, user_buf);
+                    // handle_send_command(fp, user_buf);
                 } else {
                     // 特殊なコマンドでなければそのまま H8 に投げる
-                    // write(rx, user_buf, size);
-                    printf("sending '%s'\n", user_buf);
-                    fprintf(rx, "%s", user_buf);
-                    fflush(rx);
+                    write(h8_serial_sock, user_buf, size);
                 }
             }
         }

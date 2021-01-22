@@ -17,10 +17,9 @@ public:
 
 private:
     std::thread* sci_thread[2];
-    char tx_pipe_name[16];
-    char rx_pipe_name[16];
-    FILE* tx;
-    FILE* rx;
+    char sci_sock_name[16];
+    int sci_socket;
+    int sci_sock_fd;
 
     uint8_t index;
     bool terminate_flag;
@@ -28,7 +27,7 @@ private:
     SCIRegister sci_register;
     InterruptController& interrupt_controller;
 
-    bool open_pipe(const char *pipe_name, FILE*& fp, DIRECTION dir);
+    bool open_sci_socket();
 
     void run_recv_from_h8();
     void run_send_to_h8();
