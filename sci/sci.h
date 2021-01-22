@@ -16,6 +16,7 @@ public:
     } DIRECTION;
 
 private:
+    std::thread* prepare_thread;
     std::thread* sci_thread[2];
     char sci_sock_name[16];
     int sci_socket;
@@ -29,6 +30,7 @@ private:
 
     bool open_sci_socket();
 
+    void prepare();
     void run_recv_from_h8();
     void run_send_to_h8();
 

@@ -59,12 +59,20 @@ bool SCI::open_sci_socket()
     return true;
 }
 
-void SCI::run_recv_from_h8() {
-    // // ソケットを開くのはこちらで
-    // if (!open_sci_socket()) {
-    //     return;
-    // }
+void SCI::prepare()
+{
+    if (!this->open_sci_socket()) {
+        return;
+    }
 
+    this->sci_thread[0] = new std::thread(&SCI::run_recv_from_h8, this);
+    this->sci_thread[1] = new std::thread(&SCI::run_send_to_h8, this);
+    if (this->sci_thread[0] && this->sci_thread[1]) {
+        printf("SCI(%d) started\n", this->index);
+    }
+}
+
+void SCI::run_recv_from_h8() {
     while (!terminate_flag) {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
@@ -149,21 +157,18 @@ SCI::~SCI()
 }
 
 void SCI::run() {
-    if (this->index != 1)
-    return;
-    if (!open_sci_socket()) {
-        return;
-    }
-
-    sci_thread[0] = new std::thread(&SCI::run_recv_from_h8, this);
-    sci_thread[1] = new std::thread(&SCI::run_send_to_h8, this);
-    if (sci_thread[0] && sci_thread[1]) {
-        printf("SCI(%d) started\n", index);
-    }
+    this->prepare_thread = new std::thread(&SCI::prepare, this);
 }
 
 void SCI::terminate() {
     terminate_flag = true;
+
+    if (this->prepare_thread) {
+        if (this->prepare_thread->joinable()) {
+            this->prepare_thread->join();
+        }
+        delete this->prepare_thread;
+    }
 
     for (int i=0; i < 2; i++) {
         if (sci_thread[i]) {
