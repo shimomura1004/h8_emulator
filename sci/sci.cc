@@ -9,7 +9,6 @@
 #include "sci.h"
 #include "sci_register.h"
 
-// todo: sci ごとに名前付きパイプを作って、そこに入出力をつなげるほうがよさそう -> socket にする
 // todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
 
 // todo: load が開始されるまでに少し待ち時間がある
@@ -55,6 +54,8 @@ bool SCI::open_sci_socket()
         return false;
     }
 
+    fprintf(stderr, "Info: %s connected.\n", this->sci_sock_name);
+
     return true;
 }
 
@@ -77,8 +78,6 @@ void SCI::run_recv_from_h8() {
 
         // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
         ::write(this->sci_sock_fd, &data, sizeof(char));
-fputc(data, stdout);
-fflush(stdout);
 
         // H8 に送信準備完了の割り込みを発生させる
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::TIE)) {
@@ -93,28 +92,21 @@ fflush(stdout);
 void SCI::run_send_to_h8() {
     // ソケットを開くまでは待ち合わせる
     while (!terminate_flag) {
-        // todo: このロックは必要か？
-        // int c;
-        char c;
-        {
             // デバッガと標準入出力を奪い合わないようにロックする
             // std::lock_guard<std::mutex> lock(mutex);
 
-            // c = fgetc(this->sci_sock);
-            ::read(this->sci_sock_fd, &c, sizeof(char));
+        char c;
+        ssize_t size = ::read(this->sci_sock_fd, &c, sizeof(char));
+        if (size != 1) {
+            fprintf(stderr, "Info: socket is closed.\n");
 
-            // if (c == EOF) {
-            //     // 読み取りに失敗したら開き直してみる
-            //     // fclose(this->sci_sock);
-
-            //     // todo: 再接続(複数接続)に対応する
-            //     // bool ret = open_pipe(this->rx_pipe_name, this->rx, RX);
-            //     // if (!ret) {
-            //     //     break;
-            //     // }
-
-            //     return;
-            // }
+            // 読み取りに失敗したら開き直してみる
+            close(this->sci_socket);
+            close(this->sci_sock_fd);
+            if (!open_sci_socket()) {
+                break;
+            }
+            continue;
         }
 
         // H8 が受信するまで待つ
@@ -122,7 +114,7 @@ void SCI::run_send_to_h8() {
 
         // H8 に渡すデータは RDR に書き込んでおく
         sci_register.set(SCIRegister::RDR, (uint8_t)c);
-
+printf("write\n");
         // RDRF を 1 にして H8 に通知
         sci_register.set_bit(SCIRegister::SSR, SCIRegister::SCI_SSR::RDRF, true);
 
@@ -151,7 +143,8 @@ SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& m
 SCI::~SCI()
 {
     terminate();
-    // fclose(this->sci_sock);
+    close(this->sci_socket);
+    close(this->sci_sock_fd);
     printf("SCI(%d) stopped\n", index);
 }
 

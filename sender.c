@@ -22,7 +22,7 @@
 
 #define SEND_COMMAND (":send ")
 
-void handle_send_command(FILE* rx, char* buf)
+void handle_send_command(int h8_serial_sock, char* buf)
 {
     // ロードする OS は 8KB 以下を想定、それ以上のものを読むとスタックを壊す
 
@@ -39,6 +39,7 @@ void handle_send_command(FILE* rx, char* buf)
         return;
     }
 
+    char c;
     unsigned char count = 1;
     unsigned char os_buf[XMODEM_BLOCK_SIZE];
     printf("Sending blocks");
@@ -52,36 +53,39 @@ void handle_send_command(FILE* rx, char* buf)
         fflush(stdout);
 
         // とりあえずエラー(NAK)でも無視する
-        fgetc(rx);
+        read(h8_serial_sock, &c, sizeof(char));
 
         // send header
-        fputc(XMODEM_SOH, rx);
+        c = XMODEM_SOH;
+        write(h8_serial_sock, &c, sizeof(char));
 
-        // send inverted header
-        fputc(count, rx);
-        fputc(~count, rx);
-
+        // send count and inverted count
+        c = count;
+        write(h8_serial_sock, &c, sizeof(unsigned char));
+        c = ~count;
+        write(h8_serial_sock, &c, sizeof(unsigned char));
+printf("222\n");
         // send body
-        memset(os_buf, EOF, XMODEM_BLOCK_SIZE);
-        int size = fread(os_buf, sizeof(char), XMODEM_BLOCK_SIZE, fp);
-        fwrite(os_buf, sizeof(char), XMODEM_BLOCK_SIZE, rx);
-
+        memset(os_buf, 0x1a, XMODEM_BLOCK_SIZE);
+        ssize_t size = read(h8_serial_sock, os_buf, sizeof(char) * XMODEM_BLOCK_SIZE);
+printf("111\n");
         // send checksum
-        unsigned char check_sum = 0;
+        c = 0;
         for (int i = 0; i < XMODEM_BLOCK_SIZE; i++) {
-            check_sum += os_buf[i];
+            c += os_buf[i];
         }
-        fputc(check_sum, rx);
-
+        write(h8_serial_sock, &c, sizeof(char));
+printf("aaa\n");
         // 末尾までデータを送った場合
         if (size != XMODEM_BLOCK_SIZE) {
             // 最後に EOT を送り、ACK を待つ
-            fputc(XMODEM_EOT, rx);
-            int response = fgetc(rx);
+            c = XMODEM_EOT;
+            write(h8_serial_sock, &c, sizeof(char));
+            read(h8_serial_sock, &c, sizeof(char));
 
             printf("done.\n");
 
-            if (response != XMODEM_ACK) {
+            if (c != XMODEM_ACK) {
                 printf("Error in xmodem protocol.\n");
             }
             break;
@@ -149,7 +153,7 @@ int main(int argc, char *argv[])
                 user_buf[size] = '\0';
 
                 if (strncmp(user_buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
-                    // handle_send_command(fp, user_buf);
+                    handle_send_command(h8_serial_sock, user_buf);
                 } else {
                     // 特殊なコマンドでなければそのまま H8 に投げる
                     write(h8_serial_sock, user_buf, size);
