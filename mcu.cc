@@ -21,6 +21,7 @@ uint32_t MCU::get_vector(uint8_t index)
     return read<32, uint32_t>(index * 4);
 }
 
+// todo: dump で sci0/sci2 に対応
 void MCU::dump(std::string filepath)
 {
     std::lock_guard<std::mutex> lock(mutex);
@@ -40,13 +41,16 @@ void MCU::dump(std::string filepath)
     fwrite(ram, sizeof(uint8_t), ram_end - ram_start + 1, fp);
     // 内部I/Oレジスタ(SCI を含む)
     // SCI1 以外は 0 埋めする
-    for (uint32_t i = ram_end + 1; i < sci1_start; i++) {
+    for (uint32_t i = ram_end + 1; i < sci0_start; i++) {
         fputc(0, fp);
     }
-    // SCI1 を出力
+
+    sci0.dump(fp);
     sci1.dump(fp);
+    sci2.dump(fp);
+
     // 末尾まで0 埋めする
-    for (uint32_t i=sci2_start; i < all_end + 1; i++) {
+    for (uint32_t i=sci2_end + 1; i < all_end + 1; i++) {
         fputc(0, fp);
     }
 

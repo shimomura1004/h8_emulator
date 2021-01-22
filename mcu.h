@@ -60,10 +60,18 @@ T read(uint32_t address)
         case 32: return __builtin_bswap32(*(uint32_t*)&ram[address - ram_start]);
         default: break;
         }
-    } else if (sci1_start <= address && address <= sci1_end) {
+    } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         if (n == 8) {
+            return sci0.read(address - sci0_start);
+        }
+    } else if (sci1_start <= address && address <= sci1_end) {
+        if (n == 8) {
             return sci1.read(address - sci1_start);
+        }
+    } else if (sci0_start <= address && address <= sci0_end) {
+        if (n == 8) {
+            return sci2.read(address - sci2_start);
         }
     }
 
@@ -88,10 +96,20 @@ void write(uint32_t address, T value)
             return;
         default: break;
         }
-    } else if (sci1_start <= address && address <= sci1_end) {
+    } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         if (n == 8) {
+            sci0.write(address - sci0_start, value);
+            return;
+        }
+    } else if (sci1_start <= address && address <= sci1_end) {
+        if (n == 8) {
             sci1.write(address - sci1_start, value);
+            return;
+        }
+    } else if (sci2_start <= address && address <= sci2_end) {
+        if (n == 8) {
+            sci2.write(address - sci2_start, value);
             return;
         }
     }
@@ -120,10 +138,20 @@ void update(uint32_t address, T(*f)(T))
         }
         default: break;
         }
-    } else if (sci1_start <= address && address <= sci1_end) {
+    } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         if (n == 8) {
+            sci0.write(address - sci0_start, f(sci0.read(address - sci0_start)));
+            return;
+        }
+    } else if (sci1_start <= address && address <= sci1_end) {
+        if (n == 8) {
             sci1.write(address - sci1_start, f(sci1.read(address - sci1_start)));
+            return;
+        }
+    } else if (sci2_start <= address && address <= sci2_end) {
+        if (n == 8) {
+            sci1.write(address - sci2_start, f(sci1.read(address - sci2_start)));
             return;
         }
     }
