@@ -151,7 +151,7 @@ void update(uint32_t address, T(*f)(T))
         }
     } else if (sci2_start <= address && address <= sci2_end) {
         if (n == 8) {
-            sci1.write(address - sci2_start, f(sci1.read(address - sci2_start)));
+            sci2.write(address - sci2_start, f(sci2.read(address - sci2_start)));
             return;
         }
     }
