@@ -64,18 +64,19 @@ void handle_send_command(int h8_serial_sock, char* buf)
         write(h8_serial_sock, &c, sizeof(unsigned char));
         c = ~count;
         write(h8_serial_sock, &c, sizeof(unsigned char));
-printf("222\n");
+
         // send body
         memset(os_buf, 0x1a, XMODEM_BLOCK_SIZE);
-        ssize_t size = read(h8_serial_sock, os_buf, sizeof(char) * XMODEM_BLOCK_SIZE);
-printf("111\n");
+        ssize_t size = fread(os_buf, sizeof(char), XMODEM_BLOCK_SIZE, fp);
+        write(h8_serial_sock, os_buf, sizeof(char) * XMODEM_BLOCK_SIZE);
+
         // send checksum
         c = 0;
         for (int i = 0; i < XMODEM_BLOCK_SIZE; i++) {
             c += os_buf[i];
         }
         write(h8_serial_sock, &c, sizeof(char));
-printf("aaa\n");
+
         // 末尾までデータを送った場合
         if (size != XMODEM_BLOCK_SIZE) {
             // 最後に EOT を送り、ACK を待つ

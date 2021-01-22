@@ -114,7 +114,7 @@ void SCI::run_send_to_h8() {
 
         // H8 に渡すデータは RDR に書き込んでおく
         sci_register.set(SCIRegister::RDR, (uint8_t)c);
-printf("write\n");
+
         // RDRF を 1 にして H8 に通知
         sci_register.set_bit(SCIRegister::SSR, SCIRegister::SCI_SSR::RDRF, true);
 
