@@ -109,7 +109,10 @@ int H8300H::step()
 {
     // 割り込みがあれば処理
     interrupt_t type = interrupt_controller.getInterruptType();
-    if (type != interrupt_t::NONE && !ccr.i()) {
+
+    // todo: 内部割込みは CCR.I がセットされていてもブロックされないが、
+    //       外部割り込みの場合は CCR.I がセットされている場合はブロックされる
+    if (type != interrupt_t::NONE) {
         // 内部割込みの場合はすぐにクリアする
         // todo: 外部割り込みの場合は勝手にクリアしてはいけない
         interrupt_controller.clear(type);
