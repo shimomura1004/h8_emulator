@@ -4,8 +4,6 @@
 #include "instructions/instruction_table.h"
 
 // Ctrl-c or Ctrl-t でデバッグモードに入る
-// コマンドラインからのシグナルはプロセスグループに対して発行されるので
-// sender から明示的にシグナルを伝える必要はない
 static volatile sig_atomic_t debug_mode = 0;
 static volatile sig_atomic_t continue_mode = 0;
 static void sig_handler(int signo)
@@ -41,17 +39,20 @@ bool Runner::load_file_to_memory(uint32_t address, char *filename)
     return true;
 }
 
+// todo: コマンドを複数文字に対応させる
 void Runner::print_help_command()
 {
-    fprintf(stderr, "  h: print help\n");
+    fprintf(stderr, "  help: print help\n");
     fprintf(stderr, "  r: print register status\n");
-    fprintf(stderr, "  d: dump memory\n");
+    fprintf(stderr, "  dump: dump memory\n");
     fprintf(stderr, "  s: next step\n");
-    fprintf(stderr, "  c: continue execution until breakpoint\n");
+    fprintf(stderr, "  continue: continue execution until breakpoint\n");
     fprintf(stderr, "  b (address): set break point\n");
-    fprintf(stderr, "  l: display next instruction\n");
-    fprintf(stderr, "  w (address) (length) (value): write value to memory\n");
-    fprintf(stderr, "  q: quit\n");
+    fprintf(stderr, "  lookup: display next instruction\n");
+    fprintf(stderr, "  stepout: step-out from current function\n");
+    fprintf(stderr, "  printpc: toggle printing pc\n");
+    fprintf(stderr, "  writereg (address) (length) (value): write value to memory\n");
+    fprintf(stderr, "  quit: quit\n");
 }
 
 void Runner::set_breakpoint_command(char *buf)
@@ -95,11 +96,34 @@ void Runner::write_value_command(char *buf)
     }
 }
 
+// todo: 別ファイルへ
+#define MATCH(buf, command) (strncmp(buf, command, sizeof(command) - 1) == 0)
+#define NEW_LINE        "\x0a"
+#define HELP1       "h"
+#define HELP2       "help"
+#define REG1        "r"
+#define REG2        "reg"
+#define DUMP        "dump"
+#define STEP1       "s"
+#define STEP2       "step"
+#define CONTINUE    "continue"
+#define BREAK1      "b"
+#define BREAK2      "break"
+#define LOOKUP      "lookup"
+#define STEP_OUT   "so"
+#define PRINT_PC_MODE   "printpc"
+#define WRITE_REG   "writereg"
+#define QUIT1        "q"
+#define QUIT2        "quit"
+
 // todo: メモリの内容を一部確認するコマンドがほしい
 // todo: レジスタを書き換えるコマンドがほしい
 // todo: SCI のレジスタを見るコマンドがほしい
-
-// todo: continue mode と debug mode の違いは？
+// todo: 様々な条件でのブレーク機能
+//       特定のメモリアドレスへの書き込み時、レジスタが特定の値になったとき、など
+#include "instructions/rts.h"
+static bool step_out_mode = false;
+static bool print_pc_mode = false;
 int Runner::proccess_debugger_command()
 {
     if (continue_mode) {
@@ -107,6 +131,16 @@ int Runner::proccess_debugger_command()
             return 0;
         } else {
             continue_mode = false;
+        }
+
+        // todo: バグがある
+        if (step_out_mode) {
+            instruction_handler_t handler = OperationMap::lookup(&h8);
+            if (handler == h8instructions::rts::rts)  {
+                continue_mode = false;
+                step_out_mode = false;
+                return 0;
+            }
         }
     }
 
@@ -142,41 +176,46 @@ int Runner::proccess_debugger_command()
             }
         }
 
-        switch (buf[0]) {
-        case 0x0a:
+        if (MATCH(buf, NEW_LINE)) {
             return 0;
-        case 'h':
+        } else if (MATCH(buf, HELP1) || MATCH(buf, HELP2)) {
             print_help_command();
-            break;
-        case 'r':
+            continue;
+        } else if (MATCH(buf, REG1) || MATCH(buf, REG2)) {
             h8.print_registers();
-            break;
-        case 'd':
+        } else if (MATCH(buf, DUMP)) {
             h8.mcu.dump("core");
             fprintf(stderr, "Memory dumped to 'core' file\n");
-            break;
-        case 's':
+            continue;
+        } else if (MATCH(buf, STEP1) || MATCH(buf, STEP2)) {
             return 0;
-        case 'c':
+        } else if (MATCH(buf, CONTINUE)) {
             continue_mode = true;
             return 0;
-        case 'b':
+        } else if (MATCH(buf, BREAK1) || MATCH(buf, BREAK2)) {
             set_breakpoint_command(buf);
-            break;
-        case 'l': {
+            continue;
+        } else if (MATCH(buf, LOOKUP)) {
             instruction_handler_t handler = OperationMap::lookup(&h8);
             fprintf(stderr, "%s\n", lookup_instruction_name(handler));
-            break;
-        }
-        case 'w':
+            continue;
+        } else if (MATCH(buf, STEP_OUT)) {
+            continue_mode = true;
+            step_out_mode = true;
+        } else if (MATCH(buf, PRINT_PC_MODE)) {
+            print_pc_mode = !print_pc_mode;
+            fprintf(stderr, "Print PC mode: %s\n", print_pc_mode ? "on" : "off");
+            continue;
+        } else if (MATCH(buf, WRITE_REG)) {
             write_value_command(buf);
-            break;
-        case 'q':
+        } else if (MATCH(buf, QUIT1) || MATCH(buf, QUIT2)) {
             return -1;
-        default:
+        } else {
             fprintf(stderr, "Unknown debugger command: %c\n", buf[0]);
-            break;
+            continue;
         }
+
+        return 0;
     }
 }
 
@@ -189,6 +228,8 @@ void Runner::run(bool debug)
     int result = 0;
 
     while (1) {
+        // todo: ここで割り込みによる PC 更新をしてしまうほうがいい
+
         if (debug_mode) {
             int r = proccess_debugger_command();
             if (r != 0) {
@@ -196,7 +237,9 @@ void Runner::run(bool debug)
             }
         }
 
-        // printf("PC: 0x%08x\n", h8.pc);
+        if (print_pc_mode) {
+            printf("PC: 0x%08x\n", h8.pc);
+        }
 
         result = h8.step();
         if (result != 0) {
