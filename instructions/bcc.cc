@@ -30,7 +30,6 @@ int h8instructions::bcc::bhi_16(H8300H* h8)
     int16_t disp = *(int16_t*)displacement;
 
     h8->pc += 4;
-    h8->pc += disp;
 
     if (h8->ccr.c() || h8->ccr.z()) {
         h8->pc += disp;
