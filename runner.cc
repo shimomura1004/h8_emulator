@@ -228,7 +228,7 @@ void Runner::run(bool debug)
     int result = 0;
 
     while (1) {
-        // todo: ここで割り込みによる PC 更新をしてしまうほうがいい
+        h8.handle_interrupt();
 
         if (debug_mode) {
             int r = proccess_debugger_command();

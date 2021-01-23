@@ -105,7 +105,7 @@ uint32_t H8300H::load_elf(std::string filepath)
     return mcu.load_elf(filepath);
 }
 
-int H8300H::step()
+void H8300H::handle_interrupt()
 {
     // 割り込みがあれば処理
     interrupt_t type = interrupt_controller.getInterruptType();
@@ -127,7 +127,10 @@ int H8300H::step()
         // 割り込みベクタに設定されたアドレスにジャンプ
         pc = mcu.get_vector(type);
     }
+}
 
+int H8300H::step()
+{
     // PC が指す命令を実行
     int result = execute_next_instruction();
 
