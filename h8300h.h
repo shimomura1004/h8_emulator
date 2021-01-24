@@ -43,7 +43,7 @@ public:
     void init();
     uint32_t load_elf(std::string filepath);
 
-    void handle_interrupt();
+    bool handle_interrupt();
     int step();
 
     void print_registers();

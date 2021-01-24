@@ -3,6 +3,9 @@
 #include "operation_map/operation_map.h"
 #include "instructions/instruction_table.h"
 
+// todo: priority queue がすべて空になっているので syserror となっている
+// 割り込み処理のタイミングがおかしい？
+
 // Ctrl-c or Ctrl-t でデバッグモードに入る
 static volatile sig_atomic_t debug_mode = 0;
 static volatile sig_atomic_t continue_mode = 0;
@@ -122,8 +125,9 @@ void Runner::write_value_command(char *buf)
 // todo: SCI のレジスタを見るコマンドがほしい
 // todo: 様々な条件でのブレーク機能
 //       特定のメモリアドレスへの書き込み時、レジスタが特定の値になったとき、など
-#include "instructions/rts.h"
 #include "instructions/jsr.h"
+#include "instructions/rts.h"
+#include "instructions/rte.h"
 static bool step_out_mode = false;
 static bool print_pc_mode = false;
 int Runner::proccess_debugger_command()
@@ -213,7 +217,7 @@ int Runner::proccess_debugger_command()
             write_value_command(buf);
         } else if (MATCH(buf, CALL_STACK)) {
             for (int i = call_stack.size() - 1; i >= 0; --i) {
-                printf("0x%06x\n", call_stack[i]);
+                printf("%02d 0x%06x\n", i, call_stack[i]);
             }
             continue;
         } else if (MATCH(buf, QUIT1) || MATCH(buf, QUIT2)) {
@@ -236,7 +240,10 @@ void Runner::run(bool debug)
     int result = 0;
 
     while (1) {
-        h8.handle_interrupt();
+        bool interrupted = h8.handle_interrupt();
+        if (interrupted) {
+            call_stack.push_back(h8.pc);
+        }
 
         if (debug_mode) {
             int r = proccess_debugger_command();
@@ -246,10 +253,15 @@ void Runner::run(bool debug)
 
             instruction_handler_t handler = OperationMap::lookup(&h8);
             if ((handler == h8instructions::jsr::jsr_absolute_address) ||
-                (handler == h8instructions::jsr::jsr_register_indirect)) {
+                (handler == h8instructions::jsr::jsr_register_indirect))
+            {
                     // 関数呼び出し時には今の PC を記録しておく
                     call_stack.push_back(h8.pc);
-            } else if (handler == h8instructions::rts::rts) {
+            }
+
+            if ((handler == h8instructions::rts::rts) ||
+                (handler == h8instructions::rte::rte))
+            {
                 call_stack.pop_back();
             }
         }

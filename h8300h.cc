@@ -108,7 +108,7 @@ uint32_t H8300H::load_elf(std::string filepath)
     return mcu.load_elf(filepath);
 }
 
-void H8300H::handle_interrupt()
+bool H8300H::handle_interrupt()
 {
     // 割り込みがあれば処理
     interrupt_t type = interrupt_controller.getInterruptType();
@@ -129,6 +129,10 @@ void H8300H::handle_interrupt()
 
         // 割り込みベクタに設定されたアドレスにジャンプ
         pc = mcu.get_vector(type);
+
+        return true;
+    } else {
+        return false;
     }
 }
 
