@@ -1,12 +1,14 @@
 #ifndef _RUNNER_INCLUDED_
 #define _RUNNER_INCLUDED_
 
+#include <string>
 #include <set>
 #include "h8300h.h"
 
 class Runner {
     H8300H& h8;
     std::set<uint32_t> breakpoints;
+    std::vector<uint32_t> call_stack;
     std::mutex& mutex;
 
     bool load_file_to_memory(uint32_t address, char *filename);

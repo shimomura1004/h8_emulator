@@ -20,6 +20,9 @@ int H8300H::execute_next_instruction()
         return -1;
     }
     
+    // todo: デバッグ情報を取りやすくするため、パースと実行をわけたい
+    // lookup のとき、関数ポインタだけでなく、引数をパースした結果まで含める
+    // 戻り値は { pointer, set<パラメタ名->値> } な構造体とする
     int result = handler(this);
     if (result != 0) {
         uint8_t first_byte = fetch_instruction_byte(0);

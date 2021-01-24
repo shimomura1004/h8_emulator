@@ -96,9 +96,9 @@ void Runner::write_value_command(char *buf)
     }
 }
 
+// todo: 先頭の文字がぶつかると意図しないコマンドが実行されてしまう
 // todo: 別ファイルへ
 #define MATCH(buf, command) (strncmp(buf, command, sizeof(command) - 1) == 0)
-#define NEW_LINE        "\x0a"
 #define HELP1       "h"
 #define HELP2       "help"
 #define REG1        "r"
@@ -107,12 +107,13 @@ void Runner::write_value_command(char *buf)
 #define STEP1       "s"
 #define STEP2       "step"
 #define CONTINUE    "continue"
-#define BREAK1      "b"
+#define BREAK1      "b "
 #define BREAK2      "break"
 #define LOOKUP      "lookup"
 #define STEP_OUT   "so"
 #define PRINT_PC_MODE   "printpc"
 #define WRITE_REG   "writereg"
+#define CALL_STACK  "bt"
 #define QUIT1        "q"
 #define QUIT2        "quit"
 
@@ -122,6 +123,7 @@ void Runner::write_value_command(char *buf)
 // todo: 様々な条件でのブレーク機能
 //       特定のメモリアドレスへの書き込み時、レジスタが特定の値になったとき、など
 #include "instructions/rts.h"
+#include "instructions/jsr.h"
 static bool step_out_mode = false;
 static bool print_pc_mode = false;
 int Runner::proccess_debugger_command()
@@ -133,15 +135,15 @@ int Runner::proccess_debugger_command()
             continue_mode = false;
         }
 
-        // todo: バグがある
-        if (step_out_mode) {
-            instruction_handler_t handler = OperationMap::lookup(&h8);
-            if (handler == h8instructions::rts::rts)  {
-                continue_mode = false;
-                step_out_mode = false;
-                return 0;
-            }
-        }
+        // // todo: バグがある
+        // if (step_out_mode) {
+        //     instruction_handler_t handler = OperationMap::lookup(&h8);
+        //     if (handler == h8instructions::rts::rts)  {
+        //         continue_mode = false;
+        //         step_out_mode = false;
+        //         return 0;
+        //     }
+        // }
     }
 
     h8.print_registers();
@@ -172,11 +174,12 @@ int Runner::proccess_debugger_command()
 
             // 改行コードがきたらコマンドを処理する
             if (c == '\n') {
+                buf[i - 1] = '\0';
                 break;
             }
         }
 
-        if (MATCH(buf, NEW_LINE)) {
+        if (buf[0] == '\0') {
             return 0;
         } else if (MATCH(buf, HELP1) || MATCH(buf, HELP2)) {
             print_help_command();
@@ -208,10 +211,15 @@ int Runner::proccess_debugger_command()
             continue;
         } else if (MATCH(buf, WRITE_REG)) {
             write_value_command(buf);
+        } else if (MATCH(buf, CALL_STACK)) {
+            for (int i = call_stack.size() - 1; i >= 0; --i) {
+                printf("0x%06x\n", call_stack[i]);
+            }
+            continue;
         } else if (MATCH(buf, QUIT1) || MATCH(buf, QUIT2)) {
             return -1;
         } else {
-            fprintf(stderr, "Unknown debugger command: %c\n", buf[0]);
+            fprintf(stderr, "Unknown debugger command: %s\n", buf);
             continue;
         }
 
@@ -234,6 +242,15 @@ void Runner::run(bool debug)
             int r = proccess_debugger_command();
             if (r != 0) {
                 break;
+            }
+
+            instruction_handler_t handler = OperationMap::lookup(&h8);
+            if ((handler == h8instructions::jsr::jsr_absolute_address) ||
+                (handler == h8instructions::jsr::jsr_register_indirect)) {
+                    // 関数呼び出し時には今の PC を記録しておく
+                    call_stack.push_back(h8.pc);
+            } else if (handler == h8instructions::rts::rts) {
+                call_stack.pop_back();
             }
         }
 
