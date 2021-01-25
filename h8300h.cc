@@ -7,7 +7,7 @@
 
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
 {
-    return mcu.read<8, uint8_t>(pc + offset);
+    return mcu.read8(pc + offset);
 }
 
 int H8300H::execute_next_instruction()
@@ -37,13 +37,13 @@ void H8300H::push_to_stack_b(uint8_t value, uint8_t register_index)
 {
     Register32& r = reg[register_index];
     r.set_er(r.get_er() - 1);
-    mcu.write<8, uint8_t>(r.get_er(), value);
+    mcu.write8(r.get_er(), value);
 }
 
 uint8_t H8300H::pop_from_stack_b(uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    uint8_t value = mcu.read<8, uint8_t>(r.get_er());
+    uint8_t value = mcu.read8(r.get_er());
     r.set_er(r.get_er() + 1);
     return value;
 }
@@ -52,13 +52,13 @@ void H8300H::push_to_stack_w(uint16_t value, uint8_t register_index)
 {
     Register32& r = reg[register_index];
     r.set_er(r.get_er() - 2);
-    mcu.write<16, uint16_t>(r.get_er(), value);
+    mcu.write16(r.get_er(), value);
 }
 
 uint16_t H8300H::pop_from_stack_w(uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    uint16_t value = mcu.read<16, uint16_t>(r.get_er());
+    uint16_t value = mcu.read16(r.get_er());
     r.set_er(r.get_er() + 2);
     return value;
 }
@@ -67,13 +67,13 @@ void H8300H::push_to_stack_l(uint32_t value, uint8_t register_index)
 {
     Register32& r = reg[register_index];
     r.set_er(r.get_er() - 4);
-    mcu.write<32, uint32_t>(r.get_er(), value);
+    mcu.write32(r.get_er(), value);
 }
 
 uint32_t H8300H::pop_from_stack_l(uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    uint32_t value = mcu.read<32, uint32_t>(r.get_er());
+    uint32_t value = mcu.read32(r.get_er());
     r.set_er(r.get_er() + 4);
     return value;
 }

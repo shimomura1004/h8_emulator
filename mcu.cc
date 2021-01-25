@@ -11,6 +11,89 @@ MCU::MCU(InterruptController& interrupt_controller, std::mutex& mutex)
     sci2.run();
 }
 
+uint8_t MCU::read8(uint32_t address)
+{
+    if (vec_start <= address && address <= rom_end) {
+        // ROM は更新されないのでロック不要
+        return rom[address];
+    } else if (ram_start <= address && address <= ram_end) {
+        // RAM は更新されうるのでロック
+        std::lock_guard<std::mutex> lock(mutex);
+        return ram[address - ram_start];
+    } else if (sci0_start <= address && address <= sci0_end) {
+        // SCI のロックは SCI 側で実施
+        return sci0.read(address - sci0_start);
+    } else if (sci1_start <= address && address <= sci1_end) {
+        return sci1.read(address - sci1_start);
+    } else if (sci2_start <= address && address <= sci2_end) {
+        return sci2.read(address - sci2_start);
+    } else {
+        fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
+        return 0;
+    }
+}
+
+uint16_t MCU::read16(uint32_t address)
+{
+    if (vec_start <= address && address <= rom_end) {
+        return __builtin_bswap16(*(uint16_t*)&rom[address]);
+    } else if (ram_start <= address && address <= ram_end) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return __builtin_bswap16(*(uint16_t*)&ram[address - ram_start]);
+    } else {
+        fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
+        return 0;
+    }
+}
+
+uint32_t MCU::read32(uint32_t address)
+{
+    if (vec_start <= address && address <= rom_end) {
+        return __builtin_bswap32(*(uint32_t*)&rom[address]);
+    } else if (ram_start <= address && address <= ram_end) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return __builtin_bswap32(*(uint32_t*)&ram[address - ram_start]);
+    } else {
+        fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
+        return 0;
+    }
+}
+
+void MCU::write8(uint32_t address, uint8_t value)
+{
+    if (ram_start <= address && address <= ram_end) {
+        std::lock_guard<std::mutex> lock(mutex);
+        ram[address - ram_start] = value;
+    } else if (sci0_start <= address && address <= sci0_end) {
+        // SCI のロックは SCI 側で実施
+        sci0.write(address - sci0_start, value);
+    } else if (sci1_start <= address && address <= sci1_end) {
+        sci1.write(address - sci1_start, value);
+    } else if (sci2_start <= address && address <= sci2_end) {
+        sci2.write(address - sci2_start, value);
+    } else {
+        fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
+    }
+}
+
+void MCU::write16(uint32_t address, uint16_t value)
+{
+    if (ram_start <= address && address <= ram_end) {
+        *(uint16_t*)&ram[address - ram_start] = __builtin_bswap16(value);
+    } else {
+        fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
+    }
+}
+
+void MCU::write32(uint32_t address, uint32_t value)
+{
+    if (ram_start <= address && address <= ram_end) {
+        *(uint32_t*)&ram[address - ram_start] = __builtin_bswap32(value);
+    } else {
+        fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
+    }
+}
+
 uint32_t MCU::load_elf(std::string filepath)
 {
     return ElfLoader::load(rom, filepath);
@@ -18,10 +101,9 @@ uint32_t MCU::load_elf(std::string filepath)
 
 uint32_t MCU::get_vector(uint8_t index)
 {
-    return read<32, uint32_t>(index * 4);
+    return read32(index * 4);
 }
 
-// todo: dump で sci0/sci2 に対応
 void MCU::dump(std::string filepath)
 {
     std::lock_guard<std::mutex> lock(mutex);

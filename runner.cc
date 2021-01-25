@@ -35,7 +35,7 @@ bool Runner::load_file_to_memory(uint32_t address, char *filename)
 
     int data;
     while ((data = fgetc(fp)) != EOF) {
-        h8.mcu.write<8, uint8_t>(address++, data);
+        h8.mcu.write8(address++, data);
     }
 
     fclose(fp);
@@ -80,15 +80,15 @@ void Runner::write_value_command(char *buf)
         switch (length) {
         case 1:
             fprintf(stderr, "Write 0x%x to [0x%06x]\n", value, address);
-            h8.mcu.write<8, uint8_t>(address, value);
+            h8.mcu.write8(address, value);
             break;
         case 2:
             fprintf(stderr, "Write 0x%x to [0x%06x]\n", value, address);
-            h8.mcu.write<16, uint16_t>(address, value);
+            h8.mcu.write16(address, value);
             break;
         case 4:
             fprintf(stderr, "Write 0x%x to [0x%06x]\n", value, address);
-            h8.mcu.write<32, uint32_t>(address, value);
+            h8.mcu.write32(address, value);
             break;
         default:
             fprintf(stderr, "Syntax error in length.\n");
@@ -241,6 +241,8 @@ void Runner::run(bool debug)
 
     while (1) {
         bool interrupted = h8.handle_interrupt();
+
+        // スタックトレースのために PC を保存
         if (interrupted) {
             call_stack.push_back(h8.pc);
         }
@@ -251,6 +253,8 @@ void Runner::run(bool debug)
                 break;
             }
 
+            // todo: instruction のパース結果を使ってもう少し情報を出力したい
+            // スタックトレースのために PC を保存
             instruction_handler_t handler = OperationMap::lookup(&h8);
             if ((handler == h8instructions::jsr::jsr_absolute_address) ||
                 (handler == h8instructions::jsr::jsr_register_indirect))
