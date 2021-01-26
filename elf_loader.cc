@@ -36,6 +36,8 @@ struct elf_program_header {
     int32_t align;                     // アラインメント
 };
 
+#ifdef __BYTE_ORDER__
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 static void swap_elf_header_endian(struct elf_header *header)
 {
     header->type = __builtin_bswap16(header->type);
@@ -64,6 +66,8 @@ static void swap_elf_program_header_endian(struct elf_program_header *header)
     header->flags = __builtin_bswap32(header->flags);
     header->align = __builtin_bswap32(header->align);
 }
+#endif
+#endif
 
 static int elf_check(struct elf_header *header)
 {
@@ -117,8 +121,13 @@ static int elf_load_program(struct elf_header *header, unsigned char buf[], uint
         phdr = (struct elf_program_header *)
             ((char *)header + header->program_header_offset +
              header->program_header_size * i);
-        // x86 でエミュレートするためリトルエンディアンに変換
+
+#ifdef __BYTE_ORDER__
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        // ホストがリトルエンディアン環境の場合は変換
         swap_elf_program_header_endian(phdr);
+#endif
+#endif
 
         // ロード可能なセグメントかを確認
         if (phdr->type != 1)
@@ -184,7 +193,12 @@ uint32_t ElfLoader::load(uint8_t* memory, std::string filepath)
 
     // 読み込む ELF バイナリは H8 で読み込むのでビッグエンディアンで格納されている
     struct elf_header *header = (struct elf_header *)buf;
+#ifdef __BYTE_ORDER__
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    // ホストがリトルエンディアンの場合は変換
     swap_elf_header_endian(header);
+#endif
+#endif
 
     if (elf_check(header) < 0) {
         fprintf(stderr, "Unexpected ELF header\n");

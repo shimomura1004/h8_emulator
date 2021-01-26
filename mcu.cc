@@ -1,6 +1,20 @@
 #include "mcu.h"
 #include "elf_loader.h"
 
+#ifdef __BYTE_ORDER__
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+
+#define bswap16_if_little_endian(v) (__builtin_bswap16(v));
+#define bswap32_if_little_endian(v) (__builtin_bswap32(v));
+
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+
+#define bswap16_if_little_endian(v) (v)
+#define bswap32_if_little_endian(v) (v)
+
+#endif
+#endif
+
 MCU::MCU(InterruptController& interrupt_controller, std::mutex& mutex)
     : sci0(0, interrupt_controller, mutex)
     , sci1(1, interrupt_controller, mutex)
@@ -36,10 +50,10 @@ uint8_t MCU::read8(uint32_t address)
 uint16_t MCU::read16(uint32_t address)
 {
     if (vec_start <= address && address <= rom_end) {
-        return __builtin_bswap16(*(uint16_t*)&rom[address]);
+        return bswap16_if_little_endian(*(uint16_t*)&rom[address]);
     } else if (ram_start <= address && address <= ram_end) {
         std::lock_guard<std::mutex> lock(mutex);
-        return __builtin_bswap16(*(uint16_t*)&ram[address - ram_start]);
+        return bswap16_if_little_endian(*(uint16_t*)&ram[address - ram_start]);
     } else {
         fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
         return 0;
@@ -49,10 +63,10 @@ uint16_t MCU::read16(uint32_t address)
 uint32_t MCU::read32(uint32_t address)
 {
     if (vec_start <= address && address <= rom_end) {
-        return __builtin_bswap32(*(uint32_t*)&rom[address]);
+        return bswap32_if_little_endian(*(uint32_t*)&rom[address]);
     } else if (ram_start <= address && address <= ram_end) {
         std::lock_guard<std::mutex> lock(mutex);
-        return __builtin_bswap32(*(uint32_t*)&ram[address - ram_start]);
+        return bswap32_if_little_endian(*(uint32_t*)&ram[address - ram_start]);
     } else {
         fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
         return 0;
@@ -79,7 +93,7 @@ void MCU::write8(uint32_t address, uint8_t value)
 void MCU::write16(uint32_t address, uint16_t value)
 {
     if (ram_start <= address && address <= ram_end) {
-        *(uint16_t*)&ram[address - ram_start] = __builtin_bswap16(value);
+        *(uint16_t*)&ram[address - ram_start] = bswap16_if_little_endian(value);
     } else {
         fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
     }
@@ -88,7 +102,7 @@ void MCU::write16(uint32_t address, uint16_t value)
 void MCU::write32(uint32_t address, uint32_t value)
 {
     if (ram_start <= address && address <= ram_end) {
-        *(uint32_t*)&ram[address - ram_start] = __builtin_bswap32(value);
+        *(uint32_t*)&ram[address - ram_start] = bswap32_if_little_endian(value);
     } else {
         fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
     }

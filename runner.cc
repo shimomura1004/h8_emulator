@@ -42,7 +42,6 @@ bool Runner::load_file_to_memory(uint32_t address, char *filename)
     return true;
 }
 
-// todo: コマンドを複数文字に対応させる
 void Runner::print_help_command()
 {
     fprintf(stderr, "  help: print help\n");
