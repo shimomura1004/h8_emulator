@@ -13,6 +13,8 @@ class H8300H {
 public:
     Register32 reg[8];
     Register32& sp;
+    Register16 reg16[16];
+    Register8 reg8[16];
     CCR ccr;
     uint32_t pc;
     MCU mcu;

@@ -17,9 +17,12 @@
 #endif
 #endif
 
-// todo: Register16/Register8 も作ったほうがよさそう
+// todo: リネーム、もしくは Register8/16 を別ファイルに
 
 class Register32 {
+    friend class Register16;
+    friend class Register8;
+
 private:
     unsigned char reg[4];
 
@@ -37,6 +40,38 @@ public:
     void set_rl(unsigned char value) { reg[3] = value; }
 
     const unsigned char* raw() const { return reg; }
+};
+
+class Register16 {
+    Register32& reg;
+    uint8_t index;
+
+public:
+    Register16(Register32& reg, uint8_t index) : reg(reg), index(index) {}
+
+    uint16_t get() const {
+        return (this->index < 8) ? this->reg.get_r() : this->reg.get_e();
+    }
+    void set(uint16_t value) {
+        (this->index < 8) ? this->reg.set_r(value) : this->reg.set_e(value);
+    }
+
+};
+
+class Register8 {
+    Register32& reg;
+    uint8_t index;
+
+public:
+    Register8(Register32& reg, uint8_t index) : reg(reg), index(index) {}
+
+    uint8_t get() const {
+        return (this->index < 8) ? this->reg.get_rh() : this->reg.get_rl();
+    }
+    void set(uint8_t value) {
+        (this->index < 8) ? this->reg.set_rh(value) : this->reg.set_rl(value);
+    }
+
 };
 
 #endif

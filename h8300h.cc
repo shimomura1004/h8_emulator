@@ -93,11 +93,20 @@ void H8300H::restore_pc_and_ccr_from_stack()
 
 H8300H::H8300H()
     : sp(reg[7])
+    , reg16{ Register16(reg[0],   0), Register16(reg[1],   1), Register16(reg[2],   2), Register16(reg[3],   3),
+             Register16(reg[4],   4), Register16(reg[5],   5), Register16(reg[6],   6), Register16(reg[7],   7),
+             Register16(reg[8],   8), Register16(reg[9],   9), Register16(reg[10], 10), Register16(reg[11], 11),
+             Register16(reg[12], 12), Register16(reg[13], 13), Register16(reg[14], 14), Register16(reg[15], 15) }
+    ,  reg8{ Register8(reg[0],   0), Register8(reg[1],   1), Register8(reg[2],   2), Register8(reg[3],   3),
+             Register8(reg[4],   4), Register8(reg[5],   5), Register8(reg[6],   6), Register8(reg[7],   7),
+             Register8(reg[8],   8), Register8(reg[9],   9), Register8(reg[10], 10), Register8(reg[11], 11),
+             Register8(reg[12], 12), Register8(reg[13], 13), Register8(reg[14], 14), Register8(reg[15], 15) }
     , pc(0)
     , mcu(interrupt_controller, mutex)
     , terminate(false)
     , is_sleep(false)
-{}
+{
+}
 
 void H8300H::init()
 {
