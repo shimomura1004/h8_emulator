@@ -26,9 +26,9 @@ int h8instructions::neg::neg_w(H8300H* h8)
 {
     int8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t dst_register_index = b1 & 0x0f;
-    Register32& dst = h8->reg[dst_register_index % 8];
+    Register16& dst = h8->reg16[dst_register_index];
 
-    int16_t dst_value = (dst_register_index < 8) ? dst.get_r() : dst.get_e();
+    int16_t dst_value = dst.get();
     int16_t result_value = -dst_value;
     if (dst_value == (int16_t)0x8000) {
         // 「実行前のRdの内容がH'8000の場合 の結果はH'8000となります」

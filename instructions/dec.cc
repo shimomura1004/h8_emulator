@@ -23,9 +23,9 @@ int h8instructions::dec::dec_w(H8300H *h8)
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b1h = (b1 & 0xf0) >> 4;
     uint8_t register_index = b1 & 0x0f;
-    Register32& reg = h8->reg[register_index % 8];
+    Register16& reg = h8->reg16[register_index];
 
-    int16_t dst_value = (register_index < 8) ? reg.get_r() : reg.get_e();
+    int16_t dst_value = reg.get();
     int16_t result_value = dst_value;
     if (b1h == 0x05) {
         result_value -= 1;
@@ -35,7 +35,7 @@ int h8instructions::dec::dec_w(H8300H *h8)
         fprintf(stderr, "Unknown dec.w format\n");
         return -1;
     }
-    (register_index < 8) ? reg.set_r(result_value) : reg.set_e(result_value);
+    reg.set(result_value);
 
     update_ccr<16, int16_t>(h8, dst_value, result_value);
 
@@ -51,7 +51,7 @@ int h8instructions::dec::dec_l(H8300H *h8)
     uint8_t dst_register_index = b1 & 0x07;
     Register32& dst = h8->reg[dst_register_index];
 
-    int32_t dst_value = dst.get_er();
+    int32_t dst_value = dst.get();
     int32_t result_value = dst_value;
     switch (b1h) {
     case 0x07:
@@ -63,7 +63,7 @@ int h8instructions::dec::dec_l(H8300H *h8)
     default:
         return -1;
     }
-    dst.set_er(result_value);
+    dst.set(result_value);
 
     update_ccr<32, int32_t>(h8, dst_value, result_value);
 

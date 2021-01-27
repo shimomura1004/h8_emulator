@@ -21,19 +21,13 @@ int h8instructions::orl::or_immediate_b(H8300H* h8)
 {
     uint8_t b0 = h8->fetch_instruction_byte(0);
     uint8_t reg_index = b0 & 0x0f;
-    Register32& reg = h8->reg[reg_index % 8];
+    Register8& reg = h8->reg8[reg_index];
 
     uint8_t imm = h8->fetch_instruction_byte(1);
 
-    if (reg_index < 8) {
-        uint8_t value = reg.get_rh() | imm;
-        reg.set_rh(value);
-        update_ccr(h8, value);
-    } else {
-        uint8_t value = reg.get_rl() | imm;
-        reg.set_rl(value);
-        update_ccr(h8, value);
-    }
+    uint8_t value = reg.get() | imm;
+    reg.set(value);
+    update_ccr(h8, value);
 
     h8->pc += 2;
 
@@ -44,22 +38,16 @@ int h8instructions::orl::or_immediate_w(H8300H *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t reg_index = b1 & 0x0f;
-    Register32& reg = h8->reg[reg_index % 8];
+    Register16& reg = h8->reg16[reg_index];
 
     uint8_t immediate[2];
     immediate[1] = h8->fetch_instruction_byte(2);
     immediate[0] = h8->fetch_instruction_byte(3);
     uint16_t imm = *(uint16_t*)immediate;
 
-    if (reg_index < 8) {
-        uint16_t value = reg.get_r() | imm;
-        reg.set_r(value);
-        update_ccr(h8, value);
-    } else {
-        uint16_t value = reg.get_e() | imm;
-        reg.set_e(value);
-        update_ccr(h8, value);
-    }
+    uint16_t value = reg.get() | imm;
+    reg.set(value);
+    update_ccr(h8, value);
 
     h8->pc += 4;
 

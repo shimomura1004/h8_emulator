@@ -36,45 +36,45 @@ int H8300H::execute_next_instruction()
 void H8300H::push_to_stack_b(uint8_t value, uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    r.set_er(r.get_er() - 1);
-    mcu.write8(r.get_er(), value);
+    r.set(r.get() - 1);
+    mcu.write8(r.get(), value);
 }
 
 uint8_t H8300H::pop_from_stack_b(uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    uint8_t value = mcu.read8(r.get_er());
-    r.set_er(r.get_er() + 1);
+    uint8_t value = mcu.read8(r.get());
+    r.set(r.get() + 1);
     return value;
 }
 
 void H8300H::push_to_stack_w(uint16_t value, uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    r.set_er(r.get_er() - 2);
-    mcu.write16(r.get_er(), value);
+    r.set(r.get() - 2);
+    mcu.write16(r.get(), value);
 }
 
 uint16_t H8300H::pop_from_stack_w(uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    uint16_t value = mcu.read16(r.get_er());
-    r.set_er(r.get_er() + 2);
+    uint16_t value = mcu.read16(r.get());
+    r.set(r.get() + 2);
     return value;
 }
 
 void H8300H::push_to_stack_l(uint32_t value, uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    r.set_er(r.get_er() - 4);
-    mcu.write32(r.get_er(), value);
+    r.set(r.get() - 4);
+    mcu.write32(r.get(), value);
 }
 
 uint32_t H8300H::pop_from_stack_l(uint8_t register_index)
 {
     Register32& r = reg[register_index];
-    uint32_t value = mcu.read32(r.get_er());
-    r.set_er(r.get_er() + 4);
+    uint32_t value = mcu.read32(r.get());
+    r.set(r.get() + 4);
     return value;
 }
 
@@ -93,14 +93,14 @@ void H8300H::restore_pc_and_ccr_from_stack()
 
 H8300H::H8300H()
     : sp(reg[7])
-    , reg16{ Register16(reg[0],   0), Register16(reg[1],   1), Register16(reg[2],   2), Register16(reg[3],   3),
-             Register16(reg[4],   4), Register16(reg[5],   5), Register16(reg[6],   6), Register16(reg[7],   7),
-             Register16(reg[8],   8), Register16(reg[9],   9), Register16(reg[10], 10), Register16(reg[11], 11),
-             Register16(reg[12], 12), Register16(reg[13], 13), Register16(reg[14], 14), Register16(reg[15], 15) }
-    ,  reg8{ Register8(reg[0],   0), Register8(reg[1],   1), Register8(reg[2],   2), Register8(reg[3],   3),
-             Register8(reg[4],   4), Register8(reg[5],   5), Register8(reg[6],   6), Register8(reg[7],   7),
-             Register8(reg[8],   8), Register8(reg[9],   9), Register8(reg[10], 10), Register8(reg[11], 11),
-             Register8(reg[12], 12), Register8(reg[13], 13), Register8(reg[14], 14), Register8(reg[15], 15) }
+    , reg16{ Register16(reg[0],  0), Register16(reg[1],  1), Register16(reg[2],  2), Register16(reg[3],  3),
+             Register16(reg[4],  4), Register16(reg[5],  5), Register16(reg[6],  6), Register16(reg[7],  7),
+             Register16(reg[0],  8), Register16(reg[1],  9), Register16(reg[2], 10), Register16(reg[3], 11),
+             Register16(reg[4], 12), Register16(reg[5], 13), Register16(reg[6], 14), Register16(reg[7], 15) }
+    ,  reg8{ Register8(reg[0],  0), Register8(reg[1],  1), Register8(reg[2],  2), Register8(reg[3],  3),
+             Register8(reg[4],  4), Register8(reg[5],  5), Register8(reg[6],  6), Register8(reg[7],  7),
+             Register8(reg[0],  8), Register8(reg[1],  9), Register8(reg[2], 10), Register8(reg[3], 11),
+             Register8(reg[4], 12), Register8(reg[5], 13), Register8(reg[6], 14), Register8(reg[7], 15) }
     , pc(0)
     , mcu(interrupt_controller, mutex)
     , terminate(false)
@@ -167,9 +167,9 @@ int H8300H::step()
 void H8300H::print_registers()
 {
     for (int i = 0; i < 8; i++) {
-        fprintf(stderr, "ER%d: 0x%08x", i, reg[i].get_er());
-        fprintf(stderr, "    E%d: 0x%04x  R%d: 0x%04x", i, reg[i].get_e(), i, reg[i].get_r());
-        fprintf(stderr, "    RH%d: 0x%02x  RL%d: 0x%02x\n", i, reg[i].get_rh(), i, reg[i].get_rl());
+        fprintf(stderr, "ER%d: 0x%08x", i, reg[i].get());
+        fprintf(stderr, "    E%d: 0x%04x  R%d: 0x%04x", i, reg16[i + 8].get(), i, reg16[i].get());
+        fprintf(stderr, "    RH%d: 0x%02x  RL%d: 0x%02x\n", i, reg8[i].get(), i, reg8[i + 8].get());
     }
     fprintf(stderr, "PC : 0x%08x\n", pc);
     fprintf(stderr, "CCR: I:%d, UI:%d, H:%d, U:%d, N:%d, Z:%d, V:%d, C:%d\n",

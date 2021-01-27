@@ -16,11 +16,11 @@ int h8instructions::shll::shll_l(H8300H *h8)
     unsigned char register_index = (instruction_byte_1 & 0x0f);
     Register32& reg = h8->reg[register_index];
 
-    uint32_t er = reg.get_er();
+    uint32_t er = reg.get();
     bool er_msb = er & 0x80000000;
     er = er << 1;
 
-    reg.set_er(er);
+    reg.set(er);
 
     (er & 0x80000000) ? h8->ccr.set_n() : h8->ccr.clear_n();
     (er == 0) ? h8->ccr.set_z() : h8->ccr.clear_z();

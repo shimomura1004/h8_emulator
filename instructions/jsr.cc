@@ -6,7 +6,7 @@ int h8instructions::jsr::jsr_register_indirect(H8300H* h8)
     uint8_t register_index = (b1 & 0x70) >> 4;
     const Register32& reg = h8->reg[register_index];
 
-    uint32_t address = reg.get_er();
+    uint32_t address = reg.get();
 
     h8->push_to_stack_l(h8->pc + 2);
     h8->pc = address;

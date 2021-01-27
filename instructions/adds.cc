@@ -8,13 +8,13 @@ int h8instructions::adds::adds(H8300H* h8)
 
     switch (b1 & 0xf0) {
     case 0x00:
-        reg.set_er(reg.get_er() + 1);
+        reg.set(reg.get() + 1);
         break;
     case 0x80:
-        reg.set_er(reg.get_er() + 2);
+        reg.set(reg.get() + 2);
         break;
     case 0x90:
-        reg.set_er(reg.get_er() + 4);
+        reg.set(reg.get() + 4);
         break;
     default:
         return -1;
