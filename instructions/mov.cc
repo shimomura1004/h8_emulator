@@ -58,6 +58,42 @@ static int register_indirect_b(H8300H* h8)
     return 0;
 }
 
+static int register_indirect_w(H8300H* h8)
+{
+    const uint8_t b1 = h8->fetch_instruction_byte(1);
+    const uint8_t b1_msb = b1 & 0x80;
+
+    if (b1_msb) {
+        // Rs,@ERd
+        const uint8_t dst_register_index = (b1 & 0x70) >> 4;
+        const uint8_t src_register_index = (b1 & 0x0f);
+        Register32& dst = h8->reg[dst_register_index];
+        const Register16& src = h8->reg16[src_register_index];
+
+        uint16_t value = src.get();
+        uint32_t address = dst.get();
+        h8->mcu.write16(address, value);
+
+        update_ccr<int16_t>(h8, value);
+    } else {
+        // @ERs,Rd
+        uint8_t src_register_index = (b1 & 0x70) >> 4;
+        uint8_t dst_register_index = (b1 & 0x0f);
+        const Register32& src = h8->reg[src_register_index];
+        Register16& dst = h8->reg16[dst_register_index];
+
+        uint32_t address = src.get();
+        uint16_t value = h8->mcu.read16(address);
+        dst.set(value);
+
+        update_ccr<int16_t>(h8, value);
+    }
+
+    h8->pc += 2;
+
+    return 0;
+}
+
 static int register_indirect_l_from_reg(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
@@ -589,43 +625,6 @@ int h8instructions::mov::mov(H8300H* h8)
     uint8_t b0 = h8->fetch_instruction_byte(0);
 
     switch (b0) {
-    case 0x68: return register_indirect_b(h8);
-    case 0x6a: {
-        uint8_t b1 = h8->fetch_instruction_byte(1);
-        uint8_t b1h = (b1 & 0xf0) >> 4;
-        switch (b1h) {
-        case 0x00: return -1;
-        case 0x02: return -1;
-        case 0x08: return -1;
-        case 0x0a: return absolute_address_24_b_from_reg(h8);
-        }
-    }
-    case 0x6b: {
-        uint8_t b1 = h8->fetch_instruction_byte(1);
-        uint8_t b1h = (b1 & 0xf0) >> 4;
-        switch (b1h) {
-            case 0x00: return -1;
-            case 0x02: return absolute_address_24_w_to_reg(h8);
-            case 0x08: return -1;
-            case 0x0a: return absolute_address_24_w_from_reg(h8);
-            default:   return -1;
-        }
-    }
-    case 0x6c: {
-        uint8_t b1 = h8->fetch_instruction_byte(1);
-        if ((b1 & 0x80) == 0) {
-            return post_increment_register_indirect_b(h8);
-        } else {
-            return -1;
-        }
-    }
-    case 0x6e: return displacement_register_indirect16_b(h8);
-    case 0x6f: return displacement_register_indirect16_w(h8);
-    case 0xf0: case 0xf1: case 0xf2: case 0xf3:
-    case 0xf4: case 0xf5: case 0xf6: case 0xf7:
-    case 0xf8: case 0xf9: case 0xfa: case 0xfb:
-    case 0xfc: case 0xfd: case 0xfe: case 0xff:
-        return immediate_b(h8);
     case 0x01: {
         uint8_t b2 = h8->fetch_instruction_byte(2);
         switch (b2) {
@@ -664,12 +663,50 @@ int h8instructions::mov::mov(H8300H* h8)
         default: return -1;
         }
     }
-    case 0x78: return displacement_register_indirect24_b(h8);
-    case 0x79: return immediate_w(h8);
-    case 0x7a: return immediate_l(h8);
     case 0x0c: return register_direct_b(h8);
     case 0x0d: return register_direct_w(h8);
     case 0x0f: return register_direct_l(h8);
+    case 0x68: return register_indirect_b(h8);
+    case 0x69: return register_indirect_w(h8);
+    case 0x6a: {
+        uint8_t b1 = h8->fetch_instruction_byte(1);
+        uint8_t b1h = (b1 & 0xf0) >> 4;
+        switch (b1h) {
+        case 0x00: return -1;
+        case 0x02: return -1;
+        case 0x08: return -1;
+        case 0x0a: return absolute_address_24_b_from_reg(h8);
+        }
+    }
+    case 0x6b: {
+        uint8_t b1 = h8->fetch_instruction_byte(1);
+        uint8_t b1h = (b1 & 0xf0) >> 4;
+        switch (b1h) {
+            case 0x00: return -1;
+            case 0x02: return absolute_address_24_w_to_reg(h8);
+            case 0x08: return -1;
+            case 0x0a: return absolute_address_24_w_from_reg(h8);
+            default:   return -1;
+        }
+    }
+    case 0x6c: {
+        uint8_t b1 = h8->fetch_instruction_byte(1);
+        if ((b1 & 0x80) == 0) {
+            return post_increment_register_indirect_b(h8);
+        } else {
+            return -1;
+        }
+    }
+    case 0x6e: return displacement_register_indirect16_b(h8);
+    case 0x6f: return displacement_register_indirect16_w(h8);
+    case 0x78: return displacement_register_indirect24_b(h8);
+    case 0x79: return immediate_w(h8);
+    case 0x7a: return immediate_l(h8);
+    case 0xf0: case 0xf1: case 0xf2: case 0xf3:
+    case 0xf4: case 0xf5: case 0xf6: case 0xf7:
+    case 0xf8: case 0xf9: case 0xfa: case 0xfb:
+    case 0xfc: case 0xfd: case 0xfe: case 0xff:
+        return immediate_b(h8);
     default:
         fprintf(stderr, "Unknown error in %s\n", __FILE__);
         return -1;

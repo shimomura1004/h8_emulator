@@ -5,10 +5,6 @@
 
 #include "instructions/cmp.h"
 
-// todo: priority queue がすべて空になっているので syserror となっている?
-//  → thp->init.func(thp->init.argc, thp->init.argv); で、 init.func の値が、
-//    直前の関数呼び出しの PC になってる
-
 // Ctrl-c or Ctrl-t でデバッグモードに入る
 static volatile sig_atomic_t debug_mode = 0;
 static volatile sig_atomic_t continue_mode = 0;
