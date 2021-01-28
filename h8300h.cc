@@ -2,7 +2,6 @@
 #include "operation_map/operation_map.h"
 #include "sci/sci.h"
 
-// todo: load コマンドで受信開始が異常に遅いことがある
 // todo: 次の命令を判別だけする関数がほしい
 
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)

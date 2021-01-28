@@ -44,10 +44,8 @@ void handle_send_command(int h8_serial_sock, char* buf)
     unsigned char os_buf[XMODEM_BLOCK_SIZE];
     printf("Sending blocks");
     fflush(stdout);
-    // todo: 転送開始が遅い
-    // ロックしてる風だけど、しばらくすると動き出すのはなぜ？
-    // serial_is_recv_enable 待ち？
-    // メモリの排他制御のせい？
+
+    // 待ち時間は bootloader の wait のループ回数に依存する
     while (1) {
         putchar('.');
         fflush(stdout);

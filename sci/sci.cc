@@ -10,10 +10,6 @@
 
 // todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
 
-// todo: load が開始されるまでに少し待ち時間がある
-// todo: (OS側から)送信割り込みが有効化されてない？
-
-
 bool SCI::open_sci_socket()
 {
     if (this->use_stdio) {

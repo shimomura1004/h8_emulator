@@ -10,7 +10,7 @@ int main (int argc, char* argv[])
     }
 
     // stdio を使うときは screen コマンドを使うこと
-    H8300H h8(true);
+    H8300H h8;
     h8.init();
 
     uint32_t start_addr = h8.load_elf(argv[1]);
