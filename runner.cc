@@ -13,13 +13,18 @@ static void sig_handler(int signo)
 {
     switch (signo) {
     case SIGINFO:
+        if (!debug_mode) {
+            break;
+        } else if (continue_mode) {
+            continue_mode = false;
+        }
+        break;
     case SIGINT:
-        if (debug_mode && continue_mode) {
+        if (!debug_mode) {
+            exit(1);
+        } else if (continue_mode) {
             continue_mode = false;
-        } else if (!debug_mode) {
-            debug_mode = true;
-            continue_mode = false;
-        } else if (debug_mode && !continue_mode) {
+        } else if (!continue_mode) {
             exit(1);
         }
         break;

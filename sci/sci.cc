@@ -102,7 +102,6 @@ void SCI::run_recv_from_h8() {
 }
 
 void SCI::run_send_to_h8() {
-    // ソケットを開くまでは待ち合わせる
     while (!terminate_flag) {
             // デバッガと標準入出力を奪い合わないようにロックする
             // std::lock_guard<std::mutex> lock(mutex);
