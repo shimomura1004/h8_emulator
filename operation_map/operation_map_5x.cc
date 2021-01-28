@@ -4,6 +4,7 @@
 #include "../instructions/bcc.h"
 #include "../instructions/rte.h"
 #include "../instructions/trapa.h"
+#include "../instructions/jmp.h"
 
 instruction_handler_t lookup_58(H8300H *h8)
 {
@@ -46,8 +47,8 @@ instruction_handler_t lookup_5x(H8300H *h8)
     case 0x06: return h8instructions::rte::rte;
     case 0x07: return h8instructions::trapa::trapa;
     case 0x08: return lookup_58(h8);
-    case 0x09:
-    case 0x0a:
+    case 0x09: return h8instructions::jmp::jmp_register_indirect;
+    case 0x0a: return nullptr; // JMP
     case 0x0b: return nullptr; // JMP
     case 0x0c: return nullptr; // BSR
     case 0x0d: return h8instructions::jsr::jsr_register_indirect;
