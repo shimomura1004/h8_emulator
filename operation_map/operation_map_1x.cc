@@ -85,7 +85,7 @@ instruction_handler_t lookup_17(H8300H* h8300h)
     case 0x01: return nullptr; // NOT
     case 0x03: return nullptr; // NOT
     case 0x05: return h8instructions::extu::extu_w;
-    case 0x07: return nullptr; // EXTU
+    case 0x07: return h8instructions::extu::extu_l;
     case 0x08: return nullptr; // NEG.B
     case 0x09: return h8instructions::neg::neg_w;
     case 0x0b: return nullptr; // NEG
