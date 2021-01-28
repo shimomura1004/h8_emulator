@@ -91,7 +91,7 @@ void H8300H::restore_pc_and_ccr_from_stack()
     pc = ccr_pc & 0x00ffffff;
 }
 
-H8300H::H8300H()
+H8300H::H8300H(bool use_stdio)
     : sp(reg[7])
     , reg16{ Register16(reg[0],  0), Register16(reg[1],  1), Register16(reg[2],  2), Register16(reg[3],  3),
              Register16(reg[4],  4), Register16(reg[5],  5), Register16(reg[6],  6), Register16(reg[7],  7),
@@ -102,7 +102,7 @@ H8300H::H8300H()
              Register8(reg[0],  8), Register8(reg[1],  9), Register8(reg[2], 10), Register8(reg[3], 11),
              Register8(reg[4], 12), Register8(reg[5], 13), Register8(reg[6], 14), Register8(reg[7], 15) }
     , pc(0)
-    , mcu(interrupt_controller, mutex)
+    , mcu(interrupt_controller, mutex, use_stdio)
     , terminate(false)
     , is_sleep(false)
 {

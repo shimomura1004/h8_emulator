@@ -40,7 +40,7 @@ public:
     void restore_pc_and_ccr_from_stack();
 
 public:
-    H8300H();
+    H8300H(bool use_stdio=false);
 
     void init();
     uint32_t load_elf(std::string filepath);

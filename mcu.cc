@@ -15,9 +15,9 @@
 #endif
 #endif
 
-MCU::MCU(InterruptController& interrupt_controller, std::mutex& mutex)
+MCU::MCU(InterruptController& interrupt_controller, std::mutex& mutex, bool use_stdio)
     : sci0(0, interrupt_controller, mutex)
-    , sci1(1, interrupt_controller, mutex)
+    , sci1(1, interrupt_controller, mutex, use_stdio)
     , sci2(2, interrupt_controller, mutex)
 {
     sci0.run();

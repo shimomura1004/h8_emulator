@@ -39,7 +39,7 @@ class MCU {
     std::mutex mutex;
 
 public:
-    MCU(InterruptController& interrupt_controller, std::mutex& mutex);
+    MCU(InterruptController& interrupt_controller, std::mutex& mutex, bool use_stdio);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

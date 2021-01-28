@@ -18,6 +18,7 @@ public:
 private:
     std::thread* prepare_thread;
     std::thread* sci_thread[2];
+    bool use_stdio;
     char sci_sock_name[16];
     int sci_socket;
     int sci_sock_fd;
@@ -35,8 +36,7 @@ private:
     void run_send_to_h8();
 
 public:
-    SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex);
-    SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex, FILE* tx, FILE* rx);
+    SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex, bool use_stdio = false);
     ~SCI();
 
     void run();

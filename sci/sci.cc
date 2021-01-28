@@ -16,6 +16,11 @@
 
 bool SCI::open_sci_socket()
 {
+    if (this->use_stdio) {
+        this->sci_sock_fd = 0;
+        return true;
+    }
+
     sprintf(this->sci_sock_name, "ser%d", this->index);
 
     this->sci_socket = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -83,8 +88,12 @@ void SCI::run_recv_from_h8() {
         // データを TDR から取得したら SSR_TDRE を 1 にして送信可能を通知
         sci_register.set_bit(SCIRegister::SCI::SSR, SCIRegister::SCI_SSR::TDRE, true);
 
-        // 送信(シリアルポートがターミナルに接続されているとして、標準出力に出力)
-        ::write(this->sci_sock_fd, &data, sizeof(char));
+        // 送信
+        if (!this->use_stdio) {
+            ::write(this->sci_sock_fd, &data, sizeof(char));
+        } else {
+            ::write(1, &data, sizeof(char));
+        }
 
         // H8 に送信準備完了の割り込みを発生させる
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::TIE)) {
@@ -103,10 +112,21 @@ void SCI::run_send_to_h8() {
             // std::lock_guard<std::mutex> lock(mutex);
 
         char c;
-        ssize_t size = ::read(this->sci_sock_fd, &c, sizeof(char));
+        ssize_t size;
+        if (!this->use_stdio) {
+            size = ::read(this->sci_sock_fd, &c, sizeof(char));
+        } else {
+            size = ::read(0, &c, sizeof(char));
+        }
+
         if (size != 1) {
             fprintf(stderr, "Info: socket is closed.\n");
 
+            if (this->use_stdio) {
+                exit(1);
+            }
+
+            // todo: うまく開けていない？
             // 読み取りに失敗したら開き直してみる
             close(this->sci_socket);
             close(this->sci_sock_fd);
@@ -135,17 +155,13 @@ void SCI::run_send_to_h8() {
     }
 }
 
-SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex)
-    : SCI(index, interrupt_controller, mutex, nullptr, nullptr)
-{}
-
-SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex, FILE* tx, FILE* rx)
-    : index(index)
+SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex, bool use_stdio)
+    : use_stdio(use_stdio)
+    , index(index)
     , terminate_flag(false)
     , mutex(mutex)
     , interrupt_controller(interrupt_controller)
-{
-}
+{}
 
 SCI::~SCI()
 {

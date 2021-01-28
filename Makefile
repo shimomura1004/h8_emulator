@@ -62,7 +62,7 @@ $(TARGET): $(OBJS)
 .cc.o :			$<
 				$(CPPC) -c $(CPPFLAGS) -o $@ $<
 
-CFLAGS = -Wall -I. -g
+CFLAGS = -Wall -I.
 sender: sender.c
 	$(CC) -o sender $(CFLAGS) sender.c
 
