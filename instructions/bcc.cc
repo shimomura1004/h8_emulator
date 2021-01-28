@@ -31,7 +31,7 @@ int h8instructions::bcc::bhi_16(H8300H* h8)
 
     h8->pc += 4;
 
-    if (h8->ccr.c() || h8->ccr.z()) {
+    if (!(h8->ccr.c() || h8->ccr.z())) {
         h8->pc += disp;
     }
 
