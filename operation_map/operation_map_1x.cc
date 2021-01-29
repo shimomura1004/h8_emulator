@@ -10,6 +10,7 @@
 #include "../instructions/neg.h"
 #include "../instructions/xor.h"
 #include "../instructions/shar.h"
+#include "../instructions/rotxl.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -51,7 +52,7 @@ instruction_handler_t lookup_12(H8300H* h8300h)
     switch (bh) {
     case 0x00:
     case 0x01: return nullptr; // ROTXL
-    case 0x03: return nullptr; // ROTXL
+    case 0x03: return h8instructions::rotxl::rotxl_l;
     case 0x08:
     case 0x09: return nullptr; // ROTL
     case 0x0b: return nullptr; // ROTL
