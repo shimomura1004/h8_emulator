@@ -8,6 +8,7 @@ namespace bcc {
 
 int bra_8(H8300H* h8);
 int bra_16(H8300H* h8);
+int bhi_8(H8300H* h8);
 int bhi_16(H8300H* h8);
 int bls_8(H8300H* h8);
 int bcc_8(H8300H* h8);
