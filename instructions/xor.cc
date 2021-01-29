@@ -57,3 +57,24 @@ int h8instructions::xorl::xor_register_direct_b(H8300H* h8)
 
     return 0;
 }
+
+int h8instructions::xorl::xor_register_direct_l(H8300H* h8)
+{
+    uint8_t b3 = h8->fetch_instruction_byte(3);
+    uint8_t src_reg_index = (b3 & 0x70) >> 4;
+    uint8_t dst_reg_index = (b3 & 0x07);
+    const Register32& src = h8->reg[src_reg_index];
+    Register32& dst = h8->reg[dst_reg_index];
+
+    uint32_t src_value = src.get();
+    uint32_t dst_value = dst.get();
+    uint32_t result_value = src_value ^ dst_value;
+
+    dst.set(result_value);
+
+    update_ccr<int32_t>(h8, (int32_t)result_value);
+
+    h8->pc += 4;
+
+    return 0;
+}

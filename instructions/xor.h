@@ -8,6 +8,7 @@ namespace xorl {
 
 int xor_immediate_b(H8300H* h8);
 int xor_register_direct_b(H8300H* h8);
+int xor_register_direct_l(H8300H* h8);
 
 }
 }

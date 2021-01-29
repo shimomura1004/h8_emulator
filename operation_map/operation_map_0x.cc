@@ -7,6 +7,7 @@
 #include "../instructions/orc.h"
 #include "../instructions/andc.h"
 #include "../instructions/sleep.h"
+#include "../instructions/xor.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -36,7 +37,7 @@ instruction_handler_t lookup_01F06x(H8300H* h8300h)
     unsigned char cl = b2 & 0x0f;
     switch (cl) {
     case 0x04: return nullptr; // OR
-    case 0x05: return nullptr; // XOR
+    case 0x05: return h8instructions::xorl::xor_register_direct_l;
     case 0x06: return nullptr; // AND
     default:   return nullptr;
     }
