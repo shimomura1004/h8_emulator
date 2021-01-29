@@ -45,7 +45,8 @@ OBJS += instructions/instruction_table.o \
 		instructions/rte.o \
 		instructions/or.o \
 		instructions/trapa.o \
-		instructions/jmp.o
+		instructions/jmp.o \
+		instructions/bld.o
 
 TARGET = h8300h
 

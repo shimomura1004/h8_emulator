@@ -13,6 +13,7 @@
 #include "../instructions/btst.h"
 #include "../instructions/bset.h"
 #include "../instructions/or.h"
+#include "../instructions/bld.h"
 
 instruction_handler_t lookup_7x(H8300H *h8300h)
 {
@@ -72,7 +73,7 @@ instruction_handler_t lookup_77(H8300H* h8300h)
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh_msb = (b1 & 0x80) == 0;
 
-    return bh_msb ? nullptr  // BLD
+    return bh_msb ? h8instructions::bld::bld_register_direct
                   : nullptr; // BILD
 }
 
