@@ -2,6 +2,8 @@
 #include "operation_map/operation_map.h"
 #include "sci/sci.h"
 
+// todo: interrupt_controller を別スレッドで動かさないと、sleep 後に復帰できない
+
 // todo: 次の命令を判別だけする関数がほしい
 
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
@@ -103,6 +105,7 @@ H8300H::H8300H(bool use_stdio)
     , pc(0)
     , sci{ new SCI(0, mutex), new SCI(1, mutex, use_stdio), new SCI(2, mutex) }
     , mcu(sci, mutex)
+    , interrupt_controller(sci)
     , terminate(false)
     , is_sleep(false)
 {
@@ -171,6 +174,8 @@ int H8300H::step()
     }
 
     if (is_sleep) {
+printf("sleep!\n");
+
         // スリープ状態の場合は wait する
         // 復帰するときは別スレッドから notify する必要がある
         interrupt_controller.wait_for_interruption();

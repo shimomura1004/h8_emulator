@@ -20,11 +20,11 @@ public:
     uint32_t pc;
     SCI* sci[3];
     MCU mcu;
+    InterruptController interrupt_controller;
 
     std::mutex mutex;
     bool terminate;
 
-    InterruptController interrupt_controller;
     bool is_sleep;
 
 public:

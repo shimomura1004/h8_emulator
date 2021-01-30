@@ -6,67 +6,110 @@
 //         3. トラップ命令(プログラム実行状態で常に受け付けられる)
 // todo: sci は外部割り込み、SCI レジスタに応じてマスクする必要あり
 
-void InterruptController::set(interrupt_t type)
-{
-    std::lock_guard<std::mutex> lock(mutex);
-    interrupt_flag |= ((uint64_t)1 << type);
-
-    // CPU がスリープ状態のときは起こす
-    // todo: traps のときは必ず起こす
-    //       外部割込みのときは I フラグによって動作が変化する
-    sleep_cv.notify_all();
-}
-
-void InterruptController::clear(interrupt_t type)
-{
-    // todo: 内部割込みの場合はすぐにクリアする
-    //       外部割込みの場合は、割込みを処理したことを外部機器に伝えて、
-    //       外部機器側から割込みフラグを落としてもらう
-    //       (SCI は外部割り込み)
-    std::lock_guard<std::mutex> lock(mutex);
-    interrupt_flag &= ~((uint64_t)1 << type);
-}
-
-InterruptController::InterruptController()
-    : interrupt_flag(0)
-{
-}
-
-static interrupt_t interrupts[] = {
+static const interrupt_t external_interrupts[] = {
     NMI,
-    // 外部割込み
     IRQ0, IRQ1, IRQ2, IRQ3, IRQ4, IRQ5,
-    // 内部割込み
+};
+
+static const interrupt_t internal_interrupts[] = {
     ERI0, RXI0, TXI0, TEI0,
     ERI1, RXI1, TXI1, TEI1,
     ERI2, RXI2, TXI2, TEI2,
 };
-constexpr uint8_t interrupt_num = sizeof(interrupts) / sizeof(interrupt_t);
+
+static const interrupt_t traps[] = {
+    TRAP0, TRAP1, TRAP2, TRAP3,
+};
+
+constexpr static uint8_t external_interrupt_num = sizeof(external_interrupts) / sizeof(interrupt_t);
+constexpr static uint8_t internal_interrupt_num = sizeof(internal_interrupts) / sizeof(interrupt_t);
+constexpr static uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
+
+InterruptController::InterruptController(SCI** sci)
+    : sci(sci)
+    , interrupt_flag(0)
+{
+}
+
+void InterruptController::set(interrupt_t type)
+{
+    std::lock_guard<std::mutex> lock(mutex);
+
+    // 外部割込みは割込みコントローラからはセットされない
+    // 内部割込み(SCI)は割込みコントローラからはセットされない
+    // todo: 外部・内部割込みが入ったとき、どうやって CPU を起こす？
+
+    // トラップのセット
+    for (int i = 0; i < trap_num; i++) {
+        if (type == traps[i]) {
+            interrupt_flag |= ((uint64_t)1 << type);
+            break;
+        }
+    }
+}
+
+void InterruptController::clear(interrupt_t type)
+{
+    std::lock_guard<std::mutex> lock(mutex);
+
+    // 外部割込みのクリア
+    for (int i = 0; i < external_interrupt_num; i++) {
+        if (type == external_interrupts[i]) {
+            interrupt_flag &= ~((uint64_t)1 << type);
+            return;
+        }
+    }
+
+    // 内部割込み(SCI)のクリア
+    for (int i = 0; i < internal_interrupt_num; i++) {
+        if (type == internal_interrupts[i]) {
+            sci[i / 4]->clearInterrupt(type);
+        }
+    }
+
+    // トラップのクリア
+    for (int i = 0; i < trap_num; i++) {
+        if (type == traps[i]) {
+            interrupt_flag &= ~((uint64_t)1 << type);
+            return;
+        }
+    }
+}
 
 interrupt_t InterruptController::getInterruptType()
 {
-    // todo: 本当は MCU と同じように外部機器に機器にいかないといけない
     std::lock_guard<std::mutex> lock(mutex);
-    for (int i = 0; i < interrupt_num; i++) {
-        if (interrupt_flag & (1 << interrupts[i])) {
-            return interrupts[i];
+
+    // 外部割込みの確認
+    for (int i = 0; i < external_interrupt_num; i++) {
+        if (interrupt_flag & (1 << external_interrupts[i])) {
+            // CPU がスリープ状態のときは起こす
+            sleep_cv.notify_all();
+            return external_interrupts[i];
+        }
+    }
+
+    // 内部割込み(SCI)の確認
+    interrupt_t type;
+    for (int i = 0; i < 3; i++) {
+        type = sci[i]->getInterrupt();
+        if (type != interrupt_t::NONE) {
+            sleep_cv.notify_all();
+            return type;
         }
     }
 
     return interrupt_t::NONE;
 }
 
-static interrupt_t traps[] = {
-    TRAP0, TRAP1, TRAP2, TRAP3,
-};
-constexpr uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
-
 interrupt_t InterruptController::getTrap()
 {
     std::lock_guard<std::mutex> lock(mutex);
 
+    // トラップの確認
     for (int i = 0; i < trap_num; i++) {
         if (interrupt_flag & (1 << traps[i])) {
+            sleep_cv.notify_all();
             return traps[i];
         }
     }
