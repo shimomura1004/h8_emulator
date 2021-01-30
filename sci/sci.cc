@@ -16,8 +16,6 @@ const interrupt_t SCI::RXI_TABLE[3] = {
     interrupt_t::RXI0, interrupt_t::RXI1, interrupt_t::RXI2
 };
 
-// todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
-
 bool SCI::open_sci_socket()
 {
     if (this->use_stdio) {
@@ -149,7 +147,6 @@ void SCI::run_send_to_h8() {
         sci_register.set_bit(SCIRegister::SSR, SCIRegister::SCI_SSR::RDRF, true);
 
         // シリアル受信割り込みが有効な場合は割り込みを発生させる
-        // todo: 直接割込みを発生させるのではなく、その情報を持っておいて問い合わせされたときに答える
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::RIE)) {
             this->hasRxiInterruption = true;
 
