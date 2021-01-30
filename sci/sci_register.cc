@@ -84,6 +84,7 @@ void SCIRegister::write(uint32_t register_index, uint8_t byte)
     }
     case SCI::SCR: {
         set_nolock(register_index, byte);
+        // todo: enable になったとき、既に割り込みが発生していた場合は？
         break;
     }
     case SCI::TDR: {

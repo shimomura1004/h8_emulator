@@ -118,14 +118,20 @@ uint32_t H8300H::load_elf(std::string filepath)
 
 bool H8300H::handle_interrupt()
 {
-    // 割り込みがあれば処理
-    interrupt_t type = interrupt_controller.getInterruptType();
+    interrupt_t type = interrupt_t::NONE;
 
-    // todo: 内部割込みは CCR.I がセットされていてもブロックされないが、
-    //       外部割り込みの場合は CCR.I がセットされている場合はブロックされる
+    // 割込み可能な状態の場合、割り込みがあれば処理
+    if (!this->ccr.i()) {
+        type = interrupt_controller.getInterruptType();
+    }
+
+    // 割込み可能かどうかに関係なく、優先度の高い割込みがない場合はトラップされたかを確認
+    if (type == interrupt_t::NONE) {
+        type = interrupt_controller.getTrap();
+    }
+
     if (type != interrupt_t::NONE) {
-        // 内部割込みの場合はすぐにクリアする
-        // todo: 外部割り込みの場合は勝手にクリアしてはいけない
+        // 割込みフラグをクリア
         interrupt_controller.clear(type);
 
         // CCR と PC を退避

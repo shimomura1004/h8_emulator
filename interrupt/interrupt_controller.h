@@ -19,8 +19,8 @@ public:
     void set(interrupt_t type);
     void clear(interrupt_t type);
 
-    bool hasInterrupt();
     interrupt_t getInterruptType();
+    interrupt_t getTrap();
     void wait_for_interruption();
 
 };

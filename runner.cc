@@ -262,8 +262,8 @@ void Runner::run(bool debug)
             if ((handler == h8instructions::jsr::jsr_absolute_address) ||
                 (handler == h8instructions::jsr::jsr_register_indirect))
             {
-                    // 関数呼び出し時には今の PC を記録しておく
-                    call_stack.push_back(h8.pc);
+                // 関数呼び出し時には今の PC を記録しておく
+                call_stack.push_back(h8.pc);
             }
 
             if ((handler == h8instructions::rts::rts) ||
@@ -281,6 +281,13 @@ void Runner::run(bool debug)
         if (result != 0) {
             fprintf(stderr, "Core dumped.\n");
             h8.mcu.dump("core");
+
+            // クラッシュ時にデバッガに入る
+            int r = proccess_debugger_command();
+            if (r != 0) {
+                break;
+            }
+
             break;
         }
     }

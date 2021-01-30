@@ -10,7 +10,7 @@ typedef enum {
     TRAP1,
     TRAP2,
     TRAP3,
-    // 外部割り込み
+    // 外部割込み
     IRQ0 = 12,
     IRQ1,
     IRQ2,
