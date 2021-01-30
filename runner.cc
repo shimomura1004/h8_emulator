@@ -1,5 +1,6 @@
 #include "runner.h"
 #include <signal.h>
+#include <string.h>
 #include "operation_map/operation_map.h"
 #include "instructions/instruction_table.h"
 
@@ -11,6 +12,7 @@ static volatile sig_atomic_t continue_mode = 0;
 static void sig_handler(int signo)
 {
     switch (signo) {
+#ifdef __APPLE__
     case SIGINFO:
         if (!debug_mode) {
             break;
@@ -18,6 +20,7 @@ static void sig_handler(int signo)
             continue_mode = false;
         }
         break;
+#endif
     case SIGINT:
         if (!debug_mode) {
             exit(1);
@@ -238,7 +241,9 @@ void Runner::run(bool debug)
 {
     debug_mode = debug;
     signal(SIGINT, sig_handler);
+#ifdef __APPLE__
     signal(SIGINFO, sig_handler);
+#endif
 
     int result = 0;
 
