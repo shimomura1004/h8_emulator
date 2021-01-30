@@ -99,6 +99,7 @@ void SCIRegister::write(uint32_t register_index, uint8_t byte)
         set_bit_nolock(register_index, SCI_SSR::TDRE, next_tdre);
 
         if (prev_tdre != next_tdre) {
+            // todo: CV は R と T で分けなくていいんだっけ？
             sci_cv.notify_all();
         }
 

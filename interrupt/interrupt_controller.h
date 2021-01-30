@@ -12,7 +12,6 @@ class InterruptController {
     std::mutex sleep_mutex;
     std::condition_variable sleep_cv;
 
-
 public:
     InterruptController();
 

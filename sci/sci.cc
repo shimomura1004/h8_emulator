@@ -8,6 +8,14 @@
 #include "sci.h"
 #include "sci_register.h"
 
+const interrupt_t SCI::TXI_TABLE[3] = {
+    interrupt_t::TXI0, interrupt_t::TXI1, interrupt_t::TXI2
+};
+
+const interrupt_t SCI::RXI_TABLE[3] = {
+    interrupt_t::RXI0, interrupt_t::RXI1, interrupt_t::RXI2
+};
+
 // todo: シリアルの割り込みを個別に有効にするまでは割り込みをあげてはいけない
 
 bool SCI::open_sci_socket()
@@ -93,10 +101,8 @@ void SCI::run_recv_from_h8() {
 
         // H8 に送信準備完了の割り込みを発生させる
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::TIE)) {
-            static interrupt_t TXI_TABLE[] = {
-                interrupt_t::TXI0, interrupt_t::TXI1, interrupt_t::TXI2
-            };
-            interrupt_controller.set(TXI_TABLE[index]);
+            // interrupt_controller.set(SCI::TXI_TABLE[index]);
+            this->hasTxiInterruption = true;
         }
     }
 }
@@ -141,11 +147,10 @@ void SCI::run_send_to_h8() {
         sci_register.set_bit(SCIRegister::SSR, SCIRegister::SCI_SSR::RDRF, true);
 
         // シリアル受信割り込みが有効な場合は割り込みを発生させる
+        // todo: 直接割込みを発生させるのではなく、その情報を持っておいて問い合わせされたときに答える
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::RIE)) {
-            static interrupt_t RXI_TABLE[] = {
-                interrupt_t::RXI0, interrupt_t::RXI1, interrupt_t::RXI2
-            };
-            interrupt_controller.set(RXI_TABLE[index]);
+            // interrupt_controller.set(SCI::RXI_TABLE[index]);
+            this->hasRxiInterruption = true;
         }
     }
 }
@@ -155,7 +160,9 @@ SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& m
     , index(index)
     , terminate_flag(false)
     , mutex(mutex)
-    , interrupt_controller(interrupt_controller)
+    // , interrupt_controller(interrupt_controller)
+    , hasTxiInterruption(false)
+    , hasRxiInterruption(false)
 {}
 
 SCI::~SCI()
@@ -187,6 +194,36 @@ void SCI::terminate() {
             }
             delete sci_thread[i];
         }
+    }
+}
+
+interrupt_t SCI::getInterrupt()
+{
+    if (this->hasTxiInterruption) {
+        return SCI::TXI_TABLE[this->index];
+    } else if (this->hasRxiInterruption) {
+        return SCI::RXI_TABLE[this->index];
+    } else {
+        return interrupt_t::NONE;
+    }
+}
+
+void SCI::clearInterrupt(interrupt_t type)
+{
+    if (type == SCI::TXI_TABLE[this->index]) {
+        if (this->hasTxiInterruption) {
+            this->hasTxiInterruption = false;
+        } else {
+            fprintf(stderr, "Error: SCI(%d) does not generate TXI%d\n", this->index, this->index);
+        }
+    } else if (type == SCI::RXI_TABLE[this->index]) {
+        if (this->hasRxiInterruption) {
+            this->hasRxiInterruption = false;
+        } else {
+            fprintf(stderr, "Error: SCI(%d) does not generate RXI%d\n", this->index, this->index);
+        }
+    } else {
+        fprintf(stderr, "Error: SCI(%d) does not generate interruption: %d\n", this->index, type);
     }
 }
 

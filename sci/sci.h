@@ -9,6 +9,9 @@
 #include "interrupt/interrupt_controller.h"
 
 class SCI {
+    static const interrupt_t TXI_TABLE[3];
+    static const interrupt_t RXI_TABLE[3];
+
 public:
     typedef enum {
         TX,
@@ -27,7 +30,10 @@ private:
     bool terminate_flag;
     std::mutex& mutex;
     SCIRegister sci_register;
-    InterruptController& interrupt_controller;
+    // InterruptController& interrupt_controller;
+
+    bool hasTxiInterruption;
+    bool hasRxiInterruption;
 
     bool open_sci_socket();
 
@@ -41,6 +47,9 @@ public:
 
     void run();
     void terminate();
+
+    interrupt_t getInterrupt();
+    void clearInterrupt(interrupt_t type);
 
     void dump(FILE* fp);
 
