@@ -15,15 +15,9 @@
 #endif
 #endif
 
-MCU::MCU(InterruptController& interrupt_controller, std::mutex& mutex, bool use_stdio)
-    : sci0(0, interrupt_controller, mutex)
-    , sci1(1, interrupt_controller, mutex, use_stdio)
-    , sci2(2, interrupt_controller, mutex)
-{
-    sci0.run();
-    sci1.run();
-    sci2.run();
-}
+MCU::MCU(SCI** sci, std::mutex& mutex)
+    : sci(sci)
+{}
 
 uint8_t MCU::read8(uint32_t address)
 {
@@ -36,11 +30,11 @@ uint8_t MCU::read8(uint32_t address)
         return ram[address - ram_start];
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
-        return sci0.read(address - sci0_start);
+        return sci[0]->read(address - sci0_start);
     } else if (sci1_start <= address && address <= sci1_end) {
-        return sci1.read(address - sci1_start);
+        return sci[1]->read(address - sci1_start);
     } else if (sci2_start <= address && address <= sci2_end) {
-        return sci2.read(address - sci2_start);
+        return sci[2]->read(address - sci2_start);
     } else {
         fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
         return 0;
@@ -80,11 +74,11 @@ void MCU::write8(uint32_t address, uint8_t value)
         ram[address - ram_start] = value;
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
-        sci0.write(address - sci0_start, value);
+        sci[0]->write(address - sci0_start, value);
     } else if (sci1_start <= address && address <= sci1_end) {
-        sci1.write(address - sci1_start, value);
+        sci[1]->write(address - sci1_start, value);
     } else if (sci2_start <= address && address <= sci2_end) {
-        sci2.write(address - sci2_start, value);
+        sci[2]->write(address - sci2_start, value);
     } else {
         fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
     }
@@ -141,9 +135,9 @@ void MCU::dump(std::string filepath)
         fputc(0, fp);
     }
 
-    sci0.dump(fp);
-    sci1.dump(fp);
-    sci2.dump(fp);
+    sci[0]->dump(fp);
+    sci[1]->dump(fp);
+    sci[2]->dump(fp);
 
     // 末尾まで0 埋めする
     for (uint32_t i=sci2_end + 1; i < all_end + 1; i++) {

@@ -31,15 +31,14 @@ class MCU {
     static const uint32_t sci2_start = 0xffffc0;
     static const uint32_t sci2_end   = 0xffffc6;
 
-    SCI sci0;
-    SCI sci1;
-    SCI sci2;
+    // H8/3069F には3つの SCI が内蔵されている
+    SCI** sci;
 
     // メモリへの読み書きが競合しないようにする
     std::mutex mutex;
 
 public:
-    MCU(InterruptController& interrupt_controller, std::mutex& mutex, bool use_stdio);
+    MCU(SCI** sci, std::mutex& mutex);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

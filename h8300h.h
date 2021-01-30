@@ -7,6 +7,7 @@
 #include "registers/register32.h"
 #include "registers/ccr.h"
 #include "mcu.h"
+#include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"
 
 class H8300H {
@@ -17,6 +18,7 @@ public:
     Register8 reg8[16];
     CCR ccr;
     uint32_t pc;
+    SCI* sci[3];
     MCU mcu;
 
     std::mutex mutex;
@@ -41,6 +43,7 @@ public:
 
 public:
     H8300H(bool use_stdio=false);
+    ~H8300H();
 
     void init();
     uint32_t load_elf(std::string filepath);

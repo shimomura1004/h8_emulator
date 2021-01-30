@@ -101,14 +101,25 @@ H8300H::H8300H(bool use_stdio)
              Register8(reg[0],  8), Register8(reg[1],  9), Register8(reg[2], 10), Register8(reg[3], 11),
              Register8(reg[4], 12), Register8(reg[5], 13), Register8(reg[6], 14), Register8(reg[7], 15) }
     , pc(0)
-    , mcu(interrupt_controller, mutex, use_stdio)
+    , sci{ new SCI(0, mutex), new SCI(1, mutex, use_stdio), new SCI(2, mutex) }
+    , mcu(sci, mutex)
     , terminate(false)
     , is_sleep(false)
 {
 }
 
+H8300H::~H8300H()
+{
+    for (int i = 0; i < 3; i++) {
+        delete sci[i];
+    }
+}
+
 void H8300H::init()
 {
+    for (int i = 0; i < 3; i++) {
+        sci[i]->run();
+    }
 }
 
 uint32_t H8300H::load_elf(std::string filepath)

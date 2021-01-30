@@ -101,7 +101,6 @@ void SCI::run_recv_from_h8() {
 
         // H8 に送信準備完了の割り込みを発生させる
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::TIE)) {
-            // interrupt_controller.set(SCI::TXI_TABLE[index]);
             this->hasTxiInterruption = true;
         }
     }
@@ -149,18 +148,16 @@ void SCI::run_send_to_h8() {
         // シリアル受信割り込みが有効な場合は割り込みを発生させる
         // todo: 直接割込みを発生させるのではなく、その情報を持っておいて問い合わせされたときに答える
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::RIE)) {
-            // interrupt_controller.set(SCI::RXI_TABLE[index]);
             this->hasRxiInterruption = true;
         }
     }
 }
 
-SCI::SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex, bool use_stdio)
+SCI::SCI(uint8_t index, std::mutex& mutex, bool use_stdio)
     : use_stdio(use_stdio)
     , index(index)
     , terminate_flag(false)
     , mutex(mutex)
-    // , interrupt_controller(interrupt_controller)
     , hasTxiInterruption(false)
     , hasRxiInterruption(false)
 {}

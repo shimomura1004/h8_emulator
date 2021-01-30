@@ -5,8 +5,8 @@
 #include <thread>
 #include <mutex>
 #include <queue>
+#include "../interrupt/interrupt_type.h"
 #include "sci_register.h"
-#include "interrupt/interrupt_controller.h"
 
 class SCI {
     static const interrupt_t TXI_TABLE[3];
@@ -30,7 +30,6 @@ private:
     bool terminate_flag;
     std::mutex& mutex;
     SCIRegister sci_register;
-    // InterruptController& interrupt_controller;
 
     bool hasTxiInterruption;
     bool hasRxiInterruption;
@@ -42,7 +41,7 @@ private:
     void run_send_to_h8();
 
 public:
-    SCI(uint8_t index, InterruptController& interrupt_controller, std::mutex& mutex, bool use_stdio = false);
+    SCI(uint8_t index, std::mutex& mutex, bool use_stdio = false);
     ~SCI();
 
     void run();
