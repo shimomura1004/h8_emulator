@@ -101,8 +101,10 @@ void SCI::run_recv_from_h8() {
 
         // H8 に送信準備完了の割り込みを発生させる
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::TIE)) {
-printf("tx has interruption\n");
             this->hasTxiInterruption = true;
+
+            // 割込みを通知する
+            interrupt_cv.notify_all();
         }
     }
 }
@@ -149,17 +151,20 @@ void SCI::run_send_to_h8() {
         // シリアル受信割り込みが有効な場合は割り込みを発生させる
         // todo: 直接割込みを発生させるのではなく、その情報を持っておいて問い合わせされたときに答える
         if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::RIE)) {
-printf("rx has interruption\n");
             this->hasRxiInterruption = true;
+
+            // 割込みを通知する
+            interrupt_cv.notify_all();
         }
     }
 }
 
-SCI::SCI(uint8_t index, std::mutex& mutex, bool use_stdio)
+SCI::SCI(uint8_t index, std::mutex& mutex, std::condition_variable& interrupt_cv, bool use_stdio)
     : use_stdio(use_stdio)
     , index(index)
     , terminate_flag(false)
     , mutex(mutex)
+    , interrupt_cv(interrupt_cv)
     , hasTxiInterruption(false)
     , hasRxiInterruption(false)
 {}
@@ -211,14 +216,12 @@ void SCI::clearInterrupt(interrupt_t type)
 {
     if (type == SCI::TXI_TABLE[this->index]) {
         if (this->hasTxiInterruption) {
-printf("tx clear\n");
             this->hasTxiInterruption = false;
         } else {
             fprintf(stderr, "Error: SCI(%d) does not generate TXI%d\n", this->index, this->index);
         }
     } else if (type == SCI::RXI_TABLE[this->index]) {
         if (this->hasRxiInterruption) {
-printf("rx clear\n");
             this->hasRxiInterruption = false;
         } else {
             fprintf(stderr, "Error: SCI(%d) does not generate RXI%d\n", this->index, this->index);

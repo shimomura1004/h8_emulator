@@ -28,8 +28,11 @@ private:
 
     uint8_t index;
     bool terminate_flag;
+    // todo: mutex は不要？
     std::mutex& mutex;
     SCIRegister sci_register;
+
+    std::condition_variable& interrupt_cv;
 
     bool hasTxiInterruption;
     bool hasRxiInterruption;
@@ -41,7 +44,7 @@ private:
     void run_send_to_h8();
 
 public:
-    SCI(uint8_t index, std::mutex& mutex, bool use_stdio = false);
+    SCI(uint8_t index, std::mutex& mutex, std::condition_variable& interrupt_cv, bool use_stdio = false);
     ~SCI();
 
     void run();

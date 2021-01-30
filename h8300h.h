@@ -3,7 +3,7 @@
 
 #include <string>
 #include <mutex>
-
+#include <condition_variable>
 #include "registers/register32.h"
 #include "registers/ccr.h"
 #include "mcu.h"
@@ -23,9 +23,11 @@ public:
     InterruptController interrupt_controller;
 
     std::mutex mutex;
+    // todo: terminate は不要？
     bool terminate;
-
     bool is_sleep;
+    // スリープ状態から復帰するため、SCI に渡して割込み発生時に通知してもらう
+    std::condition_variable interrupt_cv;
 
 public:
     uint8_t fetch_instruction_byte(uint8_t offset);

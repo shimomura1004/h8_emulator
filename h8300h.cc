@@ -2,8 +2,6 @@
 #include "operation_map/operation_map.h"
 #include "sci/sci.h"
 
-// todo: interrupt_controller を別スレッドで動かさないと、sleep 後に復帰できない
-
 // todo: 次の命令を判別だけする関数がほしい
 
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
@@ -103,9 +101,9 @@ H8300H::H8300H(bool use_stdio)
              Register8(reg[0],  8), Register8(reg[1],  9), Register8(reg[2], 10), Register8(reg[3], 11),
              Register8(reg[4], 12), Register8(reg[5], 13), Register8(reg[6], 14), Register8(reg[7], 15) }
     , pc(0)
-    , sci{ new SCI(0, mutex), new SCI(1, mutex, use_stdio), new SCI(2, mutex) }
+    , sci{ new SCI(0, mutex, interrupt_cv), new SCI(1, mutex, interrupt_cv, use_stdio), new SCI(2, mutex, interrupt_cv) }
     , mcu(sci, mutex)
-    , interrupt_controller(sci)
+    , interrupt_controller(this->sci)
     , terminate(false)
     , is_sleep(false)
 {
@@ -174,11 +172,32 @@ int H8300H::step()
     }
 
     if (is_sleep) {
-printf("sleep!\n");
-
         // スリープ状態の場合は wait する
         // 復帰するときは別スレッドから notify する必要がある
-        interrupt_controller.wait_for_interruption();
+        // 割込みコントローラから起こすようになっている
+
+        // todo: CCR のロックを取ったほうがいいのでは？
+        std::mutex tmp;
+        std::unique_lock<std::mutex> lock(tmp);
+        interrupt_cv.wait(lock, [this]{
+            // スリープ中にトラップ命令がくることはないため、トラップは考慮不要
+            // スリープ中に CCR.I が更新されることはないので、CCR.I が解除されたときに notify する必要はない
+            interrupt_t type = this->interrupt_controller.getInterruptType();
+
+            if (type == interrupt_t::NONE) {
+                // 割込みがなければ待つ
+                return false;
+            } else if (type == interrupt_t::NMI) {
+                // NMI は常に処理
+                return true;
+            } else if (!this->ccr.i()) {
+                // それ以外の割込みの場合、割込み禁止状態でなければ処理
+                return true;
+            } else {
+                // 割込み禁止状態の場合は待つ
+                return false;
+            }
+        });
         is_sleep = false;
     }
 

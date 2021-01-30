@@ -4,7 +4,8 @@
 // 例外処理 1. リセット(最優先)
 //         2. 割り込み(さらに外部割込みと内部割込み(内蔵周辺モジュール)にわかれる)
 //         3. トラップ命令(プログラム実行状態で常に受け付けられる)
-// todo: sci は外部割り込み、SCI レジスタに応じてマスクする必要あり
+// 割込み禁止状態か判断できるのは H8 のみ
+// 割込みコントローラは getInterrupt したときの優先度調停のみ実施
 
 static const interrupt_t external_interrupts[] = {
     NMI,
@@ -28,8 +29,7 @@ constexpr static uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
 InterruptController::InterruptController(SCI** sci)
     : sci(sci)
     , interrupt_flag(0)
-{
-}
+{}
 
 void InterruptController::set(interrupt_t type)
 {
@@ -37,8 +37,6 @@ void InterruptController::set(interrupt_t type)
 
     // 外部割込みは割込みコントローラからはセットされない
     // 内部割込み(SCI)は割込みコントローラからはセットされない
-    // todo: 外部・内部割込みが入ったとき、どうやって CPU を起こす？
-
     // トラップのセット
     for (int i = 0; i < trap_num; i++) {
         if (type == traps[i]) {
@@ -83,8 +81,6 @@ interrupt_t InterruptController::getInterruptType()
     // 外部割込みの確認
     for (int i = 0; i < external_interrupt_num; i++) {
         if (interrupt_flag & (1 << external_interrupts[i])) {
-            // CPU がスリープ状態のときは起こす
-            sleep_cv.notify_all();
             return external_interrupts[i];
         }
     }
@@ -94,7 +90,6 @@ interrupt_t InterruptController::getInterruptType()
     for (int i = 0; i < 3; i++) {
         type = sci[i]->getInterrupt();
         if (type != interrupt_t::NONE) {
-            sleep_cv.notify_all();
             return type;
         }
     }
@@ -109,16 +104,9 @@ interrupt_t InterruptController::getTrap()
     // トラップの確認
     for (int i = 0; i < trap_num; i++) {
         if (interrupt_flag & (1 << traps[i])) {
-            sleep_cv.notify_all();
             return traps[i];
         }
     }
 
     return interrupt_t::NONE;
-}
-
-void InterruptController::wait_for_interruption()
-{
-    std::unique_lock<std::mutex> lock(sleep_mutex);
-    sleep_cv.wait(lock);
 }

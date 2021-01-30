@@ -1,18 +1,14 @@
 #ifndef _INTERRUPT_CONTROLLER_INCLUDED_
 #define _INTERRUPT_CONTROLLER_INCLUDED_
 
-#include <mutex>
-#include <condition_variable>
 #include "../sci/sci.h"
 #include "interrupt_type.h"
 
 class InterruptController {
     SCI** sci;
+    // todo: mutex は不要？
     std::mutex mutex;
     uint64_t interrupt_flag;
-
-    std::mutex sleep_mutex;
-    std::condition_variable sleep_cv;
 
 public:
     InterruptController(SCI** sci);
@@ -22,7 +18,6 @@ public:
 
     interrupt_t getInterruptType();
     interrupt_t getTrap();
-    void wait_for_interruption();
 
 };
 
