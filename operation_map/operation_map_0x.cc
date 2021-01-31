@@ -8,6 +8,7 @@
 #include "../instructions/andc.h"
 #include "../instructions/sleep.h"
 #include "../instructions/xor.h"
+#include "../instructions/divxs.h"
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -26,7 +27,7 @@ instruction_handler_t lookup_01D05x(H8300H* h8300h)
     unsigned char cl = b2 & 0x0f;
     switch (cl) {
     case 0x01: return nullptr; // DIVXS
-    case 0x03: return nullptr; // DIVXS
+    case 0x03: return h8instructions::divxs::divxs_w;
     default:   return nullptr;
     }
 }
