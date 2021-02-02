@@ -7,7 +7,7 @@
 #include "sci/sci.h"
 
 class MCU {
-    // モード5(内蔵ROM有効拡張16Mバイトモード)
+    // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
     static const uint32_t vec_start = 0x000000; // ベクタエリア
     static const uint32_t vec_end   = 0x0000ff;
     static const uint32_t rom_start = 0x000100; // 内蔵 ROM
@@ -17,6 +17,16 @@ class MCU {
     static const uint32_t ram_start = 0xffbf00; // 内蔵 RAM
     static const uint32_t ram_end   = 0xffff1f;
     static const uint32_t io_start  = 0xffff20; // 内部 I/O レジスタ
+
+    // 内蔵機能のレジスタのアドレスは8ビットアドレス空間に配置されている
+    // 短い命令調で指定できるため便利
+    // SCI やタイマなどはここに入っているため、モードによってアドレスが異なる
+    // ノーマルモードだとタイマは 0xfff80、アドバンストモードだと 0xffff80
+    static const uint32_t timer01_start = 0xffff80; // タイマ0,1
+    static const uint32_t timer01_end   = 0xffff89;
+    static const uint32_t timer23_start = 0xffff90; // タイマ2,3
+    static const uint32_t timer23_end   = 0xffff99;
+
     static const uint32_t io_end    = 0xffffe9;
                                                 // 外部アドレス空間
     static const uint32_t all_end   = 0xffffff;

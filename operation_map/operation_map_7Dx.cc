@@ -1,4 +1,5 @@
 #include "operation_map_7Dx.h"
+#include "../instructions/bset.h"
 
 instruction_handler_t lookup_7Dr067x(H8300H* h8300h)
 {
@@ -12,25 +13,15 @@ instruction_handler_t lookup_7Dr067x(H8300H* h8300h)
 instruction_handler_t lookup_7Dr0xx(H8300H* h8300h)
 {
     unsigned char b2 = h8300h->fetch_instruction_byte(2);
-    unsigned char ch = (b2 & 0xf0) >> 4;
-    unsigned char cl = b2 & 0x0f;
 
-    switch (ch) {
-    case 0x06:
-        switch (cl) {
-        case 0x00: return nullptr; // BSET
-        case 0x01: return nullptr; // BNOT
-        case 0x02: return nullptr; // BCLR
-        case 0x07: return lookup_7Dr067x(h8300h);
-        default:   return nullptr;
-        };
-    case 0x07: 
-        switch (cl) {
-        case 0x00: return nullptr; // BSET
-        case 0x01: return nullptr; // BNOT
-        case 0x02: return nullptr; // BCLR
-        default:   return nullptr;
-        };
-    default: return nullptr;
+    switch (b2) {
+    case 0x60: return nullptr; // BSET
+    case 0x61: return nullptr; // BNOT
+    case 0x62: return nullptr; // BCLR
+    case 0x67: return lookup_7Dr067x(h8300h);
+    case 0x70: return h8instructions::bset::bset_register_indirect;
+    case 0x71: return nullptr; // BNOT
+    case 0x72: return nullptr; // BCLR
+    default:   return nullptr;
     }
 }
