@@ -17,6 +17,15 @@ typedef enum {
     IRQ3,
     IRQ4,
     IRQ5,
+    // タイマ
+    CMIA0 = 36,
+    CMIB0,
+    CMIA1_CMIB1,
+    TOVI0_TOVI1,
+    CMIA2,
+    CMIB2,
+    CMIA3_CMIB3,
+    TOVI2_TOVI3,
     // SCI0
     ERI0 = 52,
     RXI0,
