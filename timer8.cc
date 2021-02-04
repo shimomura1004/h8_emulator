@@ -18,8 +18,22 @@ const interrupt_t Timer8::interrupts[] = {
 // 真面目に1つずつカウントアップしていると重いので、thread_sleep を使う
 void Timer8::loop(uint8_t index)
 {
+    // todo: クロックの切り替えを考えると、
+    //       sleep_for ではなく wait_for でスリープしたほうがいい
     while (1) {
         // todo: カウンタで設定した時間だけスリープする
+        // 内部クロックは20MHzを仮定、あとは TCR::CKS を考慮し秒に変換
+
+        // tcr を見てタイマを調整する
+        // 8192 は分周、256は0xffで、timer1がオーバーフローするとtimer0がカウント
+        // 1000はミリ秒の調整
+        // 20MHz なので、1パルスは 1/20,000,000 = 0.00000005 秒
+        // 8192 で分周すると、timer1 が1つカウントするのに
+        //   0.00000005 * 8192 = 0.0004096 秒
+        // タイマはカスケードしているので、timer0 が1つカウントするのに
+        //   0.0004096 * 256 = 0.1048576 秒
+        // tcora * 0.1048576 秒だけ wait すればいい
+
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
         // 割込みを発生させる
@@ -27,20 +41,42 @@ void Timer8::loop(uint8_t index)
         if (index == 0) {
             this->interrupt_status[interrupt_t::CMIA0 - interrupt_t::CMIA0] = true;
             interrupt_cv.notify_all();
-
-            // H8_3069F_TMR_TCSR_CMFA
         }
     }
 }
 
 void Timer8::set_tcr0(uint8_t value)
 {
-    // 割込み有効化など
+    // todo: 外部クロックをサポートする
+
+    uint8_t cks = value & 0x07;
+    switch (cks) {
+    case 0: // DISCLK
+        break;
+    case 1: // CLK8
+        // todo: クロックが切り替わる場合、wait をやり直す必要あり
+        break;
+    case 2: // CLK64
+        break;
+    case 3: // CLK8192
+        break;
+    case 4: // カスケード(cnt1 のオーバーフローでカウントする)
+        break;
+    case 5: // CLKUP
+    case 6: // CLKDOWN
+    case 7: // CLKBOTH
+        break;
+    default:
+        fprintf(stderr, "Error: Unknown clock select(%d)\n", cks);
+        return;
+    }
+
+    this->tmr->tcr0 = value;
 }
 
 void Timer8::set_tcr1(uint8_t value)
 {
-    // todo: set_tcr0 と同じ処理？
+    // todo: set_tcr0 と同じ処理だが、cks=0x4の場合の処理のみ異なる
 }
 
 static void set_tcsr_cmfb()
@@ -125,11 +161,13 @@ void Timer8::clearInterrupt(interrupt_t type)
 
 uint8_t Timer8::read8(uint32_t address)
 {
+    // todo: カウンタが読まれる場合は更新が必要
     return this->reg[address];
 }
 
 uint16_t Timer8::read16(uint32_t address)
 {
+    // todo: カウンタが読まれる場合は更新が必要
     perror("not implemented Timer8::read16");
     return 0;
 }
