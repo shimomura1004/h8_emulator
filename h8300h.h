@@ -9,6 +9,7 @@
 #include "mcu.h"
 #include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"
+#include "timer8.h"
 
 class H8300H {
 public:
@@ -18,7 +19,11 @@ public:
     Register8 reg8[16];
     CCR ccr;
     uint32_t pc;
+
+    // todo: ペリフェラル類の依存関係を整理
+    // mcu が他のペリフェラルをコントローラする感じにできないか？
     SCI* sci[3];
+    Timer8 *timer8_01;
     MCU mcu;
     InterruptController interrupt_controller;
 

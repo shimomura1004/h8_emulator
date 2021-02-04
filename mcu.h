@@ -5,6 +5,7 @@
 #include <string>
 #include <mutex>
 #include "sci/sci.h"
+#include "timer8.h"
 
 class MCU {
     // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
@@ -27,28 +28,33 @@ class MCU {
     static const uint32_t timer23_start = 0xffff90; // タイマ2,3
     static const uint32_t timer23_end   = 0xffff99;
 
+    static const uint32_t sci0_start = 0xffffb0; // SCI0
+    static const uint32_t sci0_end   = 0xffffb6;
+    static const uint32_t sci1_start = 0xffffb8; // SCI1
+    static const uint32_t sci1_end   = 0xffffbe;
+    static const uint32_t sci2_start = 0xffffc0; // SCI2
+    static const uint32_t sci2_end   = 0xffffc6;
+
     static const uint32_t io_end    = 0xffffe9;
                                                 // 外部アドレス空間
     static const uint32_t all_end   = 0xffffff;
 
+
+    // ROM/RAM の実体
     uint8_t rom[rom_end - rom_start + 1];
     uint8_t ram[ram_end - ram_start + 1];
 
-    static const uint32_t sci0_start = 0xffffb0;
-    static const uint32_t sci0_end   = 0xffffb6;
-    static const uint32_t sci1_start = 0xffffb8;
-    static const uint32_t sci1_end   = 0xffffbe;
-    static const uint32_t sci2_start = 0xffffc0;
-    static const uint32_t sci2_end   = 0xffffc6;
-
     // H8/3069F には3つの SCI が内蔵されている
     SCI** sci;
+
+    // 8ビットタイマ
+    Timer8 *timer8_01;
 
     // メモリへの読み書きが競合しないようにする
     std::mutex mutex;
 
 public:
-    MCU(SCI** sci, std::mutex& mutex);
+    MCU(SCI** sci, Timer8 *timer8_01, std::mutex& mutex);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

@@ -18,14 +18,14 @@ typedef enum {
     IRQ4,
     IRQ5,
     // タイマ
-    CMIA0 = 36,
-    CMIB0,
-    CMIA1_CMIB1,
-    TOVI0_TOVI1,
-    CMIA2,
-    CMIB2,
-    CMIA3_CMIB3,
-    TOVI2_TOVI3,
+    CMIA0 = 36,   // コンペアマッチA0
+    CMIB0,        // コンペアマッチB0
+    CMIA1_CMIB1,  // コンペアマッチA1/B1
+    TOVI0_TOVI1,  // オーバーフロー0/1
+    CMIA2,        // コンペアマッチA2
+    CMIB2,        // コンペアマッチB2
+    CMIA3_CMIB3,  // コンペアマッチA3/B3
+    TOVI2_TOVI3,  // オーバーフロー2/3
     // SCI0
     ERI0 = 52,
     RXI0,

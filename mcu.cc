@@ -1,6 +1,8 @@
 #include "mcu.h"
 #include "elf_loader.h"
 
+// todo: ヘルパ関数としてどこかに定義
+
 #ifdef __BYTE_ORDER__
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
@@ -15,8 +17,9 @@
 #endif
 #endif
 
-MCU::MCU(SCI** sci, std::mutex& mutex)
+MCU::MCU(SCI** sci, Timer8* timer8_01, std::mutex& mutex)
     : sci(sci)
+    , timer8_01(timer8_01)
 {}
 
 uint8_t MCU::read8(uint32_t address)
@@ -28,6 +31,8 @@ uint8_t MCU::read8(uint32_t address)
         // RAM は更新されうるのでロック
         std::lock_guard<std::mutex> lock(mutex);
         return ram[address - ram_start];
+    } else if (timer01_start <= address && address <= timer01_end) {
+        return timer8_01->read8(address - timer01_start);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         return sci[0]->read(address - sci0_start);
@@ -48,6 +53,8 @@ uint16_t MCU::read16(uint32_t address)
     } else if (ram_start <= address && address <= ram_end) {
         std::lock_guard<std::mutex> lock(mutex);
         return bswap16_if_little_endian(*(uint16_t*)&ram[address - ram_start]);
+    } else if (timer01_start <= address && address <= timer01_end) {
+        return this->timer8_01->read16(address - timer01_start);
     } else {
         fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
         return 0;
@@ -72,6 +79,8 @@ void MCU::write8(uint32_t address, uint8_t value)
     if (ram_start <= address && address <= ram_end) {
         std::lock_guard<std::mutex> lock(mutex);
         ram[address - ram_start] = value;
+    } else if (timer01_start <= address && address <= timer01_end) {
+        timer8_01->write8(address - timer01_start, value);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         sci[0]->write(address - sci0_start, value);
@@ -88,6 +97,8 @@ void MCU::write16(uint32_t address, uint16_t value)
 {
     if (ram_start <= address && address <= ram_end) {
         *(uint16_t*)&ram[address - ram_start] = bswap16_if_little_endian(value);
+    } else if (timer01_start <= address && address <= timer01_end) {
+        timer8_01->write16(address - timer01_start, value);
     } else {
         fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
     }
