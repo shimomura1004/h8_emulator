@@ -14,10 +14,23 @@ const interrupt_t Timer8::interrupts[] = {
     interrupt_t::TOVI2_TOVI3,
 };
 
+/*
+ウェイトをやり直すタイミング
+- カウンタがセットされたとき
+- コンペア対象がセットされたとき
+- クロックが切り替えられたとき
+*/
+
+/*
+とりあえずカスケード、8192分周で動かせるようにする
+*/
+
 // 選択したクロックで tcnt をカウントアップし、tcora0 と一致したら割込みを発生させる
 // 真面目に1つずつカウントアップしていると重いので、thread_sleep を使う
 void Timer8::loop(uint8_t index)
 {
+    // todo: クロックが開始されるまではループをとめたい
+
     // todo: クロックの切り替えを考えると、
     //       sleep_for ではなく wait_for でスリープしたほうがいい
     while (1) {
@@ -34,11 +47,14 @@ void Timer8::loop(uint8_t index)
         //   0.0004096 * 256 = 0.1048576 秒
         // tcora * 0.1048576 秒だけ wait すればいい
 
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        int wait_in_milli_sec = this->tmr->tcora0 * 0.105 * 1000;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(wait_in_milli_sec));
 
         // 割込みを発生させる
-        // todo: 仮で1秒ごとに CMIA0 を発生させる
+        // todo: 仮で CMIA0 を発生させる
         if (index == 0) {
+            // todo: どの割り込みを発生させるかはどうやって判定する？
             this->interrupt_status[interrupt_t::CMIA0 - interrupt_t::CMIA0] = true;
             interrupt_cv.notify_all();
         }
@@ -47,11 +63,11 @@ void Timer8::loop(uint8_t index)
 
 void Timer8::set_tcr0(uint8_t value)
 {
-    // todo: 外部クロックをサポートする
 
     uint8_t cks = value & 0x07;
     switch (cks) {
     case 0: // DISCLK
+        // todo: クロックを止める
         break;
     case 1: // CLK8
         // todo: クロックが切り替わる場合、wait をやり直す必要あり
@@ -65,11 +81,14 @@ void Timer8::set_tcr0(uint8_t value)
     case 5: // CLKUP
     case 6: // CLKDOWN
     case 7: // CLKBOTH
+        // todo: 外部クロックをサポートする
         break;
     default:
         fprintf(stderr, "Error: Unknown clock select(%d)\n", cks);
         return;
     }
+
+    // todo: 割込みが有効になった場合、タイマをスタート
 
     this->tmr->tcr0 = value;
 }
