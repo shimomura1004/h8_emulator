@@ -41,7 +41,7 @@ uint8_t MCU::read8(uint32_t address)
     } else if (sci2_start <= address && address <= sci2_end) {
         return sci[2]->read(address - sci2_start);
     } else {
-        fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
+        fprintf(stderr, "Error: Invalid read(8) access to 0x%06x\n", address);
         return 0;
     }
 }
@@ -56,7 +56,7 @@ uint16_t MCU::read16(uint32_t address)
     } else if (timer01_start <= address && address <= timer01_end) {
         return this->timer8_01->read16(address - timer01_start);
     } else {
-        fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
+        fprintf(stderr, "Error: Invalid read(16) access to 0x%06x\n", address);
         return 0;
     }
 }
@@ -69,7 +69,7 @@ uint32_t MCU::read32(uint32_t address)
         std::lock_guard<std::mutex> lock(mutex);
         return bswap32_if_little_endian(*(uint32_t*)&ram[address - ram_start]);
     } else {
-        fprintf(stderr, "Error: Invalid read access to 0x%06x\n", address);
+        fprintf(stderr, "Error: Invalid read(32) access to 0x%06x\n", address);
         return 0;
     }
 }
@@ -89,7 +89,7 @@ void MCU::write8(uint32_t address, uint8_t value)
     } else if (sci2_start <= address && address <= sci2_end) {
         sci[2]->write(address - sci2_start, value);
     } else {
-        fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
+        fprintf(stderr, "Error: Invalid write(8) access to 0x%06x\n", address);
     }
 }
 
@@ -100,7 +100,7 @@ void MCU::write16(uint32_t address, uint16_t value)
     } else if (timer01_start <= address && address <= timer01_end) {
         timer8_01->write16(address - timer01_start, value);
     } else {
-        fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
+        fprintf(stderr, "Error: Invalid write(16) access to 0x%06x\n", address);
     }
 }
 
@@ -109,7 +109,7 @@ void MCU::write32(uint32_t address, uint32_t value)
     if (ram_start <= address && address <= ram_end) {
         *(uint32_t*)&ram[address - ram_start] = bswap32_if_little_endian(value);
     } else {
-        fprintf(stderr, "Error: Invalid write access to 0x%06x\n", address);
+        fprintf(stderr, "Error: Invalid write(32) access to 0x%06x\n", address);
     }
 }
 

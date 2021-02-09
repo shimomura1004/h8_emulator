@@ -9,7 +9,7 @@
 #include "mcu.h"
 #include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"
-#include "timer8.h"
+#include "timer/timer8.h"
 
 class H8300H {
 public:

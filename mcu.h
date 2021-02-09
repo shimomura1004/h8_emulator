@@ -5,7 +5,7 @@
 #include <string>
 #include <mutex>
 #include "sci/sci.h"
-#include "timer8.h"
+#include "timer/timer8.h"
 
 class MCU {
     // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
