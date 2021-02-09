@@ -14,6 +14,13 @@ const interrupt_t Timer8::interrupts[] = {
     interrupt_t::TOVI2_TOVI3,
 };
 
+// 次の CMIA0 割込み発生までの時間を計算する
+double wait_time_for_interrupt_CMIA0(double clock, uint8_t counter, uint8_t tcora0)
+{
+
+    return (tcora0 - counter) * clock;
+}
+
 /*
 ウェイトをやり直すタイミング
 - カウンタがセットされたとき
@@ -25,11 +32,15 @@ const interrupt_t Timer8::interrupts[] = {
 とりあえずカスケード、8192分周で動かせるようにする
 */
 
+// new thread([]{wait_for(10); notify_all();})
+
 // 選択したクロックで tcnt をカウントアップし、tcora0 と一致したら割込みを発生させる
 // 真面目に1つずつカウントアップしていると重いので、thread_sleep を使う
 void Timer8::loop(uint8_t index)
 {
     // todo: クロックが開始されるまではループをとめたい
+    // キャンセルされたらループを止めたい
+    // 割込みを抑制するだけでもいいかもしれない
 
     // todo: クロックの切り替えを考えると、
     //       sleep_for ではなく wait_for でスリープしたほうがいい
@@ -63,20 +74,30 @@ void Timer8::loop(uint8_t index)
 
 void Timer8::set_tcr0(uint8_t value)
 {
-
+// ここでスレッドを開始する
     uint8_t cks = value & 0x07;
     switch (cks) {
     case 0: // DISCLK
-        // todo: クロックを止める
+        // 今のタイマスレッドを無効化する
+        // todo: looper はどうやって delete する？
+        this->loopers[0]->invalidate();
         break;
     case 1: // CLK8
-        // todo: クロックが切り替わる場合、wait をやり直す必要あり
+        // 今のタイマスレッドを止めて、新しくスレッドを new する
+        this->loopers[0]->invalidate();
         break;
     case 2: // CLK64
+        // 今のタイマスレッドを止めて、新しくスレッドを new する
+        this->loopers[0]->invalidate();
         break;
     case 3: // CLK8192
+        // 今のタイマスレッドを止めて、新しくスレッドを new する
+        this->loopers[0]->invalidate();
         break;
     case 4: // カスケード(cnt1 のオーバーフローでカウントする)
+        // 今のタイマスレッドを止めて、新しくスレッドを new する
+        this->loopers[0]->invalidate();
+        // this->loopers[0] = new Looper();
         break;
     case 5: // CLKUP
     case 6: // CLKDOWN
@@ -115,7 +136,8 @@ void Timer8::set_tcsr1(uint8_t value)
 }
 
 Timer8::Timer8(std::condition_variable& interrupt_cv)
-    : tmr((TMR*)this->reg)
+    : loopers { nullptr, nullptr }
+    , tmr((TMR*)this->reg)
     , interrupt_cv(interrupt_cv)
     , interrupt_status{false, false, false, false, false, false, false, false}
 {
@@ -135,23 +157,32 @@ Timer8::Timer8(std::condition_variable& interrupt_cv)
 
 Timer8::~Timer8()
 {
-    for (int i = 0; i < 2; i++){
-        if (this->timer_threads[i]) {
-            if (this->timer_threads[i]->joinable()) {
-                this->timer_threads[i]->join();
-            }
-            delete this->timer_threads[i];
+    for (int i = 0; i < 2; i++) {
+        this->loopers[i]->invalidate();
+        if (this->loopers[i]->joinable()) {
+            this->loopers[i]->join();
         }
+        delete this->loopers[i];
     }
+
+    // for (int i = 0; i < 2; i++){
+    //     if (this->timer_threads[i]) {
+    //         if (this->timer_threads[i]->joinable()) {
+    //             this->timer_threads[i]->join();
+    //         }
+    //         delete this->timer_threads[i];
+    //     }
+    // }
 }
 
+// todo: おそらく run は不要
 void Timer8::run()
 {
-    for (int i = 0; i < 2; i++) {
-        this->timer_threads[i] = new std::thread(&Timer8::loop, this, i);
-    }
+    // for (int i = 0; i < 2; i++) {
+    //     this->timer_threads[i] = new std::thread(&Timer8::loop, this, i);
+    // }
 
-    printf("Timer8 started\n");
+    // printf("Timer8 started\n");
 }
 
 interrupt_t Timer8::getInterrupt()
