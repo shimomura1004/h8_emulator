@@ -87,17 +87,14 @@ void TMR8::update_timer() {
 
     // 有効にされた割込みに応じて複数のタイマを起動
     if (this->get_tcr_cmieb()) {
-printf("start timer for cmib\n");
         int waittime = get_waittime_for_CMIB();
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::CMIB0);
     }
     if (this->get_tcr_cmiea()) {
-printf("start timer for cmia\n");
         int waittime = get_waittime_for_CMIA();
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::CMIA0);
     }
     if (this->get_tcr_ovie()) {
-printf("start timer for tov\n");
         int waittime = get_waittime_for_TOVI();
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::TOVI0_TOVI1);
     }
@@ -147,7 +144,6 @@ void TMR8::set_tcr(uint8_t value) {
 
 void TMR8::set_tcsr(uint8_t value) {
     this->tcsr = value;
-printf("TCSR0 is %08x\n", this->tcsr);
     update_timer();
 }
 

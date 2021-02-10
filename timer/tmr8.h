@@ -5,24 +5,8 @@
 #include <thread>
 #include <condition_variable>
 #include <chrono>
+#include "./common.h"
 #include "../interrupt/interrupt_type.h"
-
-// todo: tcsr が 0b01000000 になってるのに、puts されない
-
-typedef enum {
-    ORIG = 0,
-    DIV8,
-    DIV64,
-    DIV8192,
-} CLOCK_KIND;
-
-// ミリ秒単位
-const double periods[] = {
-    1.0 / 20000000 * 1000,         // 0.00000005秒(20MHz)
-    1.0 / 20000000 * 1000 * 8,     // 0.0000004秒
-    1.0 / 20000000 * 1000 * 64,    // 0.0000032秒
-    1.0 / 20000000 * 1000 * 8192   // 0.0004096秒
-};
 
 // 8ビットタイマ
 class TMR8 {
@@ -70,7 +54,7 @@ public:
     void clearInterrupt(interrupt_t type);
 
     uint8_t get_tcr()   { return this->tcr; }
-    uint8_t get_tcsr()  { printf("TCSR 0x%02x\n", this->tcsr);return this->tcsr; }
+    uint8_t get_tcsr()  { return this->tcsr; }
     uint8_t get_tcora() { return this->tcora; }
     uint8_t get_tcorb() { return this->tcorb; }
     uint8_t get_tcnt()  { return this->tcnt; }

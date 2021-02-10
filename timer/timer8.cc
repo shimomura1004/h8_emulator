@@ -24,7 +24,6 @@ void Timer8::clearInterrupt(interrupt_t type)
 
 uint8_t Timer8::read8(uint32_t address)
 {
-printf("ADDRESS %d %02x\n", address, tmr8_0.get_tcsr());
     // todo: TMR1 の追加
     switch (address) {
     case 0: return tmr8_0.get_tcr();

@@ -3,7 +3,7 @@ CPPC = c++
 
 OBJS = elf_loader.o mcu.o h8300h.o runner.o main.o
 OBJS += interrupt/interrupt_controller.o
-OBJS += timer/timer8.o timer/tmr8.o
+OBJS += timer/common.o timer/timer8.o timer/tmr8.o
 OBJS += sci/sci.o sci/sci_register.o
 OBJS += operation_map/operation_map.o \
 		operation_map/operation_map_0x.o \
