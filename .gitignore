@@ -1,9 +1,6 @@
 .vscode
-*.o
-h8300h
-sender
+build
 core
-*.dSYM
 
 osbook_03
 kozos
