@@ -11,78 +11,72 @@ const interrupt_t TMR8::interrupts[] = {
     interrupt_t::TOVI2_TOVI3,
 };
 
+// 発生させる割込みの種類に応じて、割込み発生までのカウント数を返す
 // todo: カウンタ(TCNT)の値を考慮する
-uint8_t get_target_for(interrupt_t type)
+uint8_t TMR8::get_count_for(interrupt_t type)
 {
-
-}
-
-double TMR8::get_waittime_for(interrupt_t type)
-{
-    uint8_t target = 0;
     switch (type) {
     case interrupt_t::CMIA0:
         if (this->channel == 0) {
-            target = this->tcora;
-        } else {
-            fprintf(stderr, "Error: CMIA0 isn't supported with TMR%d\n", this->channel);
+            return this->tcora;
         }
+        fprintf(stderr, "Error: CMIA0 isn't supported with TMR%d\n", this->channel);
         break;
     case interrupt_t::CMIB0:
         if (this->channel == 0) {
-            target = this->tcorb;
-        } else {
-            fprintf(stderr, "Error: CMIB0 isn't supported with TMR%d\n", this->channel);
+            return this->tcorb;
         }
+        fprintf(stderr, "Error: CMIB0 isn't supported with TMR%d\n", this->channel);
         break;
     case interrupt_t::CMIA1_CMIB1:
         if (this->channel == 1) {
-            target = std::min(this->tcora, this->tcorb);
-        } else {
-            fprintf(stderr, "Error: CMIA1/CMIB1 isn't supported with TMR%d\n", this->channel);
+            return std::min(this->tcora, this->tcorb);
         }
+        fprintf(stderr, "Error: CMIA1/CMIB1 isn't supported with TMR%d\n", this->channel);
         break;
     case interrupt_t::TOVI0_TOVI1:
         if (this->channel == 0 || this->channel == 1) {
-            target = 0xff;
-        } else {
-            fprintf(stderr, "Error: TOVI0/TOVI1 isn't supported with TMR%d\n", this->channel);
+            return 0xff;
         }
+        fprintf(stderr, "Error: TOVI0/TOVI1 isn't supported with TMR%d\n", this->channel);
         break;
     case interrupt_t::CMIA2:
         if (this->channel == 2) {
-            target = this->tcora;
-        } else {
-            fprintf(stderr, "Error: CMIA2 isn't supported with TMR%d\n", this->channel);
+            return this->tcora;
         }
+        fprintf(stderr, "Error: CMIA2 isn't supported with TMR%d\n", this->channel);
         break;
     case interrupt_t::CMIB2:
         if (this->channel == 2) {
-            target = this->tcorb;
-        } else {
-            fprintf(stderr, "Error: CMIB2 isn't supported with TMR%d\n", this->channel);
+            return this->tcorb;
         }
+        fprintf(stderr, "Error: CMIB2 isn't supported with TMR%d\n", this->channel);
         break;
     case interrupt_t::CMIA3_CMIB3:
         if (this->channel == 3) {
-            target = std::min(this->tcora, this->tcorb);
-        } else {
-            fprintf(stderr, "Error: CMIA3/CMIB3 isn't supported with TMR%d\n", this->channel);
+            return std::min(this->tcora, this->tcorb);
         }
+        fprintf(stderr, "Error: CMIA3/CMIB3 isn't supported with TMR%d\n", this->channel);
         break;
     case interrupt_t::TOVI2_TOVI3:
         if (this->channel == 2 || this->channel == 3) {
-            target = 0xff;
-        } else {
-            fprintf(stderr, "Error: TOVI2/TOVI3 isn't supported with TMR%d\n", this->channel);
+            return 0xff;
         }
+        fprintf(stderr, "Error: TOVI2/TOVI3 isn't supported with TMR%d\n", this->channel);
         break;
     default:
         fprintf(stderr, "Error: Unsupported interruption in TMR%d (%d)\n", this->channel, type);
         break;
-    };
+    }
+    
+    return 0;
+}
 
+double TMR8::get_waittime_for(interrupt_t type)
+{
+    uint8_t target = this->get_count_for(type);
     uint8_t cks = this->tcr.get_tcr_cks();
+
     switch (cks) {
     case 0: // クロック入力を禁止
         return -1;

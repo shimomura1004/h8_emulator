@@ -27,6 +27,7 @@ class TMR8 {
     bool interrupt_status[8];
     std::condition_variable& interrupt_cv;
 
+    uint8_t get_count_for(interrupt_t type);
     double get_waittime_for(interrupt_t type);
 
     void loop(uint8_t index, int waittime, interrupt_t interrupt_type);
