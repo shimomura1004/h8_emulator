@@ -23,7 +23,7 @@ public:
     // todo: ペリフェラル類の依存関係を整理
     // mcu が他のペリフェラルをコントローラする感じにできないか？
     SCI* sci[3];
-    Timer8 *timer8_01;
+    Timer8 *timer8;
     MCU mcu;
     InterruptController interrupt_controller;
 

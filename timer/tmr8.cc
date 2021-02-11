@@ -143,17 +143,19 @@ void TMR8::update_timer() {
 
     // 有効にされた割込みに応じて複数のタイマを起動
     if (this->tcr.get_tcr_cmieb()) {
-        int waittime = get_waittime_for(interrupt_t::CMIB0);
+        static interrupt_t table[] = { CMIB0, CMIA1_CMIB1, CMIB2, CMIA3_CMIB3 };
+        int waittime = get_waittime_for(table[this->channel]);
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::CMIB0);
     }
+
     if (this->tcr.get_tcr_cmiea()) {
-        int waittime = get_waittime_for(interrupt_t::CMIA0);
+        static interrupt_t table[] = { CMIA0, CMIA1_CMIB1, CMIA2, CMIA3_CMIB3 };
+        int waittime = get_waittime_for(table[this->channel]);
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::CMIA0);
     }
     if (this->tcr.get_tcr_ovie()) {
-        int waittime = (this->channel < 2)
-            ? get_waittime_for(interrupt_t::TOVI0_TOVI1)
-            : get_waittime_for(interrupt_t::TOVI2_TOVI3);
+        static interrupt_t table[]= { TOVI0_TOVI1, TOVI2_TOVI3 };
+        int waittime = get_waittime_for(table[this->channel / 2]);
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::TOVI0_TOVI1);
     }
 }

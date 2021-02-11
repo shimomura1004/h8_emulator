@@ -48,13 +48,13 @@ class MCU {
     SCI** sci;
 
     // 8ビットタイマ
-    Timer8 *timer8_01;
+    Timer8 *timer8;
 
     // メモリへの読み書きが競合しないようにする
     std::mutex mutex;
 
 public:
-    MCU(SCI** sci, Timer8 *timer8_01, std::mutex& mutex);
+    MCU(SCI** sci, Timer8 *timer8, std::mutex& mutex);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

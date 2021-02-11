@@ -17,9 +17,9 @@
 #endif
 #endif
 
-MCU::MCU(SCI** sci, Timer8* timer8_01, std::mutex& mutex)
+MCU::MCU(SCI** sci, Timer8* timer8, std::mutex& mutex)
     : sci(sci)
-    , timer8_01(timer8_01)
+    , timer8(timer8)
 {}
 
 uint8_t MCU::read8(uint32_t address)
@@ -32,7 +32,9 @@ uint8_t MCU::read8(uint32_t address)
         std::lock_guard<std::mutex> lock(mutex);
         return ram[address - ram_start];
     } else if (timer01_start <= address && address <= timer01_end) {
-        return timer8_01->read8(address - timer01_start);
+        return timer8->read8(address - timer01_start, 0);
+    } else if (timer23_start <= address && address <= timer23_end) {
+        return timer8->read8(address - timer23_start, 1);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         return sci[0]->read(address - sci0_start);
@@ -54,7 +56,9 @@ uint16_t MCU::read16(uint32_t address)
         std::lock_guard<std::mutex> lock(mutex);
         return bswap16_if_little_endian(*(uint16_t*)&ram[address - ram_start]);
     } else if (timer01_start <= address && address <= timer01_end) {
-        return this->timer8_01->read16(address - timer01_start);
+        return this->timer8->read16(address - timer01_start, 0);
+    } else if (timer23_start <= address && address <= timer23_end) {
+        return this->timer8->read16(address - timer23_start, 1);
     } else {
         fprintf(stderr, "Error: Invalid read(16) access to 0x%06x\n", address);
         return 0;
@@ -80,7 +84,9 @@ void MCU::write8(uint32_t address, uint8_t value)
         std::lock_guard<std::mutex> lock(mutex);
         ram[address - ram_start] = value;
     } else if (timer01_start <= address && address <= timer01_end) {
-        timer8_01->write8(address - timer01_start, value);
+        timer8->write8(address - timer01_start, value, 0);
+    } else if (timer23_start <= address && address <= timer23_end) {
+        timer8->write8(address - timer23_start, value, 1);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         sci[0]->write(address - sci0_start, value);
@@ -98,7 +104,9 @@ void MCU::write16(uint32_t address, uint16_t value)
     if (ram_start <= address && address <= ram_end) {
         *(uint16_t*)&ram[address - ram_start] = bswap16_if_little_endian(value);
     } else if (timer01_start <= address && address <= timer01_end) {
-        timer8_01->write16(address - timer01_start, value);
+        timer8->write16(address - timer01_start, value, 0);
+    } else if (timer23_start <= address && address <= timer23_end) {
+        timer8->write16(address - timer23_start, value, 1);
     } else {
         fprintf(stderr, "Error: Invalid write(16) access to 0x%06x\n", address);
     }
@@ -145,6 +153,8 @@ void MCU::dump(std::string filepath)
     for (uint32_t i = ram_end + 1; i < sci0_start; i++) {
         fputc(0, fp);
     }
+
+    // todo: タイマのダンプに対応
 
     sci[0]->dump(fp);
     sci[1]->dump(fp);
