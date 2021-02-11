@@ -27,9 +27,7 @@ class TMR8 {
     bool interrupt_status[8];
     std::condition_variable& interrupt_cv;
 
-    double get_waittime_for_CMIA();
-    double get_waittime_for_CMIB();
-    double get_waittime_for_TOVI();
+    double get_waittime_for(interrupt_t type);
 
     void loop(uint8_t index, int waittime, interrupt_t interrupt_type);
     void update_timer();
@@ -41,11 +39,11 @@ public:
     interrupt_t getInterrupt();
     bool clearInterrupt(interrupt_t type);
 
-    uint8_t get_tcr()   { return this->tcr.get_raw(); }
-    uint8_t get_tcsr()  { return this->tcsr.get_raw(); }
-    uint8_t get_tcora() { return this->tcora; }
-    uint8_t get_tcorb() { return this->tcorb; }
-    uint8_t get_tcnt()  { return this->tcnt; }
+    uint8_t get_tcr();
+    uint8_t get_tcsr();
+    uint8_t get_tcora();
+    uint8_t get_tcorb();
+    uint8_t get_tcnt();
 
     void set_tcr(uint8_t value);
     void set_tcsr(uint8_t value);

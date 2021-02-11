@@ -1,5 +1,6 @@
 #include "tcsr.h"
 
+#define H8_3069F_TMR_TCSR_OIS         (0b00001111)
 #define H8_3069F_TMR_TCSR_OS_NOACT    (0<<0)
 #define H8_3069F_TMR_TCSR_OIS_NOACT   (0<<2)
 #define H8_3069F_TMR_TCSR_ADTE        (1<<4)
@@ -15,7 +16,6 @@ uint8_t TCSR::get_raw()
 
 void TCSR::set_raw(uint8_t value)
 {
-    // todo: ビットごとに確認しつつ更新
     this->reg = value;
 }
 
@@ -41,7 +41,7 @@ bool TCSR::get_tcsr_adte_ice()
 
 uint8_t TCSR::get_tcsr_ois()
 {
-    return this->reg & 0b00001111;
+    return this->reg & H8_3069F_TMR_TCSR_OIS;
 }
 
 void TCSR::set_tcsr_cmfb(bool b)
