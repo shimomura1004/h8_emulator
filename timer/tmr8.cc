@@ -257,9 +257,6 @@ bool TMR8::clearInterrupt(interrupt_t type)
             if (this->interrupt_request_flags[i]) {
                 this->interrupt_request_flags[i] = false;
                 return true;
-            } else {
-                fprintf(stderr, "Error: TMR8 does not generate interruption(%d)\n", type);
-                return false;
             }
         }
     }
