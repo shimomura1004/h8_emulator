@@ -13,7 +13,6 @@ class Timer8 {
 
 public:
     Timer8(std::condition_variable& interrupt_cv);
-    void run();
 
     interrupt_t getInterrupt();
     void clearInterrupt(interrupt_t type);

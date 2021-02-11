@@ -1,12 +1,6 @@
 #include "timer8.h"
 
 Timer8::Timer8(std::condition_variable& interrupt_cv)
-    : tmr8_0(interrupt_cv)
-{
-}
-
-// todo: run は不要
-void Timer8::run()
 {
 }
 
