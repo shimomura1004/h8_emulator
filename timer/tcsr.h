@@ -7,7 +7,7 @@ class TCSR {
     uint8_t reg;
 
 public:
-    TCSR() : reg(0xff) {}
+    TCSR(uint8_t channel) : reg(channel != 2 ? 0x00 : 0x10) {}
 
     uint8_t get_raw();
     void set_raw(uint8_t value);

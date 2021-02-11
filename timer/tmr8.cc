@@ -161,6 +161,7 @@ void TMR8::update_timer() {
 // todo: 8TCSR2 は 0x10 にクリアしなければいけない
 TMR8::TMR8(uint8_t channel, TMR8& sub_timer, std::condition_variable& interrupt_cv)
     : sub_timer(sub_timer)
+    , tcsr(channel)
     , tcora(0xff)
     , tcorb(0xff)
     , tcnt(0x00)
