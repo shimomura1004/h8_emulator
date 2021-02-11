@@ -4,16 +4,16 @@
 #include "operation_map_7Ex.h"
 #include "operation_map_7Fx.h"
 
-#include "../instructions/mov.h"
-#include "../instructions/and.h"
-#include "../instructions/add.h"
-#include "../instructions/sub.h"
-#include "../instructions/cmp.h"
-#include "../instructions/bclr.h"
-#include "../instructions/btst.h"
-#include "../instructions/bset.h"
-#include "../instructions/or.h"
-#include "../instructions/bld.h"
+#include "instructions/mov.h"
+#include "instructions/and.h"
+#include "instructions/add.h"
+#include "instructions/sub.h"
+#include "instructions/cmp.h"
+#include "instructions/bclr.h"
+#include "instructions/btst.h"
+#include "instructions/bset.h"
+#include "instructions/or.h"
+#include "instructions/bld.h"
 
 instruction_handler_t lookup_7x(H8300H *h8300h)
 {

@@ -1,10 +1,10 @@
 #include "operation_map_5x.h"
-#include "../instructions/jsr.h"
-#include "../instructions/rts.h"
-#include "../instructions/bcc.h"
-#include "../instructions/rte.h"
-#include "../instructions/trapa.h"
-#include "../instructions/jmp.h"
+#include "instructions/jsr.h"
+#include "instructions/rts.h"
+#include "instructions/bcc.h"
+#include "instructions/rte.h"
+#include "instructions/trapa.h"
+#include "instructions/jmp.h"
 
 instruction_handler_t lookup_58(H8300H *h8)
 {

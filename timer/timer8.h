@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <condition_variable>
-#include "../interrupt/interrupt_type.h"
+#include "interrupt/interrupt_type.h"
 #include "tmr8.h"
 
 // 8ビットタイマ4つ分

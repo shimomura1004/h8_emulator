@@ -1,5 +1,5 @@
 #include "operation_map_4x.h"
-#include "../instructions/bcc.h"
+#include "instructions/bcc.h"
 
 instruction_handler_t lookup_4x(H8300H *h8300h)
 {

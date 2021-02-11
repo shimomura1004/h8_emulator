@@ -1,5 +1,5 @@
 #include "operation_map_6x.h"
-#include "../instructions/mov.h"
+#include "instructions/mov.h"
 
 instruction_handler_t lookup_67(H8300H* h8300h)
 {

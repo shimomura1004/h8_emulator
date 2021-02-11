@@ -1,7 +1,7 @@
 #ifndef _OPERATION_MAP_INCLUDED_
 #define _OPERATION_MAP_INCLUDED_
 
-#include "../h8300h.h"
+#include "h8300h.h"
 
 typedef int(*instruction_handler_t)(H8300H*);
 

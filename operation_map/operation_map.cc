@@ -6,12 +6,12 @@
 #include "operation_map_6x.h"
 #include "operation_map_7x.h"
 
-#include "../instructions/mov.h"
-#include "../instructions/cmp.h"
-#include "../instructions/and.h"
-#include "../instructions/add.h"
-#include "../instructions/xor.h"
-#include "../instructions/or.h"
+#include "instructions/mov.h"
+#include "instructions/cmp.h"
+#include "instructions/and.h"
+#include "instructions/add.h"
+#include "instructions/xor.h"
+#include "instructions/or.h"
 
 instruction_handler_t OperationMap::lookup(H8300H* h8300h)
 {

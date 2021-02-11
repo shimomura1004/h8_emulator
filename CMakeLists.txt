@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 
+project(h8300h CXX)
+include_directories(${h8300h_SOURCE_DIR})
+
 add_definitions("-Wall -I. -std=c++11 -pthread -g")
 
 add_subdirectory(sci)

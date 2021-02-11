@@ -1,5 +1,5 @@
 #include "operation_map_7Dx.h"
-#include "../instructions/bset.h"
+#include "instructions/bset.h"
 
 instruction_handler_t lookup_7Dr067x(H8300H* h8300h)
 {

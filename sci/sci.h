@@ -5,7 +5,7 @@
 #include <thread>
 #include <mutex>
 #include <queue>
-#include "../interrupt/interrupt_type.h"
+#include "interrupt/interrupt_type.h"
 #include "sci_register.h"
 
 class SCI {

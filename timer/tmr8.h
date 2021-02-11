@@ -8,7 +8,7 @@
 #include "./common.h"
 #include "tcr.h"
 #include "tcsr.h"
-#include "../interrupt/interrupt_type.h"
+#include "interrupt/interrupt_type.h"
 
 // 8ビットタイマ
 class TMR8 {
