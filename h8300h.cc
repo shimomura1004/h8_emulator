@@ -145,7 +145,7 @@ bool H8300H::handle_interrupt()
     }
 
     if (type != interrupt_t::NONE) {
-        // 割込みフラグをクリア
+        // 割込み要求フラグをクリア
         interrupt_controller.clear(type);
 
         // CCR と PC を退避

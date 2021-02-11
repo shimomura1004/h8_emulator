@@ -1,5 +1,9 @@
 #include "tmr8.h"
 
+// todo: クリアフラグへの対応
+// todo: 割込み許可フラグへの対応
+
+// todo: 並び替え(cmfa, cmfb, ovf)
 const interrupt_t TMR8::interrupts[] = {
     interrupt_t::CMIA0,
     interrupt_t::CMIB0,
@@ -111,28 +115,91 @@ double TMR8::get_waittime_for(interrupt_t type)
     }
 }
 
-void TMR8::loop(uint8_t index, int waittime, interrupt_t interrupt_type) {
+void TMR8::loop(uint8_t index, int waittime, interrupt_t type) {
     while (1) {
         std::this_thread::sleep_for(std::chrono::milliseconds(waittime));
         if (this->valid_clock_id != index) {
             break;
         }
 
-        // todo: interrupts_status ではなく TCSR にビットをセット
-        this->interrupt_status[interrupt_type - interrupt_t::CMIA0] = true;
-        this->set_interrupt(interrupt_type);
+        this->set_interrupt(type);
         interrupt_cv.notify_all();
     }
 }
 
-void TMR8::set_interrupt(interrupt_t interrupt_type)
+void TMR8::set_interrupt(interrupt_t type)
 {
-    if (interrupt_type == interrupt_t::CMIA0) {
-        this->tcsr.set_tcsr_cmfa(true);
-    } else if (interrupt_type == interrupt_t::CMIB0) {
-        this->tcsr.set_tcsr_cmfb(true);
-    } else if (interrupt_type == interrupt_t::TOVI0_TOVI1) {
-        this->tcsr.set_tcsr_ovf(true);
+    switch (type) {
+    case interrupt_t::CMIA0:
+        if (this->channel == 0) {
+            this->tcsr.set_tcsr_cmfa(true);
+            // todo: magic number をやめる
+            this->interrupt_status[0] = true;
+        } else {
+            fprintf(stderr, "Error: CMIA0 isn't supported with TMR%d\n", this->channel);
+        }
+        break;
+    case interrupt_t::CMIB0:
+        if (this->channel == 0) {
+            this->tcsr.set_tcsr_cmfb(true);
+            this->interrupt_status[1] = true;
+        } else {
+            fprintf(stderr, "Error: CMIB0 isn't supported with TMR%d\n", this->channel);
+        }
+        break;
+    case interrupt_t::CMIA1_CMIB1:
+        if (this->channel == 1) {
+            // todo: 現状、CMFA1 に固定している
+            this->tcsr.set_tcsr_cmfa(true);
+            this->interrupt_status[2] = true;
+        } else {
+            fprintf(stderr, "Error: CMIA1/CMIB1 isn't supported with TMR%d\n", this->channel);
+        }
+        break;
+    case interrupt_t::TOVI0_TOVI1:
+        if (this->channel < 2) {
+            this->tcsr.set_tcsr_ovf(true);
+            this->interrupt_status[3] = true;
+        } else {
+            fprintf(stderr, "Error: TOVI0/TOVI1 isn't supported with TMR%d\n", this->channel);
+        }
+        break;
+    case interrupt_t::CMIA2:
+        if (this->channel == 2) {
+            this->tcsr.set_tcsr_cmfa(true);
+            this->interrupt_status[4] = true;
+        } else {
+            fprintf(stderr, "Error: CMIA2 isn't supported with TMR%d\n", this->channel);
+        }
+        break;
+    case interrupt_t::CMIB2:
+        if (this->channel == 2) {
+            this->tcsr.set_tcsr_cmfb(true);
+            this->interrupt_status[5] = true;
+        } else {
+            fprintf(stderr, "Error: CMIB2 isn't supported with TMR%d\n", this->channel);
+        }
+        break;
+    case interrupt_t::CMIA3_CMIB3:
+        if (this->channel == 3) {
+            // todo: 現状、CMFA3 に固定している
+            this->tcsr.set_tcsr_cmfa(true);
+            this->interrupt_status[6] = true;
+        } else {
+            fprintf(stderr, "Error: CMIA3/CMIB3 isn't supported with TMR%d\n", this->channel);
+        }
+        break;
+    case interrupt_t::TOVI2_TOVI3:
+        if (this->channel == 2 || this->channel == 3) {
+            this->tcsr.set_tcsr_ovf(true);
+            this->interrupt_status[7] = true;
+        } else {
+            fprintf(stderr, "Error: TOVI2/TOVI3 isn't supported with TMR%d\n", this->channel);
+        }
+        break;
+    default:
+        fprintf(stderr, "Error: Unsupported interruption (%d)\n", type);
+        break;
     }
 }
 
@@ -141,26 +208,30 @@ void TMR8::update_timer() {
     // 過去のタイマを失効させる
     this->valid_clock_id++;
 
+    // todo: 割込みは発生しなくてもカウンタは動作すべき(cmiea などを確認する必要なし)
     // 有効にされた割込みに応じて複数のタイマを起動
     if (this->tcr.get_tcr_cmieb()) {
         static interrupt_t table[] = { CMIB0, CMIA1_CMIB1, CMIB2, CMIA3_CMIB3 };
         int waittime = get_waittime_for(table[this->channel]);
-        new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::CMIB0);
+printf("CMB waittime=%d channel=%d\n", waittime, this->channel);
+        new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, table[this->channel]);
     }
 
     if (this->tcr.get_tcr_cmiea()) {
         static interrupt_t table[] = { CMIA0, CMIA1_CMIB1, CMIA2, CMIA3_CMIB3 };
         int waittime = get_waittime_for(table[this->channel]);
-        new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::CMIA0);
+printf("CMA waittime=%d channel=%d\n", waittime, this->channel);
+        new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, table[this->channel]);
     }
+
     if (this->tcr.get_tcr_ovie()) {
         static interrupt_t table[]= { TOVI0_TOVI1, TOVI2_TOVI3 };
         int waittime = get_waittime_for(table[this->channel / 2]);
-        new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::TOVI0_TOVI1);
+printf("OVF waittime=%d channel=%d\n", waittime, this->channel);
+        new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, table[this->channel / 2]);
     }
 }
 
-// todo: 8TCSR2 は 0x10 にクリアしなければいけない
 TMR8::TMR8(uint8_t channel, TMR8& sub_timer, std::condition_variable& interrupt_cv)
     : sub_timer(sub_timer)
     , tcsr(channel)
@@ -180,8 +251,29 @@ interrupt_t TMR8::getInterrupt()
             return this->interrupts[i];
         }
     }
+    // if (this->tcsr.get_tcsr_cmfa()) {
+    //     static interrupt_t table[] = { CMIA0, CMIA1_CMIB1, CMIA2, CMIA3_CMIB3 };
+    //     if (this->tcr.get_tcr_cmiea()) {
+    //         printf("have interrupt %d\n", table[this->channel]);
+    //         return table[this->channel];
+    //     }
+    // }
 
-    return interrupt_t::NONE;
+    // if (this->tcsr.get_tcsr_cmfb()) {
+    //     static interrupt_t table[] = { CMIB0, CMIA1_CMIB1, CMIB2, CMIA3_CMIB3 };
+    //     if (this->tcr.get_tcr_cmieb()) {
+    //         return table[this->channel];
+    //     }
+    // }
+
+    // if (this->tcsr.get_tcsr_ovf()) {
+    //     static interrupt_t table[] = { TOVI0_TOVI1, TOVI2_TOVI3 };
+    //     if (this->tcr.get_tcr_ovie()){
+    //         return table[this->channel / 2];
+    //     }
+    // }
+
+    // return interrupt_t::NONE;
 }
 
 bool TMR8::clearInterrupt(interrupt_t type)
@@ -199,6 +291,61 @@ bool TMR8::clearInterrupt(interrupt_t type)
     }
 
     return false;
+    // switch (type) {
+    // case interrupt_t::CMIA0:
+    //     if (this->channel == 0 && this->tcsr.get_tcsr_cmfa()) {
+    //         this->tcsr.set_tcsr_cmfa(false);
+    //         return true;
+    //     }
+    //     return false;
+    // case interrupt_t::CMIB0:
+    //     if (this->channel == 0 && this->tcsr.get_tcsr_cmfb()) {
+    //         this->tcsr.set_tcsr_cmfb(false);
+    //         return true;
+    //     }
+    //     return false;
+    // case interrupt_t::CMIA1_CMIB1:
+    //     if (this->channel == 1 && (this->tcsr.get_tcsr_cmfa() || this->tcsr.get_tcsr_cmfb())) {
+    //         this->tcsr.set_tcsr_cmfa(false);
+    //         this->tcsr.set_tcsr_cmfb(false);
+    //         return true;
+    //     }
+    //     return false;
+    // case interrupt_t::TOVI0_TOVI1:
+    //     if (this->channel < 2 && this->tcsr.get_tcsr_ovf()) {
+    //         this->tcsr.set_tcsr_ovf(false);
+    //         return true;
+    //     }
+    //     return false;
+    // case interrupt_t::CMIA2:
+    //     if (this->channel == 2 && this->tcsr.get_tcsr_cmfa()) {
+    //         this->tcsr.set_tcsr_cmfa(false);
+    //         return true;
+    //     }
+    //     return false;
+    // case interrupt_t::CMIB2:
+    //     if (this->channel == 2 && this->tcsr.get_tcsr_cmfb()) {
+    //         this->tcsr.set_tcsr_cmfb(false);
+    //         return true;
+    //     }
+    //     return false;
+    // case interrupt_t::CMIA3_CMIB3:
+    //     if (this->channel == 3 && (this->tcsr.get_tcsr_cmfa() || this->tcsr.get_tcsr_cmfb())) {
+    //         this->tcsr.set_tcsr_cmfa(false);
+    //         this->tcsr.set_tcsr_cmfb(false);
+    //         return true;
+    //     }
+    //     return false;
+    // case interrupt_t::TOVI2_TOVI3:
+    //     if (this->channel >= 2 && this->tcsr.get_tcsr_ovf()) {
+    //         this->tcsr.set_tcsr_ovf(false);
+    //         return true;
+    //     }
+    //     return false;
+    // default:
+    //     fprintf(stderr, "Error: TMR8 does not generate interruption(%d)\n", type);
+    //     return false;
+    // }
 }
 
 uint8_t TMR8::get_tcr()
@@ -228,6 +375,7 @@ uint8_t TMR8::get_tcnt()
 
 void TMR8::set_tcr(uint8_t value) {
     this->tcr.set_raw(value);
+    // todo: ウェイトをリセットしなければいけないときだけ update する
     update_timer();
 }
 
