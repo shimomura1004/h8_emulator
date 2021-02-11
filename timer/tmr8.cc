@@ -11,48 +11,117 @@ const interrupt_t TMR8::interrupts[] = {
     interrupt_t::TOVI2_TOVI3,
 };
 
-void TMR8::set_tcsr_cmfb(bool b)
-{
-    if (b) {
-        this->tcsr |= 0b10000000;
-    } else {
-        this->tcsr &= 0b01111111;
-    }
-}
-
-void TMR8::set_tcsr_cmfa(bool b)
-{
-    if (b) {
-        this->tcsr |= 0b01000000;
-    } else {
-        this->tcsr &= 0b10111111;
-    }
-}
-
-void TMR8::set_tcsr_ovf(bool b)
-{
-    if (b) {
-        this->tcsr |= 0b00100000;
-    } else {
-        this->tcsr &= 0b11011111;
-    }
-}
-
+// todo: get_waittime_* は統一できる
 // todo: tcora のほうが大きい場合は予期せぬ動作となる
 double TMR8::get_waittime_for_CMIA() {
-    // todo: とりあえずダミーで1000ミリ秒を返す
-    return 1000;
+    // // todo: とりあえずダミーで1000ミリ秒を返す
+    // return 1000;
 
-    // todo: カスケードなので TMR1 の情報も必要
-    return periods[this->clock_kind] * (this->tcora - this->tcnt);
+    uint8_t cks = this->tcr.get_tcr_cks();
+    switch (cks) {
+    case 0: // クロック入力を禁止
+        return -1;
+    case 1: // φ / 8 でカウントし、TCORA と一致したら割込み
+        return periods[CLOCK_KIND::DIV8] * this->tcora;
+    case 2: // φ / 64 でカウント
+        return periods[CLOCK_KIND::DIV64] * this->tcora;
+    case 3: // φ / 8192 でカウント
+        return periods[CLOCK_KIND::DIV8192] * this->tcora;
+    case 4:
+        switch (this->channel) {
+        case 0: // 8TCNT1 のオーバーフローでカウント
+            return this->sub_timer.get_waittime_for_TOVI() * this->tcora;
+        case 1: // 8TCNT0 のコンペアマッチ A でカウント
+            return this->sub_timer.get_waittime_for_CMIA() * this->tcora;
+        case 2: // 8TCNT3 のオーバーフローでカウント
+            return this->sub_timer.get_waittime_for_TOVI() * this->tcora;
+        case 3: // 8TCNT2 のコンペアマッチ A でカウント
+            return this->sub_timer.get_waittime_for_CMIA() * this->tcora;
+        default:
+            fprintf(stderr, "Error: Invalid channel (%d)\n", this->channel);
+            return -1;
+        }
+    case 5: // 外部クロック
+    case 6: // 外部クロック
+    case 7: // 外部クロック
+        fprintf(stderr, "Error: External clock is not supported.\n");
+        return -1;
+    default:
+        fprintf(stderr, "Error: Invalid cks (%d)\n", cks);
+        return -1;
+    }
 }
 
 double TMR8::get_waittime_for_CMIB() {
-    return periods[this->clock_kind] * (this->tcorb - this->tcnt);
+    uint8_t cks = this->tcr.get_tcr_cks();
+    switch (cks) {
+    case 0: // クロック入力を禁止
+        return -1;
+    case 1: // φ / 8 でカウントし、TCORB と一致したら割込み
+        return periods[CLOCK_KIND::DIV8] * this->tcorb;
+    case 2: // φ / 64 でカウント
+        return periods[CLOCK_KIND::DIV64] * this->tcorb;
+    case 3: // φ / 8192 でカウント
+        return periods[CLOCK_KIND::DIV8192] * this->tcorb;
+    case 4:
+        switch (this->channel) {
+        case 0: // 8TCNT1 のオーバーフローでカウント
+            return this->sub_timer.get_waittime_for_TOVI() * this->tcorb;
+        case 1: // 8TCNT0 のコンペアマッチ A でカウント
+            return this->sub_timer.get_waittime_for_CMIA() * this->tcorb;
+        case 2: // 8TCNT3 のオーバーフローでカウント
+            return this->sub_timer.get_waittime_for_TOVI() * this->tcorb;
+        case 3: // 8TCNT2 のコンペアマッチ A でカウント
+            return this->sub_timer.get_waittime_for_CMIA() * this->tcorb;
+        default:
+            fprintf(stderr, "Error: Invalid channel (%d)\n", this->channel);
+            return -1;
+        }
+    case 5: // 外部クロック
+    case 6: // 外部クロック
+    case 7: // 外部クロック
+        fprintf(stderr, "Error: External clock is not supported.\n");
+        return -1;
+    default:
+        fprintf(stderr, "Error: Invalid cks (%d)\n", cks);
+        return -1;
+    }
 }
 
 double TMR8::get_waittime_for_TOVI() {
-    return periods[this->clock_kind] * (0xff - this->tcnt);
+    uint8_t cks = this->tcr.get_tcr_cks();
+    switch (cks) {
+    case 0: // クロック入力を禁止
+        return -1;
+    case 1: // φ / 8 でカウントし、TCORA と一致したら割込み
+        return periods[CLOCK_KIND::DIV8] * 0xff;
+    case 2: // φ / 64 でカウント
+        return periods[CLOCK_KIND::DIV64] * 0xff;
+    case 3: // φ / 8192 でカウント
+        return periods[CLOCK_KIND::DIV8192] * 0xff;
+    case 4:
+        switch (this->channel) {
+        case 0: // 8TCNT1 のオーバーフローでカウント
+            return this->sub_timer.get_waittime_for_TOVI() * 0xff;
+        case 1: // 8TCNT0 のコンペアマッチ A でカウント
+            return this->sub_timer.get_waittime_for_CMIA() * 0xff;
+        case 2: // 8TCNT3 のオーバーフローでカウント
+            return this->sub_timer.get_waittime_for_TOVI() * 0xff;
+        case 3: // 8TCNT2 のコンペアマッチ A でカウント
+            return this->sub_timer.get_waittime_for_CMIA() * 0xff;
+        default:
+            fprintf(stderr, "Error: Invalid channel (%d)\n", this->channel);
+            return -1;
+        }
+    case 5: // 外部クロック
+    case 6: // 外部クロック
+    case 7: // 外部クロック
+        fprintf(stderr, "Error: External clock is not supported.\n");
+        return -1;
+    default:
+        fprintf(stderr, "Error: Invalid cks (%d)\n", cks);
+        return -1;
+    }
 }
 
 void TMR8::loop(uint8_t index, int waittime, interrupt_t interrupt_type) {
@@ -72,11 +141,11 @@ void TMR8::loop(uint8_t index, int waittime, interrupt_t interrupt_type) {
 void TMR8::set_interrupt(interrupt_t interrupt_type)
 {
     if (interrupt_type == interrupt_t::CMIA0) {
-        this->set_tcsr_cmfa(true);
+        this->tcsr.set_tcsr_cmfa(true);
     } else if (interrupt_type == interrupt_t::CMIB0) {
-        this->set_tcsr_cmfb(true);
+        this->tcsr.set_tcsr_cmfb(true);
     } else if (interrupt_type == interrupt_t::TOVI0_TOVI1) {
-        this->set_tcsr_ovf(true);
+        this->tcsr.set_tcsr_ovf(true);
     }
 }
 
@@ -86,28 +155,27 @@ void TMR8::update_timer() {
     this->valid_clock_id++;
 
     // 有効にされた割込みに応じて複数のタイマを起動
-    if (this->get_tcr_cmieb()) {
+    if (this->tcr.get_tcr_cmieb()) {
         int waittime = get_waittime_for_CMIB();
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::CMIB0);
     }
-    if (this->get_tcr_cmiea()) {
+    if (this->tcr.get_tcr_cmiea()) {
         int waittime = get_waittime_for_CMIA();
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::CMIA0);
     }
-    if (this->get_tcr_ovie()) {
+    if (this->tcr.get_tcr_ovie()) {
         int waittime = get_waittime_for_TOVI();
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, interrupt_t::TOVI0_TOVI1);
     }
 }
 
 // todo: 8TCSR2 は 0x10 にクリアしなければいけない
-TMR8::TMR8(std::condition_variable& interrupt_cv)
-    : tcr(0x00)
-    , tcsr(0xff)
+TMR8::TMR8(uint8_t channel, TMR8& sub_timer, std::condition_variable& interrupt_cv)
+    : sub_timer(sub_timer)
     , tcora(0xff)
     , tcorb(0xff)
     , tcnt(0x00)
-    , clock_kind(CLOCK_KIND::ORIG)
+    , channel(channel)
     , valid_clock_id(0)
     , interrupt_status{false, false, false, false, false, false, false, false}
     , interrupt_cv(interrupt_cv)
@@ -124,26 +192,30 @@ interrupt_t TMR8::getInterrupt()
     return interrupt_t::NONE;
 }
 
-void TMR8::clearInterrupt(interrupt_t type)
+bool TMR8::clearInterrupt(interrupt_t type)
 {
     for (int i = 0; i < sizeof(this->interrupt_status); i++) {
         if (type == this->interrupts[i]) {
             if (this->interrupt_status[i]) {
                 this->interrupt_status[i] = false;
+                return true;
             } else {
                 fprintf(stderr, "Error: TMR8 does not generate interruption(%d)\n", type);
+                return false;
             }
         }
     }
+
+    return false;
 }
 
 void TMR8::set_tcr(uint8_t value) {
-    this->tcr = value;
+    this->tcr.set_raw(value);
     update_timer();
 }
 
 void TMR8::set_tcsr(uint8_t value) {
-    this->tcsr = value;
+    this->tcsr.set_raw(value);
     update_timer();
 }
 

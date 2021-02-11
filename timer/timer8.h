@@ -9,7 +9,9 @@
 // 8ビットタイマ2つ分
 // todo: 4つ分にする
 class Timer8 {
+    // todo: 配列にできるか？
     TMR8 tmr8_0;
+    TMR8 tmr8_1;
 
 public:
     Timer8(std::condition_variable& interrupt_cv);

@@ -3,4 +3,6 @@ add_library(timer STATIC
     common.cc
     timer8.cc
     tmr8.cc
+    tcr.cc
+    tcsr.cc
 )
