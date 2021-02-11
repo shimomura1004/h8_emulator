@@ -132,7 +132,7 @@ void TMR8::set_interrupt(interrupt_t type)
         if (this->channel == 0) {
             this->tcsr.set_tcsr_cmfa(true);
             // todo: magic number をやめる
-            this->interrupt_status[0] = true;
+            this->interrupt_request_flags[0] = true;
         } else {
             fprintf(stderr, "Error: CMIA0 isn't supported with TMR%d\n", this->channel);
         }
@@ -140,7 +140,7 @@ void TMR8::set_interrupt(interrupt_t type)
     case interrupt_t::CMIB0:
         if (this->channel == 0) {
             this->tcsr.set_tcsr_cmfb(true);
-            this->interrupt_status[1] = true;
+            this->interrupt_request_flags[1] = true;
         } else {
             fprintf(stderr, "Error: CMIB0 isn't supported with TMR%d\n", this->channel);
         }
@@ -149,7 +149,7 @@ void TMR8::set_interrupt(interrupt_t type)
         if (this->channel == 1) {
             // todo: 現状、CMFA1 に固定している
             this->tcsr.set_tcsr_cmfa(true);
-            this->interrupt_status[2] = true;
+            this->interrupt_request_flags[2] = true;
         } else {
             fprintf(stderr, "Error: CMIA1/CMIB1 isn't supported with TMR%d\n", this->channel);
         }
@@ -157,7 +157,7 @@ void TMR8::set_interrupt(interrupt_t type)
     case interrupt_t::TOVI0_TOVI1:
         if (this->channel < 2) {
             this->tcsr.set_tcsr_ovf(true);
-            this->interrupt_status[3] = true;
+            this->interrupt_request_flags[3] = true;
         } else {
             fprintf(stderr, "Error: TOVI0/TOVI1 isn't supported with TMR%d\n", this->channel);
         }
@@ -165,7 +165,7 @@ void TMR8::set_interrupt(interrupt_t type)
     case interrupt_t::CMIA2:
         if (this->channel == 2) {
             this->tcsr.set_tcsr_cmfa(true);
-            this->interrupt_status[4] = true;
+            this->interrupt_request_flags[4] = true;
         } else {
             fprintf(stderr, "Error: CMIA2 isn't supported with TMR%d\n", this->channel);
         }
@@ -173,7 +173,7 @@ void TMR8::set_interrupt(interrupt_t type)
     case interrupt_t::CMIB2:
         if (this->channel == 2) {
             this->tcsr.set_tcsr_cmfb(true);
-            this->interrupt_status[5] = true;
+            this->interrupt_request_flags[5] = true;
         } else {
             fprintf(stderr, "Error: CMIB2 isn't supported with TMR%d\n", this->channel);
         }
@@ -182,7 +182,7 @@ void TMR8::set_interrupt(interrupt_t type)
         if (this->channel == 3) {
             // todo: 現状、CMFA3 に固定している
             this->tcsr.set_tcsr_cmfa(true);
-            this->interrupt_status[6] = true;
+            this->interrupt_request_flags[6] = true;
         } else {
             fprintf(stderr, "Error: CMIA3/CMIB3 isn't supported with TMR%d\n", this->channel);
         }
@@ -190,7 +190,7 @@ void TMR8::set_interrupt(interrupt_t type)
     case interrupt_t::TOVI2_TOVI3:
         if (this->channel == 2 || this->channel == 3) {
             this->tcsr.set_tcsr_ovf(true);
-            this->interrupt_status[7] = true;
+            this->interrupt_request_flags[7] = true;
         } else {
             fprintf(stderr, "Error: TOVI2/TOVI3 isn't supported with TMR%d\n", this->channel);
         }
@@ -235,14 +235,14 @@ TMR8::TMR8(uint8_t channel, TMR8& sub_timer, std::condition_variable& interrupt_
     , tcnt(0x00)
     , channel(channel)
     , valid_clock_id(0)
-    , interrupt_status{false, false, false, false, false, false, false, false}
+    , interrupt_request_flags{false, false, false, false, false, false, false, false}
     , interrupt_cv(interrupt_cv)
 {}
 
 interrupt_t TMR8::getInterrupt()
 {
-    for (int i = 0; i < sizeof(this->interrupt_status); i++) {
-        if (this->interrupt_status[i]) {
+    for (int i = 0; i < sizeof(this->interrupt_request_flags); i++) {
+        if (this->interrupt_request_flags[i]) {
             return this->interrupts[i];
         }
     }
@@ -252,10 +252,10 @@ interrupt_t TMR8::getInterrupt()
 
 bool TMR8::clearInterrupt(interrupt_t type)
 {
-    for (int i = 0; i < sizeof(this->interrupt_status); i++) {
+    for (int i = 0; i < sizeof(this->interrupt_request_flags); i++) {
         if (type == this->interrupts[i]) {
-            if (this->interrupt_status[i]) {
-                this->interrupt_status[i] = false;
+            if (this->interrupt_request_flags[i]) {
+                this->interrupt_request_flags[i] = false;
                 return true;
             } else {
                 fprintf(stderr, "Error: TMR8 does not generate interruption(%d)\n", type);

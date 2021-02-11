@@ -24,7 +24,7 @@ class TMR8 {
     uint8_t channel;
 
     uint8_t valid_clock_id;
-    bool interrupt_status[8];
+    bool interrupt_request_flags[8];
     std::condition_variable& interrupt_cv;
 
     uint8_t get_count_for(interrupt_t type);
