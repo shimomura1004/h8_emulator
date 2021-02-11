@@ -31,7 +31,7 @@ int h8instructions::divxs::divxs_w(H8300H* h8)
     // 上位16ビットに剰余、下位16ビットに商を入れる
     // H8 の仕様では剰余の符号は被除数と一致するとある
     // C/C++ の剰余はこの仕様に一致するため特に処置は必要ない
-    dst.set(((int32_t)quotient << 16) | remainder);
+    dst.set((remainder << 16) | (int32_t)quotient);
 
     quotient_is_positive ? h8->ccr.clear_n() : h8->ccr.set_n();
     h8->ccr.clear_z();

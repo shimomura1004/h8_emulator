@@ -14,9 +14,6 @@ const interrupt_t TMR8::interrupts[] = {
 // todo: get_waittime_* は統一できる
 // todo: tcora のほうが大きい場合は予期せぬ動作となる
 double TMR8::get_waittime_for_CMIA() {
-    // // todo: とりあえずダミーで1000ミリ秒を返す
-    // return 1000;
-
     uint8_t cks = this->tcr.get_tcr_cks();
     switch (cks) {
     case 0: // クロック入力を禁止
