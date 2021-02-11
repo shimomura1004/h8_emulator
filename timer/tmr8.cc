@@ -1,9 +1,7 @@
 #include "tmr8.h"
 
 // todo: クリアフラグへの対応
-// todo: 割込み許可フラグへの対応
 
-// todo: 並び替え(cmfa, cmfb, ovf)
 const interrupt_t TMR8::interrupts[] = {
     interrupt_t::CMIA0,
     interrupt_t::CMIB0,
@@ -213,21 +211,18 @@ void TMR8::update_timer() {
     if (this->tcr.get_tcr_cmieb()) {
         static interrupt_t table[] = { CMIB0, CMIA1_CMIB1, CMIB2, CMIA3_CMIB3 };
         int waittime = get_waittime_for(table[this->channel]);
-printf("CMB waittime=%d channel=%d\n", waittime, this->channel);
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, table[this->channel]);
     }
 
     if (this->tcr.get_tcr_cmiea()) {
         static interrupt_t table[] = { CMIA0, CMIA1_CMIB1, CMIA2, CMIA3_CMIB3 };
         int waittime = get_waittime_for(table[this->channel]);
-printf("CMA waittime=%d channel=%d\n", waittime, this->channel);
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, table[this->channel]);
     }
 
     if (this->tcr.get_tcr_ovie()) {
         static interrupt_t table[]= { TOVI0_TOVI1, TOVI2_TOVI3 };
         int waittime = get_waittime_for(table[this->channel / 2]);
-printf("OVF waittime=%d channel=%d\n", waittime, this->channel);
         new std::thread(&TMR8::loop, this, this->valid_clock_id, waittime, table[this->channel / 2]);
     }
 }
@@ -251,29 +246,8 @@ interrupt_t TMR8::getInterrupt()
             return this->interrupts[i];
         }
     }
-    // if (this->tcsr.get_tcsr_cmfa()) {
-    //     static interrupt_t table[] = { CMIA0, CMIA1_CMIB1, CMIA2, CMIA3_CMIB3 };
-    //     if (this->tcr.get_tcr_cmiea()) {
-    //         printf("have interrupt %d\n", table[this->channel]);
-    //         return table[this->channel];
-    //     }
-    // }
 
-    // if (this->tcsr.get_tcsr_cmfb()) {
-    //     static interrupt_t table[] = { CMIB0, CMIA1_CMIB1, CMIB2, CMIA3_CMIB3 };
-    //     if (this->tcr.get_tcr_cmieb()) {
-    //         return table[this->channel];
-    //     }
-    // }
-
-    // if (this->tcsr.get_tcsr_ovf()) {
-    //     static interrupt_t table[] = { TOVI0_TOVI1, TOVI2_TOVI3 };
-    //     if (this->tcr.get_tcr_ovie()){
-    //         return table[this->channel / 2];
-    //     }
-    // }
-
-    // return interrupt_t::NONE;
+    return interrupt_t::NONE;
 }
 
 bool TMR8::clearInterrupt(interrupt_t type)
@@ -291,61 +265,6 @@ bool TMR8::clearInterrupt(interrupt_t type)
     }
 
     return false;
-    // switch (type) {
-    // case interrupt_t::CMIA0:
-    //     if (this->channel == 0 && this->tcsr.get_tcsr_cmfa()) {
-    //         this->tcsr.set_tcsr_cmfa(false);
-    //         return true;
-    //     }
-    //     return false;
-    // case interrupt_t::CMIB0:
-    //     if (this->channel == 0 && this->tcsr.get_tcsr_cmfb()) {
-    //         this->tcsr.set_tcsr_cmfb(false);
-    //         return true;
-    //     }
-    //     return false;
-    // case interrupt_t::CMIA1_CMIB1:
-    //     if (this->channel == 1 && (this->tcsr.get_tcsr_cmfa() || this->tcsr.get_tcsr_cmfb())) {
-    //         this->tcsr.set_tcsr_cmfa(false);
-    //         this->tcsr.set_tcsr_cmfb(false);
-    //         return true;
-    //     }
-    //     return false;
-    // case interrupt_t::TOVI0_TOVI1:
-    //     if (this->channel < 2 && this->tcsr.get_tcsr_ovf()) {
-    //         this->tcsr.set_tcsr_ovf(false);
-    //         return true;
-    //     }
-    //     return false;
-    // case interrupt_t::CMIA2:
-    //     if (this->channel == 2 && this->tcsr.get_tcsr_cmfa()) {
-    //         this->tcsr.set_tcsr_cmfa(false);
-    //         return true;
-    //     }
-    //     return false;
-    // case interrupt_t::CMIB2:
-    //     if (this->channel == 2 && this->tcsr.get_tcsr_cmfb()) {
-    //         this->tcsr.set_tcsr_cmfb(false);
-    //         return true;
-    //     }
-    //     return false;
-    // case interrupt_t::CMIA3_CMIB3:
-    //     if (this->channel == 3 && (this->tcsr.get_tcsr_cmfa() || this->tcsr.get_tcsr_cmfb())) {
-    //         this->tcsr.set_tcsr_cmfa(false);
-    //         this->tcsr.set_tcsr_cmfb(false);
-    //         return true;
-    //     }
-    //     return false;
-    // case interrupt_t::TOVI2_TOVI3:
-    //     if (this->channel >= 2 && this->tcsr.get_tcsr_ovf()) {
-    //         this->tcsr.set_tcsr_ovf(false);
-    //         return true;
-    //     }
-    //     return false;
-    // default:
-    //     fprintf(stderr, "Error: TMR8 does not generate interruption(%d)\n", type);
-    //     return false;
-    // }
 }
 
 uint8_t TMR8::get_tcr()
