@@ -4,7 +4,7 @@
 #include <string>
 #include <mutex>
 #include <condition_variable>
-#include "registers/register32.h"
+#include "registers/h8register.h"
 #include "registers/ccr.h"
 #include "mcu.h"
 #include "sci/sci.h"
