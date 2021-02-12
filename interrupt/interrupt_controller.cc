@@ -32,9 +32,9 @@ constexpr static uint8_t timer8_interrupt_num = sizeof(timer8_interrupts) / size
 constexpr static uint8_t sci_interrupt_num = sizeof(sci_interrupts) / sizeof(interrupt_t);
 constexpr static uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
 
-InterruptController::InterruptController(SCI** sci, Timer8* timer8_01)
+InterruptController::InterruptController(SCI** sci, Timer8* timer8)
     : sci(sci)
-    , timer8_01(timer8_01)
+    , timer8(timer8)
     , interrupt_flag(0)
 {}
 
@@ -68,7 +68,7 @@ void InterruptController::clear(interrupt_t type)
     // 内部割込み(8ビットタイマ)のクリア
     for (int i = 0; i < timer8_interrupt_num; i++) {
         if (type == timer8_interrupts[i]) {
-            timer8_01->clearInterrupt(type);
+            timer8->clearInterrupt(type);
         }
     }
 
@@ -103,8 +103,7 @@ interrupt_t InterruptController::getInterruptType()
     interrupt_t type = interrupt_t::NONE;
 
     // 8ビットタイマの確認
-    // todo: SCI と同様にタイマオブジェクトに問い合わせる
-    type = timer8_01->getInterrupt();
+    type = timer8->getInterrupt();
     if (type != interrupt_t::NONE) {
         return type;
     }
