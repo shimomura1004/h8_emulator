@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <termios.h>
 
 #define XMODEM_SOH 0x01
 #define XMODEM_STX 0x02
@@ -20,7 +21,8 @@
 
 #define LINE_BUFFER_SIZE 256
 
-#define SEND_COMMAND (":send ")
+#define KEY_TO_COMMAND_MODE ':'
+#define SEND_COMMAND ("send ")
 
 void handle_send_command(int h8_serial_sock, char* buf)
 {
@@ -94,6 +96,22 @@ void handle_send_command(int h8_serial_sock, char* buf)
     }
 }
 
+struct termios default_attribute;
+
+void set_non_canonical()
+{
+    struct termios term;
+    tcgetattr(fileno(stdin), &term);
+
+    term.c_lflag &= ~(ICANON|ECHO);
+    tcsetattr(fileno(stdin), 0, &term);
+}
+
+void set_canonical()
+{
+    tcsetattr(fileno(stdin), 0, &default_attribute);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 2) {
@@ -107,6 +125,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error: Failed to create socket.\n");
         return 1;
     }
+
+    tcgetattr(fileno(stdin), &default_attribute);
+    set_non_canonical();
 
     struct sockaddr_un sa = {0};
     sa.sun_family = AF_UNIX;
@@ -151,8 +172,19 @@ int main(int argc, char *argv[])
                 }
                 user_buf[size] = '\0';
 
+                // ":" が入力されたらコマンド入力モードに切り替え
+                if (user_buf[0] == KEY_TO_COMMAND_MODE) {
+                    set_canonical();
+                    printf("(command) ");
+                    fflush(stdout);
+                    continue;
+                }
+
                 if (strncmp(user_buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
+                    // コマンド入力モードで入力されたコマンドの処理
                     handle_send_command(h8_serial_sock, user_buf);
+                    // コマンド処理後は non-canonical モード(エコー・バッファリングなし)に戻る
+                    set_non_canonical();
                 } else {
                     // 特殊なコマンドでなければそのまま H8 に投げる
                     write(h8_serial_sock, user_buf, size);
