@@ -126,8 +126,7 @@ void SCI::run_send_to_h8() {
                 exit(1);
             }
 
-            // todo: うまく開けていない？
-            // 読み取りに失敗したら開き直してみる
+            // 読み取りに失敗したら再度ソケットを開く
             close(this->sci_socket);
             close(this->sci_sock_fd);
             if (!open_sci_socket()) {
