@@ -8,6 +8,8 @@
 #include "sci.h"
 #include "sci_register.h"
 
+// todo: たまに入力を取りこぼす
+
 const interrupt_t SCI::TXI_TABLE[3] = {
     interrupt_t::TXI0, interrupt_t::TXI1, interrupt_t::TXI2
 };
