@@ -2,8 +2,6 @@
 #include "h8300h.h"
 #include "runner.h"
 
-// todo: ヘッダの依存関係を解決するため、cmake に対応させる
-
 int main (int argc, char* argv[])
 {
     if (argc < 2) {

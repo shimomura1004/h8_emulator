@@ -101,9 +101,9 @@ H8300H::H8300H(bool use_stdio)
              Register8(reg[0],  8), Register8(reg[1],  9), Register8(reg[2], 10), Register8(reg[3], 11),
              Register8(reg[4], 12), Register8(reg[5], 13), Register8(reg[6], 14), Register8(reg[7], 15) }
     , pc(0)
-    , sci{ new SCI(0, mutex, interrupt_cv), new SCI(1, mutex, interrupt_cv, use_stdio), new SCI(2, mutex, interrupt_cv) }
+    , sci{ new SCI(0, interrupt_cv), new SCI(1, interrupt_cv, use_stdio), new SCI(2, interrupt_cv) }
     , timer8(new Timer8(interrupt_cv))
-    , mcu(sci, timer8, mutex)
+    , mcu(sci, timer8)
     , interrupt_controller(this->sci, this->timer8)
     , terminate(false)
     , is_sleep(false)

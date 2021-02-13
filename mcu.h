@@ -54,7 +54,7 @@ class MCU {
     std::mutex mutex;
 
 public:
-    MCU(SCI** sci, Timer8 *timer8, std::mutex& mutex);
+    MCU(SCI** sci, Timer8 *timer8);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

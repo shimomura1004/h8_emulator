@@ -109,9 +109,6 @@ void SCI::run_recv_from_h8() {
 
 void SCI::run_send_to_h8() {
     while (!terminate_flag) {
-            // デバッガと標準入出力を奪い合わないようにロックする
-            // std::lock_guard<std::mutex> lock(mutex);
-
         char c;
         ssize_t size;
         if (!this->use_stdio) {
@@ -156,11 +153,10 @@ void SCI::run_send_to_h8() {
     }
 }
 
-SCI::SCI(uint8_t index, std::mutex& mutex, std::condition_variable& interrupt_cv, bool use_stdio)
+SCI::SCI(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio)
     : use_stdio(use_stdio)
     , index(index)
     , terminate_flag(false)
-    , mutex(mutex)
     , interrupt_cv(interrupt_cv)
     , hasTxiInterruption(false)
     , hasRxiInterruption(false)

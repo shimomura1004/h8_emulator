@@ -17,7 +17,7 @@
 #endif
 #endif
 
-MCU::MCU(SCI** sci, Timer8* timer8, std::mutex& mutex)
+MCU::MCU(SCI** sci, Timer8* timer8)
     : sci(sci)
     , timer8(timer8)
 {}

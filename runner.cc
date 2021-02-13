@@ -165,15 +165,8 @@ int Runner::proccess_debugger_command()
 
         int i = 0;
         while (1) {
-            // todo: このロックは必要か？
-            int c;
-            {
-                // SCI1(標準入出力につながっている)と標準入出力を奪い合わないようにロックする
-                std::lock_guard<std::mutex> lock(mutex);
-
-                // 標準入力はノンブロッキングで動作するため getchar はすぐに戻る
-                c = getchar();
-            }
+            // 標準入力はノンブロッキングで動作するため getchar はすぐに戻る
+            int c = getchar();
 
             // EOF がきたら、単にデータがないということ
             if (c == EOF) {

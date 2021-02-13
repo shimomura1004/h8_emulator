@@ -9,7 +9,6 @@ class Runner {
     H8300H& h8;
     std::set<uint32_t> breakpoints;
     std::vector<uint32_t> call_stack;
-    std::mutex& mutex;
 
     bool load_file_to_memory(uint32_t address, char *filename);
 
@@ -18,7 +17,7 @@ class Runner {
     void write_value_command(char *buf);
 
 public:
-    Runner(H8300H& h8) : h8(h8), mutex(h8.get_mutex()) {}
+    Runner(H8300H& h8) : h8(h8) {}
 
     int proccess_debugger_command();
     void run(bool debug = false);
