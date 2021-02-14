@@ -9,6 +9,10 @@
 #include "sci_register.h"
 
 // todo: たまに入力を取りこぼす
+// todo: 最初に割込みを有効にした瞬間にゴミが出力されるが、正しい挙動か？
+// SCI TSR の仕様を読むと、TDRE=1 のときは TDR から TSR にコピーされないとのこと
+// つまり起動直後(TDRE=1)のゴミ値は TSR にコピーされず、送信されないということ
+// その後は？
 
 const interrupt_t SCI::TXI_TABLE[3] = {
     interrupt_t::TXI0, interrupt_t::TXI1, interrupt_t::TXI2

@@ -23,6 +23,7 @@
 
 #define KEY_TO_COMMAND_MODE ':'
 #define SEND_COMMAND ("send ")
+#define EXEC_COMMAND ("exec ")
 
 void handle_send_command(int h8_serial_sock, char* buf)
 {
@@ -94,6 +95,29 @@ void handle_send_command(int h8_serial_sock, char* buf)
 
         count++;
     }
+}
+
+void handle_exe_command(int h8_serial_sock, char* buf)
+{
+    char* command = buf + sizeof(EXEC_COMMAND) - 1;
+
+    // プロセスを複製し、子プロセスとしてコマンドを実行
+    int pid = fork();
+    if (pid < 0) {
+        perror("popen2");
+        return;
+    }
+
+    if (pid == 0) {
+        // 子プロセスの標準入出力をシリアルとつなげる
+        dup2(h8_serial_sock, 0);
+        dup2(h8_serial_sock, 1);
+        execlp("sh", "sh", "-c", command, NULL);
+        perror("CALL FAILED\n");
+    }
+
+    // 子プロセスが終了するまで待つ
+    wait(NULL);
 }
 
 struct termios default_attribute;
@@ -180,10 +204,14 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
+                // todo: コマンド入力モードでパースに失敗するとずっと canonical になる
                 if (strncmp(user_buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
                     // コマンド入力モードで入力されたコマンドの処理
                     handle_send_command(h8_serial_sock, user_buf);
                     // コマンド処理後は non-canonical モード(エコー・バッファリングなし)に戻る
+                    set_non_canonical();
+                } else if (strncmp(user_buf, EXEC_COMMAND, sizeof(EXEC_COMMAND) - 1) == 0) {
+                    handle_exe_command(h8_serial_sock, user_buf);
                     set_non_canonical();
                 } else {
                     // 特殊なコマンドでなければそのまま H8 に投げる
