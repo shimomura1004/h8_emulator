@@ -115,7 +115,8 @@ void Runner::write_value_command(char *buf)
 #define DUMP        "dump"
 #define STEP1       "s"
 #define STEP2       "step"
-#define CONTINUE    "continue"
+#define CONTINUE1   "c"
+#define CONTINUE2  "continue"
 #define BREAK1      "b "
 #define BREAK2      "break"
 #define LOOKUP      "lookup"
@@ -195,7 +196,7 @@ int Runner::proccess_debugger_command()
             continue;
         } else if (MATCH(buf, STEP1) || MATCH(buf, STEP2)) {
             return 0;
-        } else if (MATCH(buf, CONTINUE)) {
+        } else if (MATCH(buf, CONTINUE1) || MATCH(buf, CONTINUE2)) {
             continue_mode = true;
             return 0;
         } else if (MATCH(buf, BREAK1) || MATCH(buf, BREAK2)) {
