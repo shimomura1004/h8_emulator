@@ -10,6 +10,7 @@
 #include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"
 #include "timer/timer8.h"
+#include "ioport/ioport.h"
 
 class H8300H {
 public:
@@ -24,6 +25,7 @@ public:
     // mcu が他のペリフェラルをコントローラする感じにできないか？
     SCI* sci[3];
     Timer8 *timer8;
+    IOPort *ioport;
     MCU mcu;
     InterruptController interrupt_controller;
 

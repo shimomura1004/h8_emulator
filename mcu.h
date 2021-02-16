@@ -6,6 +6,7 @@
 #include <mutex>
 #include "sci/sci.h"
 #include "timer/timer8.h"
+#include "ioport/ioport.h"
 
 class MCU {
     // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
@@ -14,7 +15,10 @@ class MCU {
     static const uint32_t rom_start = 0x000100; // 内蔵 ROM
     static const uint32_t rom_end   = 0x07ffff;
                                                 // 外部アドレス空間
-                                                // 内部 I/O レジスタ
+
+    static const uint32_t ioport_ddr_start = 0xfee000; // IOポート(0~B)
+    static const uint32_t ioport_ddr_end   = 0xfee00a;
+
     static const uint32_t ram_start = 0xffbf00; // 内蔵 RAM
     static const uint32_t ram_end   = 0xffff1f;
     static const uint32_t io_start  = 0xffff20; // 内部 I/O レジスタ
@@ -50,11 +54,14 @@ class MCU {
     // 8ビットタイマ
     Timer8 *timer8;
 
+    // IO ポート
+    IOPort *ioport;
+
     // メモリへの読み書きが競合しないようにする
     std::mutex mutex;
 
 public:
-    MCU(SCI** sci, Timer8 *timer8);
+    MCU(SCI** sci, Timer8 *timer8, IOPort *ioport);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

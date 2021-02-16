@@ -17,9 +17,10 @@
 #endif
 #endif
 
-MCU::MCU(SCI** sci, Timer8* timer8)
+MCU::MCU(SCI** sci, Timer8* timer8, IOPort* ioport)
     : sci(sci)
     , timer8(timer8)
+    , ioport(ioport)
 {}
 
 uint8_t MCU::read8(uint32_t address)
@@ -35,6 +36,8 @@ uint8_t MCU::read8(uint32_t address)
         return timer8->read8(address - timer01_start, 0);
     } else if (timer23_start <= address && address <= timer23_end) {
         return timer8->read8(address - timer23_start, 1);
+    } else if (ioport_ddr_start <= address && address <= ioport_ddr_end) {
+        return ioport->read8(address - ioport_ddr_start);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         return sci[0]->read(address - sci0_start);
@@ -87,6 +90,8 @@ void MCU::write8(uint32_t address, uint8_t value)
         timer8->write8(address - timer01_start, value, 0);
     } else if (timer23_start <= address && address <= timer23_end) {
         timer8->write8(address - timer23_start, value, 1);
+    } else if (ioport_ddr_start <= address && address <= ioport_ddr_end) {
+        ioport->write8(address - ioport_ddr_start, value);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         sci[0]->write(address - sci0_start, value);
@@ -155,6 +160,7 @@ void MCU::dump(std::string filepath)
     }
 
     // todo: タイマのダンプに対応
+    // todo: IO ポートのダンプに対応
 
     sci[0]->dump(fp);
     sci[1]->dump(fp);

@@ -103,7 +103,8 @@ H8300H::H8300H(bool use_stdio)
     , pc(0)
     , sci{ new SCI(0, interrupt_cv), new SCI(1, interrupt_cv, use_stdio), new SCI(2, interrupt_cv) }
     , timer8(new Timer8(interrupt_cv))
-    , mcu(sci, timer8)
+    , ioport(new IOPort())
+    , mcu(sci, timer8, ioport)
     , interrupt_controller(this->sci, this->timer8)
     , terminate(false)
     , is_sleep(false)
@@ -116,6 +117,7 @@ H8300H::~H8300H()
         delete this->sci[i];
     }
     delete this->timer8;
+    delete this->ioport;
 }
 
 void H8300H::init()
