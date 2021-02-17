@@ -16,6 +16,7 @@
 #endif
 
 DRAM::DRAM()
+    : ram {0}
 {}
 
 uint8_t DRAM::read8(uint32_t address)
