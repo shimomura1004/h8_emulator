@@ -7,6 +7,7 @@
 #include "sci/sci.h"
 #include "timer/timer8.h"
 #include "ioport/ioport.h"
+#include "dram/dram.h"
 
 class MCU {
     // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
@@ -43,10 +44,30 @@ class MCU {
                                                 // 外部アドレス空間
     static const uint32_t all_end   = 0xffffff;
 
+    // 外部アドレス空間
+    static const uint32_t area0_start = 0x000000;
+    static const uint32_t area0_end   = 0x1fffff;
+    static const uint32_t area1_start = 0x200000;
+    static const uint32_t area1_end   = 0x3fffff;
+    static const uint32_t area2_start = 0x400000;
+    static const uint32_t area2_end   = 0x5fffff;
+    static const uint32_t area3_start = 0x600000;
+    static const uint32_t area3_end   = 0x7fffff;
+    static const uint32_t area4_start = 0x800000;
+    static const uint32_t area4_end   = 0x9fffff;
+    static const uint32_t area5_start = 0xa00000;
+    static const uint32_t area5_end   = 0xbfffff;
+    static const uint32_t area6_start = 0xc00000;
+    static const uint32_t area6_end   = 0xdfffff;
+    static const uint32_t area7_start = 0xe00000;
+    static const uint32_t area7_end   = 0xffffff;
 
-    // ROM/RAM の実体
+    // 内蔵 ROM/RAM の実体
     uint8_t rom[rom_end - rom_start + 1];
     uint8_t ram[ram_end - ram_start + 1];
+
+    // 外部 DRAM
+    DRAM dram2;
 
     // H8/3069F には3つの SCI が内蔵されている
     SCI** sci;

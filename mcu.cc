@@ -38,6 +38,8 @@ uint8_t MCU::read8(uint32_t address)
         return timer8->read8(address - timer23_start, 1);
     } else if (ioport_ddr_start <= address && address <= ioport_ddr_end) {
         return ioport->read8(address - ioport_ddr_start);
+    } else if (area2_start <= address && address <= area2_end) {
+        return dram2.read8(address - area2_start);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         return sci[0]->read(address - sci0_start);
@@ -62,6 +64,8 @@ uint16_t MCU::read16(uint32_t address)
         return this->timer8->read16(address - timer01_start, 0);
     } else if (timer23_start <= address && address <= timer23_end) {
         return this->timer8->read16(address - timer23_start, 1);
+    } else if (area2_start <= address && address <= area2_end) {
+        return dram2.read16(address - area2_start);
     } else {
         fprintf(stderr, "Error: Invalid read(16) access to 0x%06x\n", address);
         return 0;
@@ -75,6 +79,8 @@ uint32_t MCU::read32(uint32_t address)
     } else if (ram_start <= address && address <= ram_end) {
         std::lock_guard<std::mutex> lock(mutex);
         return bswap32_if_little_endian(*(uint32_t*)&ram[address - ram_start]);
+    } else if (area2_start <= address && address <= area2_end) {
+        return dram2.read32(address - area2_start);
     } else {
         fprintf(stderr, "Error: Invalid read(32) access to 0x%06x\n", address);
         return 0;
@@ -92,6 +98,8 @@ void MCU::write8(uint32_t address, uint8_t value)
         timer8->write8(address - timer23_start, value, 1);
     } else if (ioport_ddr_start <= address && address <= ioport_ddr_end) {
         ioport->write8(address - ioport_ddr_start, value);
+    } else if (area2_start <= address && address <= area2_end) {
+        dram2.write8(address - area2_start, value);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         sci[0]->write(address - sci0_start, value);
@@ -112,6 +120,8 @@ void MCU::write16(uint32_t address, uint16_t value)
         timer8->write16(address - timer01_start, value, 0);
     } else if (timer23_start <= address && address <= timer23_end) {
         timer8->write16(address - timer23_start, value, 1);
+    } else if (area2_start <= address && address <= area2_end) {
+        dram2.write16(address - area2_start, value);
     } else {
         fprintf(stderr, "Error: Invalid write(16) access to 0x%06x\n", address);
     }
@@ -121,6 +131,8 @@ void MCU::write32(uint32_t address, uint32_t value)
 {
     if (ram_start <= address && address <= ram_end) {
         *(uint32_t*)&ram[address - ram_start] = bswap32_if_little_endian(value);
+    } else if (area2_start <= address && address <= area2_end) {
+        dram2.write32(address - area2_start, value);
     } else {
         fprintf(stderr, "Error: Invalid write(32) access to 0x%06x\n", address);
     }
@@ -147,10 +159,19 @@ void MCU::dump(std::string filepath)
 
     // 内蔵ROMを出力
     fwrite(rom, sizeof(uint8_t), rom_end - vec_start + 1, fp);
-    // 内蔵RAMまでは0で埋める(外部アドレス空間 + 内部I/Oレジスタ)
-    for (uint32_t i = rom_end + 1; i < ram_start; i++) {
+
+    // 内蔵 ROM から DRAM(エリア2)までは0で埋める
+    for (uint32_t i = rom_end + 1; i < area2_start; i++) {
         fputc(0, fp);
     }
+
+    dram2.dump(fp);
+
+    // DRAM(エリア2)から内蔵 RAM までは0で埋める
+    for (uint32_t i = area2_end + 1; i < ram_start; i++) {
+        fputc(0, fp);
+    }
+
     // 内蔵RAMを出力
     fwrite(ram, sizeof(uint8_t), ram_end - ram_start + 1, fp);
     // 内部I/Oレジスタ(SCI を含む)
