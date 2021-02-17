@@ -11,6 +11,7 @@ add_subdirectory(operation_map)
 add_subdirectory(timer)
 add_subdirectory(dram)
 add_subdirectory(ioport)
+add_subdirectory(bus)
 add_subdirectory(interrupt)
 
 add_executable(h8300h
@@ -25,4 +26,4 @@ add_executable(sender
     sender.cc
 )
 
-target_link_libraries(h8300h sci instructions operation_map timer dram ioport interrupt)
+target_link_libraries(h8300h sci instructions operation_map timer dram ioport bus interrupt)

@@ -8,6 +8,7 @@
 #include "timer/timer8.h"
 #include "ioport/ioport.h"
 #include "dram/dram.h"
+#include "bus/buscontroller.h"
 
 class MCU {
     // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
@@ -62,6 +63,7 @@ class MCU {
     static const uint32_t area7_start = 0xe00000;
     static const uint32_t area7_end   = 0xffffff;
 
+    // todo: rom/ram は DRAM と共通化できる
     // 内蔵 ROM/RAM の実体
     uint8_t rom[rom_end - rom_start + 1];
     uint8_t ram[ram_end - ram_start + 1];
@@ -77,6 +79,9 @@ class MCU {
 
     // IO ポート
     IOPort *ioport;
+
+    // バスコントローラ
+    BusController bus_controller;
 
     // メモリへの読み書きが競合しないようにする
     std::mutex mutex;

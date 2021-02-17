@@ -47,6 +47,8 @@ uint8_t MCU::read8(uint32_t address)
         return sci[1]->read(address - sci1_start);
     } else if (sci2_start <= address && address <= sci2_end) {
         return sci[2]->read(address - sci2_start);
+    } else if (BusController::brcr_address <= address && address <= BusController::rtcor_address) {
+        return bus_controller.read(address);
     } else {
         fprintf(stderr, "Error: Invalid read(8) access to 0x%06x\n", address);
         return 0;
@@ -107,6 +109,8 @@ void MCU::write8(uint32_t address, uint8_t value)
         sci[1]->write(address - sci1_start, value);
     } else if (sci2_start <= address && address <= sci2_end) {
         sci[2]->write(address - sci2_start, value);
+    } else if (BusController::brcr_address <= address && address <= BusController::rtcor_address) { 
+        bus_controller.write(address, value);
     } else {
         fprintf(stderr, "Error: Invalid write(8) access to 0x%06x\n", address);
     }
