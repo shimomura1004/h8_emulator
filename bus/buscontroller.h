@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <cstdint>
 
+// todo: バスコントローラの設定を反映させる
+
 class BusController {
 public:
     static const uint32_t abwcr_address;
