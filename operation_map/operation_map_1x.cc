@@ -39,7 +39,7 @@ instruction_handler_t lookup_11(H8300H* h8300h)
     case 0x03: return h8instructions::shlr::shlr_l;
     case 0x08:
     case 0x09: return h8instructions::shar::shar_w;
-    case 0x0b: return nullptr; // SHAR
+    case 0x0b: return h8instructions::shar::shar_l;
     default:   return nullptr;
     }
 }

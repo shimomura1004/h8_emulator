@@ -7,6 +7,7 @@ namespace h8instructions {
 namespace shar {
 
 int shar_w(H8300H *h8);
+int shar_l(H8300H *h8);
 
 }
 }
