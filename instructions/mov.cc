@@ -596,10 +596,10 @@ static int register_direct_w(H8300H* h8)
     const Register16& src = h8->reg16[src_register_index];
     Register16& dst = h8->reg16[dst_register_index];
 
-    uint8_t value = src.get();
+    uint16_t value = src.get();
     dst.set(value);
 
-    update_ccr<int8_t>(h8, value);
+    update_ccr<int16_t>(h8, value);
     h8->pc += 2;
 
     return 0;
