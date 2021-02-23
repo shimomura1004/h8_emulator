@@ -20,7 +20,7 @@ int h8instructions::shar::shar_w(H8300H* h8)
     bool prev_value_msb = value & 0x8000;
     // gcc では signed の場合は算術シフトされるが、
     // 他の環境を考慮し念のため最上位ビットを元の値にしておく
-    value = (value >> 1) || prev_value_msb;
+    value = (value >> 1) | (prev_value_msb ? 0x8000 : 0);
     reg.set(value);
 
     update_ccr<int16_t>(h8, value, prev_value_lsb);
@@ -41,7 +41,7 @@ int h8instructions::shar::shar_l(H8300H *h8)
     bool prev_value_msb = value & 0x80000000;
     // gcc では signed の場合は算術シフトされるが、
     // 他の環境を考慮し念のため最上位ビットを元の値にしておく
-    value = (value >> 1) || prev_value_msb;
+    value = (value >> 1) | (prev_value_msb ? 0x80000000 : 0);
     reg.set(value);
 
     update_ccr<int32_t>(h8, value, prev_value_lsb);
