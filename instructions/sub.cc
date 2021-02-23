@@ -12,9 +12,9 @@ int h8instructions::sub::sub_b(H8300H *h8)
     const Register8& src = h8->reg8[src_register_index];
     Register8& dst = h8->reg8[dst_register_index];
 
-    char src_value = src.get();
-    char dst_value = dst.get();
-    char result_value = dst_value - src_value;
+    int8_t src_value = src.get();
+    int8_t dst_value = dst.get();
+    int8_t result_value = dst_value - src_value;
     dst.set(result_value);
 
     update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
@@ -33,9 +33,9 @@ int h8instructions::sub::sub_w(H8300H *h8)
     const Register16& src = h8->reg16[src_register_index];
     Register16& dst = h8->reg16[dst_register_index];
 
-    char src_value = src.get();
-    char dst_value = dst.get();
-    char result_value = dst_value - src_value;
+    int16_t src_value = src.get();
+    int16_t dst_value = dst.get();
+    int16_t result_value = dst_value - src_value;
     dst.set(result_value);
 
     update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
