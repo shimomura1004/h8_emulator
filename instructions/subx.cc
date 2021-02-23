@@ -11,7 +11,7 @@ int h8instructions::subx::subx_register_direct(H8300H *h8)
 
     char src_value = src.get();
     char dst_value = dst.get();
-    char result_value = dst_value - src_value - (h8->ccr.h() ? 1 : 0);
+    char result_value = dst_value - src_value - (h8->ccr.c() ? 1 : 0);
     dst.set(result_value);
 
     bool prev_z = h8->ccr.z();
