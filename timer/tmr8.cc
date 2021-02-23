@@ -115,6 +115,7 @@ double TMR8::get_waittime_for(interrupt_t type)
 
 void TMR8::loop(uint8_t index, int waittime, interrupt_t type) {
     while (1) {
+        this->start_time = std::chrono::system_clock::now();
         std::this_thread::sleep_for(std::chrono::milliseconds(waittime));
         if (this->valid_clock_id != index) {
             break;
@@ -286,6 +287,15 @@ uint8_t TMR8::get_tcorb()
 
 uint8_t TMR8::get_tcnt()
 {
+    // タイマ開始時からの差分を計測(単位は秒)
+    auto now = std::chrono::system_clock::now();
+    std::chrono::duration<double> diff = now - this->start_time;
+
+    // todo: 現状は決め打ち
+    double one_count_takes = periods[CLOCK_KIND::DIV8192] * 0xff / 1000;
+    double count = diff.count() / one_count_takes;
+    this->tcnt = (uint8_t)count;
+
     return this->tcnt;
 }
 

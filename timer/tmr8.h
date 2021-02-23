@@ -20,6 +20,7 @@ class TMR8 {
     uint8_t tcora;
     uint8_t tcorb;
     uint8_t tcnt;
+    std::chrono::time_point<std::chrono::system_clock> start_time;
 
     uint8_t channel;
 
