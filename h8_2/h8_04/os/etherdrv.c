@@ -15,6 +15,8 @@ static void etherdrv_intr(void)
   // つまり Ethernet フレームを受信した場合
   int size;
   char *buffer;
+
+  // 0番目の nic で？割込みが発生したかどうかを確認
   if (ether_checkintr(0)) {
     buffer = kx_kmalloc(ETHER_BUFFER_SIZE);
     size = ether_recv(0, buffer);
@@ -26,6 +28,7 @@ static void etherdrv_intr(void)
   }
 }
 
+// ドライバの初期化
 static int etherdrv_init(void)
 {
   return 0;
@@ -62,7 +65,7 @@ int etherdrv_main(int argc, char *argv[])
   kz_setintr(SOFTVEC_TYPE_ETHINTR, etherdrv_intr); /* 割込みハンドラ設定 */
 
   while (1) {
-    // Ethernet で送信したいデータを受け取る
+    // etherdrv ドライバへのメッセージを受信
     kz_recv(MSGBOX_ID_ETHOUTPUT, &size, &p);
     // 内容に応じて処理し、メモリを解放
     etherdrv_command(size, p);

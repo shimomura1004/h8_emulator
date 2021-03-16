@@ -45,32 +45,45 @@ struct arp_header {
   uint8 sender_hardware_addr[MACADDR_SIZE];
   // 送信元の protocol のアドレス: IPv4 の場合は送信元の IPv4 アドレス
   uint8 sender_protocol_addr[IPADDR_SIZE];
-  // 送信先のハードウェアアドレス
+  // 宛先のハードウェアアドレス
   uint8 target_hardware_addr[MACADDR_SIZE];
-  // 送信先の protocol のアドレス
+  // 宛先の protocol のアドレス
   uint8 target_protocol_addr[IPADDR_SIZE];
 };
 
 struct ip_header {
+  // バージョン(4bit)とヘッダ長(4bit): ヘッダ長は4オクテット(32ビット)単位
   uint8 v_hl;
+  // サービスの種別: パケット転送時に重視するサービスを指定
+  // 優先度や信頼性など
   uint8 tos;
+  // ヘッダを含むパケット全体の長さ: 4オクテット単位
   uint16 total_length;
+  // 識別子: パケット送信元が一意な値を指定し、パケットが経路上で分割されたときにこれを手がかりに戻す
   uint16 id;
+  // フラグメント: 上位3ビットは制御用のフラグ、id と fragment を読めば断片化したパケットを復元できる
   uint16 fragment;
+  // TTL: 経由できるルータの上限
   uint8  ttl;
+  // TCP や UDP など
   uint8  protocol;
 #define IP_PROTOCOL_ICMP  1
 #define IP_PROTOCOL_TCP   6
 #define IP_PROTOCOL_UDP  17
+  // ヘッダ部分のみが対象のチェックサム
   uint16 checksum;
+  // 送信元アドレス
   uint8 src_addr[IPADDR_SIZE];
+  // 宛先アドレス
   uint8 dst_addr[IPADDR_SIZE];
 };
 
 struct icmp_header {
+  // タイプ: echo reply などの他、unreachable の通知などのタイプがある
   uint8 type;
 #define ICMP_TYPE_REPLY   0
 #define ICMP_TYPE_REQUEST 8
+  // TYPE が 0/8 のときは常に 0
   uint8 code;
   uint16 checksum;
 };
@@ -123,17 +136,21 @@ static int ip_proc(int size, struct ip_header *hdr)
   int ret = 0, hdrlen, nextsize;
   void *nexthdr;
 
-  // IP のバージョンと宛先 IP をチェック
+  // IPv4 でなければ無視
   if (((hdr->v_hl >> 4) & 0xf) != 4)
     return 0;
+  // 宛先アドレスが自分でなければ無視
   if (memcmp(hdr->dst_addr, &ipaddr, IPADDR_SIZE))
     return 0;
 
+  // 4倍？
   hdrlen = (hdr->v_hl & 0xf) << 2;
 
+  // total_length はオクテット単位だけど、いいのか？
   if (size > hdr->total_length)
     size = hdr->total_length;
 
+  // IP ヘッダ分を削る
   nextsize = size - hdrlen;
   nexthdr = (char *)hdr + hdrlen;
 
@@ -147,6 +164,7 @@ static int ip_proc(int size, struct ip_header *hdr)
   }
 
   if (ret > 0) {
+    // 返送用パケットを準備
     memcpy(hdr->dst_addr, hdr->src_addr, IPADDR_SIZE);
     memcpy(hdr->src_addr, &ipaddr, IPADDR_SIZE);
     hdr->checksum = 0;
@@ -171,9 +189,13 @@ static int arp_proc(int size, struct arp_header *hdr)
 
   switch (hdr->operation) {
   case ARP_OPERATION_REQUEST:
+    // arp 要求だったら、自分の mac アドレスを応答しないといけない
+
+    // 問い合わせされている IP アドレスが自分と違ったら無視する
     if (memcmp(hdr->target_protocol_addr, &ipaddr, IPADDR_SIZE))
       break;
-    // 自分の MAC アドレスを詰めて応答する
+
+    // 受信したパケットを流用し、自分の MAC/IP アドレスを詰めて応答する
     memcpy(hdr->target_hardware_addr, hdr->sender_hardware_addr, MACADDR_SIZE);
     memcpy(hdr->target_protocol_addr, hdr->sender_protocol_addr, IPADDR_SIZE);
     memcpy(hdr->sender_hardware_addr, MACADDR, MACADDR_SIZE);
