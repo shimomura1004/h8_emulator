@@ -1,0 +1,88 @@
+--- device.c.old3	Sun Oct 10 17:12:47 2010
++++ device.c	Sun Oct 10 17:21:27 2010
+@@ -527,6 +527,15 @@
+ #define NE2000_CR_TXP      (1 << 2)
+ #define NE2000_ISR_RDC     (1 << 6)
+ 
++#define NE2000_RCR_MON     (1 << 5)
++#define NE2000_RCR_PRO     (1 << 4)
++#define NE2000_RCR_AM      (1 << 3)
++#define NE2000_RCR_AB      (1 << 2)
++
++#define NE2000_TCR_ELB     (2 << 1)
++#define NE2000_TCR_ILB     (1 << 1)
++#define NE2000_TCR_NORMAL  (0 << 1)
++
+ static unsigned char registers[4][0x10];
+ 
+ static int ether_run(host_callback *sim_callback, unsigned char *memory)
+@@ -560,33 +569,42 @@
+       exit (1);
+     }
+ 
+-    /* 必要ブロック数を加算(ヘッダがあるので＋４している) */
+-    new_curr = NE2000_CURR + ((size + 4 + 255) / 256);
+-    if (new_curr >= NE2000_PSTOP)
+-      new_curr -= (NE2000_PSTOP - NE2000_PSTART);
+-
+-    size += 4; /* CRCのぶんだけサイズを追加 */
+-
+-    /* ヘッダ */
+-    ether_buf[(NE2000_CURR * 256) + 0] = 0;
+-    ether_buf[(NE2000_CURR * 256) + 1] = new_curr;
+-    ether_buf[(NE2000_CURR * 256) + 2] = size & 0xff;
+-    ether_buf[(NE2000_CURR * 256) + 3] = (size >> 8) & 0xff;
+-
+-    size -= 4;
+-
+-    c = NE2000_CURR * 256 + 4; /* ヘッダがあるので＋４している */
+-    for (i = 0; i < size; i++) {
+-      ether_buf[c] = buf[i];
+-      if (++c >= NE2000_PSTOP * 256)
+-	c = NE2000_PSTART * 256;
+-    }
+-
+-    NE2000_CURR = new_curr;
+-
+-    if (NE2000_IMR & 0x01) {
+-      NE2000_ISR |= 0x01;
+-      vector = 17; /* IRQ5 */
++    if ((NE2000_RCR & NE2000_RCR_PRO) ||
++	((NE2000_RCR & NE2000_RCR_MON) &&
++	 !memcmp(buf, "\x00\x11\x22\x33\x44\x55", 6)) ||
++	((NE2000_RCR & NE2000_RCR_AB) &&
++	 !memcmp(buf, "\xff\xff\xff\xff\xff\xff", 6)) ||
++	((NE2000_RCR & NE2000_RCR_AM) && (buf[0] & 1))
++	) {
++
++      /* 必要ブロック数を加算(ヘッダがあるので＋４している) */
++      new_curr = NE2000_CURR + ((size + 4 + 255) / 256);
++      if (new_curr >= NE2000_PSTOP)
++	new_curr -= (NE2000_PSTOP - NE2000_PSTART);
++
++      size += 4; /* CRCのぶんだけサイズを追加 */
++
++      /* ヘッダ */
++      ether_buf[(NE2000_CURR * 256) + 0] = 0;
++      ether_buf[(NE2000_CURR * 256) + 1] = new_curr;
++      ether_buf[(NE2000_CURR * 256) + 2] = size & 0xff;
++      ether_buf[(NE2000_CURR * 256) + 3] = (size >> 8) & 0xff;
++
++      size -= 4;
++
++      c = NE2000_CURR * 256 + 4; /* ヘッダがあるので＋４している */
++      for (i = 0; i < size; i++) {
++	ether_buf[c] = buf[i];
++	if (++c >= NE2000_PSTOP * 256)
++	  c = NE2000_PSTART * 256;
++      }
++
++      NE2000_CURR = new_curr;
++
++      if (NE2000_IMR & 0x01) {
++	NE2000_ISR |= 0x01;
++	vector = 17; /* IRQ5 */
++      }
+     }
+   }
+ 

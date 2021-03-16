@@ -1,0 +1,28 @@
+--- device.c.old4	Thu Oct 21 21:05:27 2010
++++ device.c	Thu Oct 21 12:53:28 2010
+@@ -558,7 +558,7 @@
+   }
+ 
+   /* 割り込みのクリア */
+-  if ((page == 0) && (NE2000_ISR == 0xff))
++  if (NE2000_ISR == 0xff)
+     NE2000_ISR = 0;
+ 
+   /* 受信した */
+@@ -601,11 +601,12 @@
+ 
+       NE2000_CURR = new_curr;
+ 
+-      if (NE2000_IMR & 0x01) {
+-	NE2000_ISR |= 0x01;
+-	vector = 17; /* IRQ5 */
+-      }
++      NE2000_ISR |= 0x01;
+     }
++  }
++
++  if ((NE2000_ISR & 0x01) && (NE2000_IMR & 0x01)) {
++    vector = 17; /* IRQ5 */
+   }
+ 
+   /* 送信処理 */

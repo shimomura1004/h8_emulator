@@ -1,0 +1,100 @@
+--- compile.c.old	Thu Oct 21 12:48:00 2010
++++ compile.c	Mon Nov 15 22:34:18 2010
+@@ -45,20 +45,21 @@
+ static SIM_OPEN_KIND sim_kind;
+ static char *myname;
+ 
+ /* FIXME: Needs to live in header file.
+    This header should also include the things in remote-sim.h.
+    One could move this to remote-sim.h but this function isn't needed
+    by gdb.  */
+ static void set_simcache_size (SIM_DESC, int);
+ 
+ extern void sim_device_init (host_callback *sim_callback, unsigned char *memory);
++extern int sim_device_sleep (host_callback *sim_callback, unsigned char *memory);
+ extern int sim_device_run (host_callback *sim_callback, unsigned char *memory);
+ 
+ #define X(op, size)  (op * 4 + size)
+ 
+ #define SP (h8300hmode && !h8300_normal_mode ? SL : SW)
+ 
+ #define h8_opcodes ops
+ #define DEFINE_TABLE
+ #include "opcode/h8300.h"
+ 
+@@ -1910,20 +1911,21 @@
+   int rd;
+   int ea;
+   int bit;
+   int pc;
+   int c, nz, v, n, u, h, ui, intMaskBit;
+   int trace, intMask;
+   int oldmask;
+   enum sim_stop reason;
+   int sigrc;
+   int vec;
++  int sleeping = 0;
+ 
+   init_pointers (sd);
+ 
+   control_c_sim_desc = sd;
+   prev = signal (SIGINT, control_c);
+ 
+   if (step)
+     {
+       sim_engine_set_run_state (sd, sim_stopped, SIGTRAP);
+     }
+@@ -1968,20 +1970,26 @@
+ 
+ #if ADEBUG
+       if (debug)
+ 	{
+ 	  printf ("%x %d %s\n", pc, code->opcode,
+ 		  code->op ? code->op->name : "**");
+ 	}
+       h8_increment_stats (sd, code->opcode);
+ #endif
+ 
++      if (sleeping)
++	{
++	  sim_device_sleep(sim_callback, h8_get_memory_buf(sd));
++	  sleeping = 0;
++	}
++
+       vec = sim_device_run (sim_callback, h8_get_memory_buf(sd));
+       if (vec && !intMaskBit)
+ 	{
+ 	  tmp = h8_get_reg (sd, SP_REGNUM);
+ 	  if(h8300_normal_mode)
+ 	    {
+ 	      tmp -= 2;
+ 	      SET_MEMORY_W (tmp, code->next_pc);
+ 	      tmp -= 2;
+ 	      SET_MEMORY_W (tmp, h8_get_ccr (sd));
+@@ -3675,20 +3683,26 @@
+ 	    }
+ 
+ 	  h8_set_reg (sd, SP_REGNUM, tmp);
+ 	  goto end;
+ 
+ 	case O (O_ILL, SB):		/* illegal */
+ 	  sim_engine_set_run_state (sd, sim_stopped, SIGILL);
+ 	  goto end;
+ 
+ 	case O (O_SLEEP, SN):		/* sleep */
++#if 1
++	  if (1) {
++	    sleeping = 1;
++	    goto next;
++	  } else
++#endif
+ 	  /* Check for magic numbers in r1 and r2.  */
+ 	  if ((h8_get_reg (sd, R1_REGNUM) & 0xffff) == LIBC_EXIT_MAGIC1 &&
+ 	      (h8_get_reg (sd, R2_REGNUM) & 0xffff) == LIBC_EXIT_MAGIC2 &&
+ 	      SIM_WIFEXITED (h8_get_reg (sd, 0)))
+ 	    {
+ 	      /* This trap comes from _exit, not from gdb.  */
+ 	      sim_engine_set_run_state (sd, sim_exited, 
+ 					SIM_WEXITSTATUS (h8_get_reg (sd, 0)));
+ 	    }
+ #if 0

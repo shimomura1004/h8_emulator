@@ -1,0 +1,67 @@
+--- device.c.old5	Thu Oct 21 12:53:28 2010
++++ device.c	Mon Nov 15 22:24:53 2010
+@@ -474,26 +474,6 @@
+   return;
+ }
+ 
+-static int ether_is_recv(int fd)
+-{
+-  fd_set fds;
+-  struct timeval timeout;
+-  int ret;
+-
+-  timeout.tv_sec  = 0;
+-  timeout.tv_usec = 0;
+-  FD_ZERO(&fds);
+-  FD_SET(fd, &fds);
+-  ret = select(fd + 1, &fds, NULL, NULL, &timeout);
+-  if (ret > 0) {
+-    if (FD_ISSET(fd, &fds)) {
+-      return 1;
+-    }
+-  }
+-
+-  return 0;
+-}
+-
+ #define RTL8019_ADDR 0x200000
+ #define NE2000_CR      (memory[RTL8019_ADDR + 0x00])
+ #define RTL8019_RDMAP  (memory[RTL8019_ADDR + 0x10])
+@@ -562,7 +542,7 @@
+     NE2000_ISR = 0;
+ 
+   /* 受信した */
+-  if (ether_is_recv(ether_fd)) {
++  if (is_recv_enable(sim_callback, ether_fd)) {
+     size = read(ether_fd, buf, sizeof(buf));
+     if (size == sizeof(buf)) {
+       fprintf(stderr, "buffer over %d\n", size);
+@@ -670,6 +650,28 @@
+   ether_init(sim_callback, memory);
+ 
+   initialized++;
++}
++
++int sim_device_sleep(host_callback *sim_callback, unsigned char *memory)
++{
++  fd_set fds;
++  int ret, fd;
++
++  FD_ZERO(&fds);
++  FD_SET(serial_fd, &fds);
++  FD_SET(ether_fd, &fds);
++
++  fd = serial_fd;
++  if (fd < ether_fd) fd = ether_fd;
++
++  ret = select(fd + 1, &fds, NULL, NULL, NULL);
++  if (ret > 0) {
++    if (FD_ISSET(fd, &fds)) {
++      return 1;
++    }
++  }
++
++  return 0;
+ }
+ 
+ int sim_device_run(host_callback *sim_callback, unsigned char *memory)

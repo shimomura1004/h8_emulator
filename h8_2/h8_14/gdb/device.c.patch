@@ -1,0 +1,173 @@
+--- device.c.old6	Fri Feb  4 23:21:39 2011
++++ device.c	Fri Feb  4 23:22:58 2011
+@@ -1,9 +1,20 @@
++#ifdef __linux__
++#define _XOPEN_SOURCE
++#endif
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <unistd.h>
+ #include <fcntl.h>
+ 
++#ifdef __linux__
++#include <sys/select.h>
++#include <sys/ioctl.h>
++#include <sys/socket.h>
++#include <linux/if.h>
++#include <linux/if_tun.h>
++#endif
++
+ #include "sim-main.h"
+ #include "gdb/sim-h8300.h"
+ 
+@@ -49,10 +60,16 @@
+ 
+ static int search_freepty(host_callback *sim_callback)
+ {
++  int fd;
++#ifdef __FreeBSD__
+   char ttydev[] = "/dev/ptyXX";
+-  int fd, i0 = 0, i1 = 0;
++  int i0 = 0, i1 = 0;
+   char c0, c1;
++#endif
+ 
++  /* use posix_openpt for same code with FreeBSD and Linux */
++
++#ifdef __FreeBSD__
+   while ((c0 = "pqrsPQRS"[i0++]))
+     {
+       while ((c1 = "0123456789abcdefghijklmnopqrstuv"[i1++]))
+@@ -72,6 +89,38 @@
+ 	  return fd;
+ 	}
+     }
++#endif
++#ifdef __linux__
++  do {
++    char *devname;
++    /*
++     * use posix_openpt() for same code with FreeBSD and Linux.
++     * old Linux are need to use direct open to /dev/ptmx.
++     */
++#if 1
++    fd = posix_openpt(O_RDWR /*| O_NOCTTY*/);
++#else
++#ifdef USE_CALLBACK
++    fd = sim_callback->open ("/dev/ptmx", O_RDWR);
++#else
++    fd = open ("/dev/ptmx", O_RDWR);
++#endif
++#endif
++    if (fd < 0) break;
++#if 1
++    if (grantpt(fd) < 0) break;
++    if (unlockpt(fd) < 0) break;
++#endif
++    devname = ptsname(fd);
++    if (devname == NULL) break;
++    (*sim_callback->printf_filtered) 
++      (sim_callback, "connect to %s\n", devname);
++    return fd;
++  } while (0);
++  if (fd >= 0) {
++    close(fd);
++  }
++#endif
+   (*sim_callback->printf_filtered) (sim_callback,
+ 				    "Free pty not found.\n");
+   return -1;
+@@ -98,6 +147,8 @@
+   struct timeval tm;
+   int ret;
+ 
++  if (fd < 0) return 0;
++
+   FD_ZERO(&fds);
+   FD_SET(fd, &fds);
+   tm.tv_sec  = 0;
+@@ -119,6 +170,8 @@
+   struct timeval tm;
+   int ret;
+ 
++  if (fd < 0) return 0;
++
+   FD_ZERO(&fds);
+   FD_SET(fd, &fds);
+   tm.tv_sec  = 0;
+@@ -139,7 +192,8 @@
+ #ifdef USE_CALLBACK
+   sim_callback->write (sim_callback, fd, &c, 1);
+ #else
+-  write (fd, &c, 1);
++  if (write (fd, &c, 1) != 1)
++    ;
+ #endif
+   fsync(fd);
+ }
+@@ -456,7 +510,24 @@
+ {
+   char ifname[16];
+ 
++#ifdef __FreeBSD__
+   ether_fd = get_free_dev("tap", ifname);
++#endif
++#ifdef __linux__
++  ether_fd = open("/dev/net/tun", O_RDWR);
++  if (ether_fd >= 0) {
++    struct ifreq ifr;
++    memset(&ifr, 0, sizeof(ifr));
++    ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
++    if (ioctl(ether_fd, TUNSETIFF, (void *)&ifr) < 0) {
++      (*sim_callback->printf_filtered) 
++	(sim_callback, "Fail to ioctl().\n");
++      close(ether_fd);
++      ether_fd = -1;
++    }
++    strcpy(ifname, ifr.ifr_name);
++  }              
++#endif
+   if (ether_fd < 0) {
+     (*sim_callback->printf_filtered) 
+       (sim_callback, "Free tap not found.\n");
+@@ -600,7 +671,9 @@
+ 	c = NE2000_TPSR * 256;
+     }
+ 
+-    write(ether_fd, buf, size);
++    if (ether_fd >= 0)
++      if (write(ether_fd, buf, size) != size)
++	;
+ 
+     NE2000_CR &= ~NE2000_CR_TXP;
+   }
+@@ -655,14 +728,22 @@
+ int sim_device_sleep(host_callback *sim_callback, unsigned char *memory)
+ {
+   fd_set fds;
+-  int ret, fd;
++  int ret, fd = 0;
+ 
+-  FD_ZERO(&fds);
+-  FD_SET(serial_fd, &fds);
+-  FD_SET(ether_fd, &fds);
++  if (fd < serial_fd) fd = serial_fd;
++  if (fd <  ether_fd) fd = ether_fd;
++  if (fd < 0) {
++    (*sim_callback->printf_filtered) 
++      (sim_callback, "not found opened device.\n");
++  }
+ 
+-  fd = serial_fd;
+-  if (fd < ether_fd) fd = ether_fd;
++  FD_ZERO(&fds);
++  if (serial_fd >= 0) {
++    FD_SET(serial_fd, &fds);
++  }
++  if (ether_fd >= 0) {
++    FD_SET(ether_fd, &fds);
++  }
+ 
+   ret = select(fd + 1, &fds, NULL, NULL, NULL);
+   if (ret > 0) {

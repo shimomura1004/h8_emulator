@@ -1,0 +1,133 @@
+--- device.c.old7	Mon May  2 14:47:20 2011
++++ device.c	Mon May  2 22:32:35 2011
+@@ -506,6 +506,8 @@
+ static int ether_fd = -1;
+ static char ether_buf[256 * 0x80];
+ 
++static unsigned char registers[4][0x10];
++
+ static void ether_init(host_callback *sim_callback, unsigned char *memory)
+ {
+   char ifname[16];
+@@ -539,6 +541,8 @@
+   /* MACアドレス */
+   memcpy(ether_buf, "\x00\x00\x11\x00\x22\x00\x33\x00\x44\x00\x55\x00", 12);
+ 
++  memset(registers, 0, sizeof(registers));
++
+   (*sim_callback->printf_filtered) 
+     (sim_callback, "interface: %s\n", ifname);
+ 
+@@ -565,6 +569,14 @@
+ #define NE2000_IMR     (registers[0][0x0f])
+ #define NE2000_CURR    (registers[1][0x07])
+ 
++#define NE2000_PSTART_R (registers[2][0x01])
++#define NE2000_PSTOP_R  (registers[2][0x02])
++#define NE2000_TPSR_R   (registers[2][0x04])
++#define NE2000_RCR_R    (registers[2][0x0c])
++#define NE2000_TCR_R    (registers[2][0x0d])
++#define NE2000_DCR_R    (registers[2][0x0e])
++#define NE2000_IMR_R    (registers[2][0x0f])
++
+ #define RTL8019_SIM_CR  (memory[RTL8019_ADDR + 0xfe])
+ #define RTL8019_SIM_SR  (memory[RTL8019_ADDR + 0xff])
+ #define RTL8019_SIM_SR_NRDY (1 << 0)
+@@ -587,8 +599,6 @@
+ #define NE2000_TCR_ILB     (1 << 1)
+ #define NE2000_TCR_NORMAL  (0 << 1)
+ 
+-static unsigned char registers[4][0x10];
+-
+ static int ether_run(host_callback *sim_callback, unsigned char *memory)
+ {
+   int i, c, ret;
+@@ -597,6 +607,7 @@
+   int vector = VECTOR_NOINTR;
+   char buf[4096];
+   static int page = 0;
++  static unsigned char isr_save = 0;
+ 
+   memcpy(&registers[page][1], &memory[RTL8019_ADDR + 1], 0x0f);
+ 
+@@ -608,9 +619,15 @@
+   default: page = 0; break;
+   }
+ 
+-  /* 割り込みのクリア */
+-  if (NE2000_ISR == 0xff)
+-    NE2000_ISR = 0;
++  /*
++   * 割り込みのクリア(暫定)
++   * ビットが立った部分のみクリアすべきか？要確認
++   * 書き込みがあった場合にクリアするので，書き込みを検知する必要がある．
++   * 方法として，利用されていない最上位ビットを立てておき，最上位ビットが
++   * 落ちているかどうかで書き込みを検知する．
++   */
++  if ((NE2000_ISR == 0xff) || (NE2000_ISR != isr_save))
++    NE2000_ISR = (isr_save & 0x7f) & ~NE2000_ISR;
+ 
+   /* 受信した */
+   if (is_recv_enable(sim_callback, ether_fd)) {
+@@ -656,10 +673,6 @@
+     }
+   }
+ 
+-  if ((NE2000_ISR & 0x01) && (NE2000_IMR & 0x01)) {
+-    vector = 17; /* IRQ5 */
+-  }
+-
+   /* 送信処理 */
+   if (NE2000_CR & NE2000_CR_TXP) {
+     size = NE2000_TBCR1 << 8 | NE2000_TBCR0;
+@@ -676,6 +689,13 @@
+ 	;
+ 
+     NE2000_CR &= ~NE2000_CR_TXP;
++
++    NE2000_ISR |= 0x02;
++  }
++
++  /* 本来は0x03は不要だが，とりあえず従来の動作に合わせておく */
++  if ((NE2000_ISR & NE2000_IMR) & 0x03) {
++    vector = 17; /* IRQ5 */
+   }
+ 
+   /* バッファのリード／ライト処理 */
+@@ -706,6 +726,20 @@
+     RTL8019_SIM_SR &= ~RTL8019_SIM_SR_NRDY;
+   }
+ 
++  /*
++   * 書き込み検知するために，最上位ビットを立てておく．
++   */
++  NE2000_ISR |= 0x80;
++  isr_save = NE2000_ISR;
++
++  NE2000_PSTART_R = NE2000_PSTART;
++  NE2000_PSTOP_R  = NE2000_PSTOP;
++  NE2000_TPSR_R   = NE2000_TPSR;
++  NE2000_RCR_R    = NE2000_RCR;
++  NE2000_TCR_R    = NE2000_TCR;
++  NE2000_DCR_R    = NE2000_DCR;
++  NE2000_IMR_R    = NE2000_IMR;
++
+   memcpy(&memory[RTL8019_ADDR + 1], &registers[page][1], 0x0f);
+ 
+   return vector;
+@@ -747,9 +781,12 @@
+ 
+   ret = select(fd + 1, &fds, NULL, NULL, NULL);
+   if (ret > 0) {
+-    if (FD_ISSET(fd, &fds)) {
+-      return 1;
+-    }
++    if (serial_fd >= 0)
++      if (FD_ISSET(serial_fd, &fds))
++	return 1;
++    if (ether_fd >= 0)
++      if (FD_ISSET(ether_fd, &fds))
++	return 1;
+   }
+ 
+   return 0;

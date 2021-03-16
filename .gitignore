@@ -1,8 +1,10 @@
 .vscode
 build
-core
+
+*.o
+kzload
+kzload.elf
+kozos
+kozos.elf
 
 osbook_03
-kozos
-tmp
-h8_2
