@@ -174,7 +174,8 @@ static int write_data(int addr, int size, char *buf)
   *NE2000_RSAR0 = addr & 0xff;
   *NE2000_RSAR1 = (addr >> 8) & 0xff;
 
-  // command resiger を操作し、remote write を行う
+  // command resiger を操作し、remote dma write を行う
+  // H8 と RTL8019AS 間で DMA できるようになっている？
   *NE2000_CR    = NE2000_CR_P0 | NE2000_CR_RD_WRITE | NE2000_CR_STA;
   for (i = 0; i < size; i++) {
     // ウェイトも入れずにどんどん書いていいのか？
@@ -417,11 +418,12 @@ int ether_send(int index, int size, char *buf)
   // ページ0でコマンドを準備
   *NE2000_CR    = NE2000_CR_P0 | NE2000_CR_RD_ABORT | NE2000_CR_STA;
   // パケットサイズを2バイトで指定
-  *NE2000_TBCR0 = size & 0xff;
-  *NE2000_TBCR1 = (size >> 8) & 0xff;
+  *NE2000_TBCR0 = size & 0xff;        // 下位バイト
+  *NE2000_TBCR1 = (size >> 8) & 0xff; // 上位バイト
 
   // TPSR(transmit page start register): 送信されるパケットのスタートページアドレス
   *NE2000_TPSR  = NE2000_TP_START;
+
   // TXP をセットし送信を開始
   *NE2000_CR    = NE2000_CR_P0 | NE2000_CR_RD_ABORT | NE2000_CR_TXP | NE2000_CR_STA;
 
