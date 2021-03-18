@@ -106,7 +106,7 @@ instruction_handler_t lookup_7A(H8300H* h8300h)
     case 0x03: return h8instructions::sub::sub_immediate_l;
     case 0x04: return nullptr; // OR
     case 0x05: return nullptr; // XOR
-    case 0x06: return nullptr; // AND
+    case 0x06: return h8instructions::andl::and_immediate_l;
     default:   return nullptr;
     }
 }

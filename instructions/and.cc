@@ -53,3 +53,25 @@ int h8instructions::andl::and_immediate_w(H8300H *h8)
 
     return 0;
 }
+
+int h8instructions::andl::and_immediate_l(H8300H *h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t reg_index = b1 & 0x07;
+    Register32& reg = h8->reg[reg_index];
+
+    uint8_t immediate[4];
+    immediate[3] = h8->fetch_instruction_byte(2);
+    immediate[2] = h8->fetch_instruction_byte(3);
+    immediate[1] = h8->fetch_instruction_byte(4);
+    immediate[0] = h8->fetch_instruction_byte(5);
+    uint32_t imm = *(uint32_t*)immediate;
+
+    uint32_t value = reg.get() & imm;
+    reg.set(value);
+    update_ccr(h8, value);
+
+    h8->pc += 6;
+
+    return 0;
+}
