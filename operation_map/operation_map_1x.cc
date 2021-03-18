@@ -12,6 +12,7 @@
 #include "instructions/shar.h"
 #include "instructions/rotxl.h"
 #include "instructions/subx.h"
+#include "instructions/rotl.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -54,7 +55,7 @@ instruction_handler_t lookup_12(H8300H* h8300h)
     case 0x00:
     case 0x01: return nullptr; // ROTXL
     case 0x03: return h8instructions::rotxl::rotxl_l;
-    case 0x08:
+    case 0x08: return h8instructions::rotl::rotl_b;
     case 0x09: return nullptr; // ROTL
     case 0x0b: return nullptr; // ROTL
     default:   return nullptr;

@@ -35,4 +35,5 @@ add_library(instructions STATIC
 	rotxl.cc
 	divxs.cc
 	subx.cc
+	rotl.cc
 )
