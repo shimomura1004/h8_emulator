@@ -17,6 +17,7 @@ int h8instructions::rotxl::rotxl_l(H8300H* h8)
 
     (result_value < 0) ? h8->ccr.set_n() : h8->ccr.clear_n();
     (result_value == 0) ? h8->ccr.set_z() : h8->ccr.clear_z();
+    h8->ccr.clear_v();
     // CCR.C にキャリーアウトされた値を入れる
     msb ? h8->ccr.set_c() : h8->ccr.clear_c();
 
