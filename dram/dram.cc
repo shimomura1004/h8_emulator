@@ -15,6 +15,8 @@
 #endif
 #endif
 
+// todo: IO ポートの設定が完了するまでは DRAM を読み書きさせない
+
 DRAM::DRAM()
     : ram {0}
 {}

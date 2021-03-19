@@ -9,6 +9,7 @@
 #include "ioport/ioport.h"
 #include "dram/dram.h"
 #include "bus/buscontroller.h"
+#include "net/rtl8019as.h"
 
 class MCU {
     // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
@@ -48,9 +49,9 @@ class MCU {
     // 外部アドレス空間
     static const uint32_t area0_start = 0x000000;
     static const uint32_t area0_end   = 0x1fffff;
-    static const uint32_t area1_start = 0x200000;
+    static const uint32_t area1_start = 0x200000; // RTL8019AS
     static const uint32_t area1_end   = 0x3fffff;
-    static const uint32_t area2_start = 0x400000;
+    static const uint32_t area2_start = 0x400000; // DRAM
     static const uint32_t area2_end   = 0x5fffff;
     static const uint32_t area3_start = 0x600000;
     static const uint32_t area3_end   = 0x7fffff;
@@ -67,6 +68,9 @@ class MCU {
     // 内蔵 ROM/RAM の実体
     uint8_t rom[rom_end - rom_start + 1];
     uint8_t ram[ram_end - ram_start + 1];
+
+    // RTL8019AS
+    RTL8019AS rtl8019as;
 
     // 外部 DRAM
     DRAM dram2;
