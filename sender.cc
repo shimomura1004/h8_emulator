@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/socket.h>

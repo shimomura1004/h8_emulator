@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 
 project(h8300h CXX)
+find_package(Threads)
 include_directories(${h8300h_SOURCE_DIR})
 
 add_definitions("-Wall -I. -std=c++11 -pthread -g")
@@ -27,4 +28,4 @@ add_executable(sender
     sender.cc
 )
 
-target_link_libraries(h8300h sci instructions operation_map timer dram ioport bus interrupt net)
+target_link_libraries(h8300h sci operation_map instructions timer dram ioport bus interrupt net ${CMAKE_THREAD_LIBS_INIT})
