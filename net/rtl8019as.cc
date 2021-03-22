@@ -77,12 +77,15 @@ uint8_t RTL8019AS::read8(uint32_t address)
         return 0;
     }
 
+    fprintf(stderr, "read from 0x%x\n", address);
+
     uint8_t page = getPage();
     return *getRegister(address, page, true);
 }
 
 void RTL8019AS::write8(uint32_t address, uint8_t value)
 {
+    fprintf(stderr, "write 0x%x to 0x%x\n", value, address);
 }
 
 void RTL8019AS::dump(FILE* fp)

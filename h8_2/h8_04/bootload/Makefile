@@ -25,7 +25,7 @@ OBJS += lib.o serial.o xmodem.o elf.o dram.o
 TARGET = kzload
 
 CFLAGS = -Wall -mh -nostdinc -nostdlib -fno-builtin
-#CFLAGS += -mint32 # int¤ò32¥Ó¥Ã¥È¤Ë¤¹¤ë¤È³İ»»¡¿³ä»»¤¬¤Ç¤­¤Ê¤¯¤Ê¤ë
+#CFLAGS += -mint32 # intã‚’32ãƒ“ãƒƒãƒˆã«ã™ã‚‹ã¨æ›ç®—ï¼å‰²ç®—ãŒã§ããªããªã‚‹
 CFLAGS += -I.
 #CFLAGS += -g
 CFLAGS += -Os
