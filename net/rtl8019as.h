@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <cstdint>
+#include "tap_device.h"
 
 class RTL8019AS {
     // page0, read
@@ -114,6 +115,8 @@ class RTL8019AS {
             }
         }
     };
+
+    TAPDevice tap_device;
 
     uint8_t getPage();
     uint8_t* getRegister(uint8_t index, uint8_t page, bool read_mode);
