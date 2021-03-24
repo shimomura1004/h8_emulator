@@ -11,6 +11,7 @@
 #include "interrupt/interrupt_controller.h"
 #include "timer/timer8.h"
 #include "ioport/ioport.h"
+#include "net/rtl8019as.h"
 
 class H8300H {
 public:
@@ -26,6 +27,7 @@ public:
     SCI* sci[3];
     Timer8 *timer8;
     IOPort *ioport;
+    RTL8019AS *rtl8019as;
     MCU mcu;
     InterruptController interrupt_controller;
 
