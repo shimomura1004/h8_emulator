@@ -71,39 +71,16 @@ RTL8019AS::RTL8019AS()
     , TEST(0x00)
     , HLTCLK(0x00)
     , FMWP(0x00)
+    // todo: デバイス名を可変にする
     , tap_device("tun0")
 {
-    // todo: デバイス名を可変にする
-    if (!this->tap_device.createDevice())
-    {
-        return;
-    }
+    this->tap_device.run();
 
-    // test
-    const uint16_t BUFFER_SIZE = 10000;
-    char buffer[BUFFER_SIZE];
-    unsigned char ip[4];
-    while(1) {
-        printf("READ!\n");
-        int nread = tap_device.read(buffer, sizeof(buffer));
-        if (nread < 0) {
-            perror("error!\n");
-            break;
-        }
-
-        printf("Read %d bytes\n", nread);
-
-        memcpy(ip, &buffer[12], 4);
-        memcpy(&buffer[12], &buffer[16], 4);
-        memcpy(&buffer[16], ip, 4);
-
-        buffer[20] = 0;
-        *((unsigned short *)&buffer[22]) += 8;
-            
-        nread = tap_device.write(buffer, nread);
-    
-        printf("Write %d bytes to tun/tap device\n", nread);
-  }
+// todo: readme に使い方を書く
+//   $ sudo ip tuntap add dev tun0 mode tun user shimo
+//   $ sudo ip addr add 10.0.0.2/24 dev tun0
+//   $ sudo ip link set tun0 up
+//   $ h8300h kzload.elf
 }
 
 uint8_t RTL8019AS::read8(uint32_t address)
