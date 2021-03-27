@@ -90,15 +90,28 @@ uint8_t RTL8019AS::read8(uint32_t address)
         return 0;
     }
 
-    fprintf(stderr, "read from 0x%x\n", address);
-
-    uint8_t page = getPage();
-    return *getRegister(address, page, true);
+    if (0x10 <= address && address <= 0x17) {
+        // Remote DMA access
+        uint16_t remote_address = ((uint16_t)RSAR1 << 8) + RSAR0;
+        uint8_t value = this->tap_device.dma_read(remote_address);
+        fprintf(stderr, "remote read from 0x%x, get 0x%x\n", remote_address, value);
+        remote_address++;
+        RSAR0 = remote_address & 0xff;
+        RSAR1 = remote_address >> 8;
+        return value;
+    } else {
+        uint8_t page = getPage();
+        fprintf(stderr, "read from 0x%x, get 0x%x\n", address, *this->getRegister(address, page, true));
+        return *this->getRegister(address, page, true);
+    }
 }
 
 void RTL8019AS::write8(uint32_t address, uint8_t value)
 {
     fprintf(stderr, "write 0x%x to 0x%x\n", value, address);
+
+    uint8_t page = getPage();
+    *this->getRegister(address, page, false) = value;
 }
 
 void RTL8019AS::dump(FILE* fp)

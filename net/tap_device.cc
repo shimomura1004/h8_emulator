@@ -86,9 +86,18 @@ void TAPDevice::run_send_to_tap()
 
 TAPDevice::TAPDevice(const char *dev_name)
     : device_fd(-1)
+    , saprom{0}
     , terminate_flag(false)
 {
     strncpy(this->device_name, dev_name, TAPDevice::DEVICE_NAME_SIZE);
+
+    // set mac address in SAPROM
+    saprom[0x00] = 0x11;
+    saprom[0x02] = 0x22;
+    saprom[0x04] = 0x33;
+    saprom[0x06] = 0x44;
+    saprom[0x08] = 0x55;
+    saprom[0x0a] = 0x66;
 }
 
 TAPDevice::~TAPDevice()
@@ -136,6 +145,16 @@ interrupt_t TAPDevice::getInterrupt()
 
 void TAPDevice::clearInterrupt(interrupt_t type)
 {
+}
+
+uint8_t TAPDevice::dma_read(uint16_t address)
+{
+    return saprom[address];
+}
+
+void TAPDevice::dma_write(uint16_t address, uint8_t value)
+{
+    
 }
 
 uint16_t TAPDevice::read(char *buffer, uint16_t size)

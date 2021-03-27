@@ -11,6 +11,8 @@ class TAPDevice {
     char device_name[DEVICE_NAME_SIZE];
     int device_fd;
 
+    uint8_t saprom[(0x80 - 0x40 + 1) * 256];
+
     std::thread* prepare_thread;
     std::thread* tap_thread[2];
 
@@ -31,6 +33,9 @@ public:
 
     interrupt_t getInterrupt();
     void clearInterrupt(interrupt_t type);
+
+    uint8_t dma_read(uint16_t address);
+    void dma_write(uint16_t address, uint8_t value);
 
 public:
     uint16_t read(char *buffer, uint16_t size);

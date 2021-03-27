@@ -395,9 +395,10 @@ int ether_recv(int index, char *buf)
   curr = *NE2000_CURR;
 
   if (curr < start)
-    // これはどういう意味？
+    // 境界をまたぐ場合の処理。末尾に飛んでいる。
     curr += NE2000_RP_STOP - NE2000_RP_START;
   if (start == curr)
+    // 何のデータも受信していない場合
     return 0;
   if (start == NE2000_RP_STOP)
     // リングバッファを戻す処理？
@@ -405,6 +406,7 @@ int ether_recv(int index, char *buf)
 
   // まずパケットのサイズを受信
   read_data(start * 256, 4, header);
+  // パケットのサイズは下位2バイト
   size = ((int)header[3] << 8) + header[2] - 4;
 
   // パケットの本体を受信
@@ -414,6 +416,7 @@ int ether_recv(int index, char *buf)
   *NE2000_CR = NE2000_CR_P0 | NE2000_CR_RD_ABORT | NE2000_CR_STA;
   if (header[1] == NE2000_RP_START)
     header[1] = NE2000_RP_STOP;
+  // ヘッダの2バイト目には次のページのインデックスが書かれている
   *NE2000_BNRY = header[1] - 1;
 
   clear_irq(index);
@@ -424,6 +427,8 @@ int ether_recv(int index, char *buf)
 // Ethernet フレームを送信する
 int ether_send(int index, int size, char *buf)
 {
+  // 送信時は必ず 0x40 の位置にデータを書く
+  // 送信用のデータ領域は1パケット分しかないため
   write_data(NE2000_TP_START * 256, size, buf);
         
   if(size < 60)
