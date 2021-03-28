@@ -52,12 +52,21 @@ bool TAPDevice::createDevice()
 
 void TAPDevice::run_recv_from_tap()
 {
-    // test
-    const uint16_t BUFFER_SIZE = 10000;
-    char buffer[BUFFER_SIZE];
-    unsigned char ip[4];
+    // todo: リングバッファへのアクセスは排他制御する
+    const uint16_t MAX_ETHERNET_FRAME_SIZE = 1600;
+    char buffer[MAX_ETHERNET_FRAME_SIZE];
+    const uint8_t PAGE_MAX = 0x80;
+    const uint8_t PAGE_MIN = 0x46;
 
-    while (this->terminate_flag) {
+    while (!this->terminate_flag) {
+        // TAP からのデータを受け取ったらリングバッファに書き込み、割り込みを入れる
+
+        // RTL8019AS の write ポインタは BNRY、read ポインタは CURR
+        // どちらもアドレスではなくリングバッファのページ(256バイト)のインデックスなので注意すること
+        // データを書き込むときは、先頭4バイトには制御用データを入れること
+        // 0: ステータス
+        // 1: 次のページのインデックス
+        // 2,3: サイズ(ヘッダを含む)
         int nread = this->read(buffer, sizeof(buffer));
         if (nread < 0) {
             perror("error!\n");
@@ -66,17 +75,87 @@ void TAPDevice::run_recv_from_tap()
 
         printf("Read %d bytes\n", nread);
 
-        memcpy(ip, &buffer[12], 4);
-        memcpy(&buffer[12], &buffer[16], 4);
-        memcpy(&buffer[16], ip, 4);
+        uint8_t bnry = BNRY + 1;
+        uint16_t address = (uint16_t)bnry * 256;
 
-        buffer[20] = 0;
-        *((unsigned short *)&buffer[22]) += 8;
+        printf("BNRY=0x%02x\n", bnry);
+
+        // todo: リングバッファなので、ページの最大数の剰余を取る
+        uint8_t next = (nread + 4) / 256 + bnry + 1;
+        if (next >= PAGE_MAX) {
+            next = (next % PAGE_MAX) + PAGE_MIN;
+        }
+
+        printf("NEXT=0x%02x\n", next);
+        printf("SIZE= 0x%02x 0x%02x\n", nread & 0xff, nread >> 8);
+
+        // todo: status とは？
+        this->saprom[address + 0] = 0x00;
+        this->saprom[address + 1] = next;
+        // todo: この順番で正しいか確認
+        this->saprom[address + 2] = nread & 0xff;
+        this->saprom[address + 3] = nread >> 8;
+
+        // todo: リングバッファなので、0番目のページに戻ることに注意しつつ256バイト単位でコピー
+
+        // 1ページ目をコピー
+        memcpy(&this->saprom[address + 4], buffer, 256 - 4);
+
+        bnry++;
+        if (bnry == PAGE_MAX) {
+            bnry = PAGE_MIN;
+        }
+
+        // 1ページ目の大きさを減らす
+        nread -= 256 - 4;
+        char* tmp = &buffer[256 - 4];
+        address = (uint16_t)bnry * 256;
+
+        // 2ページ目以降をコピー
+        while (nread > 0) {
+            memcpy(&this->saprom[address], tmp, 256);
+
+            bnry++;
+            if (bnry == PAGE_MAX) {
+                bnry = PAGE_MIN;
+            }
+
+            nread -= 256;
+            tmp += 256;
+            address = (uint16_t)bnry * 256;
+        }
+
+        BNRY = bnry - 2;
+
+fprintf(stderr, "IRQ5 interruption set! new BNRY=0x%x\n", BNRY);
+        this->hasInterruption = true;
+        this->interrupt_cv.notify_all();
+    }
+//     // test
+//     const uint16_t BUFFER_SIZE = 10000;
+//     char buffer[BUFFER_SIZE];
+//     unsigned char ip[4];
+
+//     while (this->terminate_flag) {
+//         int nread = this->read(buffer, sizeof(buffer));
+//         if (nread < 0) {
+//             perror("error!\n");
+//             break;
+//         }
+
+//         printf("Read %d bytes\n", nread);
+
+//         memcpy(ip, &buffer[12], 4);
+//         memcpy(&buffer[12], &buffer[16], 4);
+//         memcpy(&buffer[16], ip, 4);
+
+//         buffer[20] = 0;
+//         *((unsigned short *)&buffer[22]) += 8;
             
-        nread = this->write(buffer, nread);
+//         nread = this->write(buffer, nread);
     
-        printf("Write %d bytes to tun/tap device\n", nread);
-  }
+//         printf("Write %d bytes to tun/tap device\n", nread);
+//   }
 }
 
 void TAPDevice::run_send_to_tap()
@@ -84,10 +163,13 @@ void TAPDevice::run_send_to_tap()
 
 }
 
-TAPDevice::TAPDevice(const char *dev_name)
-    : device_fd(-1)
+TAPDevice::TAPDevice(const char *dev_name, std::condition_variable& interrupt_cv, uint8_t& BNRY)
+    : BNRY(BNRY)
+    , device_fd(-1)
     , saprom{0}
     , terminate_flag(false)
+    , hasInterruption(false)
+    , interrupt_cv(interrupt_cv)
 {
     strncpy(this->device_name, dev_name, TAPDevice::DEVICE_NAME_SIZE);
 
@@ -140,11 +222,19 @@ void TAPDevice::terminate()
 
 interrupt_t TAPDevice::getInterrupt()
 {
-    return interrupt_t::NONE;
+    // todo: getInterrupt で値を返すだけでは足りない？
+    // echo とかで他の割込みを発生させると、IRQ5 が処理される雰囲気がある
+    // **interrupt_cv を notify しないといけない！**
+    if (this->hasInterruption) {
+        fprintf(stderr, "IRQ5: has interrupt\n");
+    }
+    return this->hasInterruption ? interrupt_t::IRQ5 : interrupt_t::NONE;
 }
 
 void TAPDevice::clearInterrupt(interrupt_t type)
 {
+    fprintf(stderr, "IRQ5: cleared interruption\n");
+    this->hasInterruption = false;
 }
 
 uint8_t TAPDevice::dma_read(uint16_t address)

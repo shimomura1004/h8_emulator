@@ -3,10 +3,13 @@
 
 #include <cstdint>
 #include <thread>
+#include <condition_variable>
 #include "interrupt/interrupt_type.h"
 
 class TAPDevice {
     static const uint8_t DEVICE_NAME_SIZE = 8;
+
+    uint8_t& BNRY;
 
     char device_name[DEVICE_NAME_SIZE];
     int device_fd;
@@ -18,6 +21,9 @@ class TAPDevice {
 
     bool terminate_flag;
 
+    bool hasInterruption;
+    std::condition_variable& interrupt_cv;
+
     void prepare();
     bool createDevice();
 
@@ -25,7 +31,7 @@ class TAPDevice {
     void run_send_to_tap();
 
 public:
-    TAPDevice(const char *device_name);
+    TAPDevice(const char *device_name, std::condition_variable& interrupt_cv, uint8_t& BNRY);
     ~TAPDevice();
 
     void run();

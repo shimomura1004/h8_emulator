@@ -9,7 +9,6 @@
 
 static const interrupt_t external_interrupts[] = {
     NMI,
-    IRQ0, IRQ1, IRQ2, IRQ3, IRQ4, IRQ5,
 };
 
 static const interrupt_t timer8_interrupts[] = {
@@ -32,9 +31,10 @@ constexpr static uint8_t timer8_interrupt_num = sizeof(timer8_interrupts) / size
 constexpr static uint8_t sci_interrupt_num = sizeof(sci_interrupts) / sizeof(interrupt_t);
 constexpr static uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
 
-InterruptController::InterruptController(SCI** sci, Timer8* timer8)
+InterruptController::InterruptController(SCI** sci, Timer8* timer8, RTL8019AS* rtl8019as)
     : sci(sci)
     , timer8(timer8)
+    , rtl8019as(rtl8019as)
     , interrupt_flag(0)
 {}
 
@@ -65,10 +65,16 @@ void InterruptController::clear(interrupt_t type)
         }
     }
 
+    if (type == interrupt_t::IRQ5) {
+        rtl8019as->clearInterrupt(type);
+        return;
+    }
+
     // 内部割込み(8ビットタイマ)のクリア
     for (int i = 0; i < timer8_interrupt_num; i++) {
         if (type == timer8_interrupts[i]) {
             timer8->clearInterrupt(type);
+            return;
         }
     }
 
@@ -76,6 +82,7 @@ void InterruptController::clear(interrupt_t type)
     for (int i = 0; i < sci_interrupt_num; i++) {
         if (type == sci_interrupts[i]) {
             sci[i / 4]->clearInterrupt(type);
+            return;
         }
     }
 
@@ -99,8 +106,15 @@ interrupt_t InterruptController::getInterruptType()
         }
     }
 
-    // 内部割込みの確認
     interrupt_t type = interrupt_t::NONE;
+
+    // IRQ5(Ethernet) の確認
+    type = rtl8019as->getInterrupt();
+    if (type != interrupt_t::NONE) {
+        return type;
+    }
+
+    // 内部割込みの確認
 
     // 8ビットタイマの確認
     type = timer8->getInterrupt();

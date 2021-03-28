@@ -16,7 +16,7 @@ typedef enum {
     IRQ2,
     IRQ3,
     IRQ4,
-    IRQ5,
+    IRQ5,         // RTL8019AS
     // タイマ
     CMIA0 = 36,   // コンペアマッチA0
     CMIB0,        // コンペアマッチB0
