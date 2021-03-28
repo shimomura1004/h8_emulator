@@ -7,7 +7,8 @@
 uint32 network_id;
 
 #define MACADDR "\x00\x11\x22\x33\x44\x55"
-#define IPADDR  0xc0a80010 /* 192.168.0.16 */
+// #define IPADDR  0xc0a80010 /* 192.168.0.16 */
+#define IPADDR  0x0b000002 /* 11.0.0.2 */
 static uint32 ipaddr = IPADDR;
 
 #define MACADDR_SIZE 6
@@ -189,7 +190,16 @@ static int arp_proc(int size, struct arp_header *hdr)
 
   switch (hdr->operation) {
   case ARP_OPERATION_REQUEST:
+    puts("ARP Request!\n");
     // arp 要求だったら、自分の mac アドレスを応答しないといけない
+
+    putxval(hdr->target_protocol_addr[0], 2);
+    putxval(hdr->target_protocol_addr[1], 2);
+    putxval(hdr->target_protocol_addr[2], 2);
+    putxval(hdr->target_protocol_addr[3], 2);
+    puts("\n");
+    putxval(ipaddr, 8);
+    puts("\n");
 
     // 問い合わせされている IP アドレスが自分と違ったら無視する
     if (memcmp(hdr->target_protocol_addr, &ipaddr, IPADDR_SIZE))
@@ -227,10 +237,12 @@ static int ethernet_proc(int size, struct ethernet_header *hdr)
   // Ethernet フレームの種類に応じて処理を実行
   switch (hdr->type) {
   case ETHERNET_TYPE_ARP:
+    puts("ARP!\n");
     // arp の場合は応答する
     ret = arp_proc(nextsize, nexthdr);
     break;
   case ETHERNET_TYPE_IP:
+    puts("IP packet!\n");
     // IP パケットであれば IP レイヤで処理する
     ret = ip_proc(nextsize, nexthdr);
     break;
