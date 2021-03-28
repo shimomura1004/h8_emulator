@@ -90,6 +90,27 @@ int h8instructions::add::add_immediate_w(H8300H* h8)
     return 0;
 }
 
+int h8instructions::add::add_register_direct_w(H8300H* h8)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t src_reg_index = (b1 & 0xf0) >> 4;
+    uint8_t dst_reg_index = (b1 & 0x0f);
+    const Register16& src = h8->reg16[src_reg_index];
+    Register16& dst = h8->reg16[dst_reg_index];
+
+    int16_t src_value = src.get();
+    int16_t dst_value = dst.get();
+    int16_t result_value = src_value + dst_value;
+
+    dst.set(result_value);
+
+    update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
+
+    h8->pc += 2;
+
+    return 0;
+}
+
 int h8instructions::add::add_immediate_l(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
