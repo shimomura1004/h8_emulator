@@ -242,7 +242,7 @@ TMR8::TMR8(uint8_t channel, TMR8& sub_timer, std::condition_variable& interrupt_
 
 interrupt_t TMR8::getInterrupt()
 {
-    for (int i = 0; i < sizeof(this->interrupt_request_flags); i++) {
+    for (uint8_t i = 0; i < sizeof(this->interrupt_request_flags); i++) {
         if (this->interrupt_request_flags[i]) {
             return this->interrupts[i];
         }
@@ -253,7 +253,7 @@ interrupt_t TMR8::getInterrupt()
 
 bool TMR8::clearInterrupt(interrupt_t type)
 {
-    for (int i = 0; i < sizeof(this->interrupt_request_flags); i++) {
+    for (uint8_t i = 0; i < sizeof(this->interrupt_request_flags); i++) {
         if (type == this->interrupts[i]) {
             if (this->interrupt_request_flags[i]) {
                 this->interrupt_request_flags[i] = false;
