@@ -2,227 +2,238 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
-// todo: RTL8019AS と TAPDevice の責務を明確にする
-// TAPDevice は tap の読み書きだけに特化するのがよさそう
-// RTL8019AS には SAPROM やレジスタを持たせる
-
-uint8_t RTL8019AS::getPage()
-{
-    return (this->CR & 0b11000000) >> 6;
-}
-
-uint8_t* RTL8019AS::getRegister(uint8_t index, uint8_t page, bool read_mode)
-{
-    switch (page) {
-    case 0x00:
-        switch (index) {
-        case 0x00: return &CR;
-        case 0x01: return read_mode ? &CLDA0        : &PSTART;
-        case 0x02: return read_mode ? &CLDA1        : &PSTOP;
-        case 0x03: return &BNRY;
-        case 0x04: return read_mode ? &TSR          : &TPSR;
-        case 0x05: return read_mode ? &NCR          : &TBCR0;
-        case 0x06: return read_mode ? &FIFO         : &TBCR1;
-        case 0x07: return &ISR;
-        case 0x08: return read_mode ? &CRDA0        : &RSAR0;
-        case 0x09: return read_mode ? &CRDA1        : &RSAR1;
-        case 0x0a: return read_mode ? &CHIP8019ID0  : &RBCR0;
-        case 0x0b: return read_mode ? &CHIP8019ID1  : &RBCR1;
-        case 0x0c: return read_mode ? &RSR          : &RCR;
-        case 0x0d: return read_mode ? &CNTR0        : &TCR;
-        case 0x0e: return read_mode ? &CNTR1        : &DCR;
-        case 0x0f: return read_mode ? &CNTR2        : &IMR;
-        }
-    case 0x01:
-        switch (index) {
-        case 0x00: return &CR;
-        case 0x01: return &PAR0;
-        case 0x02: return &PAR1;
-        case 0x03: return &PAR2;
-        case 0x04: return &PAR3;
-        case 0x05: return &PAR4;
-        case 0x06: return &PAR5;
-        case 0x07: return &CURR;
-        case 0x08: return &MAR0;
-        case 0x09: return &MAR1;
-        case 0x0a: return &MAR2;
-        case 0x0b: return &MAR3;
-        case 0x0c: return &MAR4;
-        case 0x0d: return &MAR5;
-        case 0x0e: return &MAR6;
-        case 0x0f: return &MAR7;
-        }
-    case 0x02:
-        switch (index) {
-        case 0x00: return &CR;
-        case 0x01: return &PSTART;
-        case 0x02: return &PSTOP;
-        case 0x03: return nullptr;
-        case 0x04: return &TPSR;
-        case 0x05: return nullptr;
-        case 0x06: return nullptr;
-        case 0x07: return nullptr;
-        case 0x08: return nullptr;
-        case 0x09: return nullptr;
-        case 0x0a: return nullptr;
-        case 0x0b: return nullptr;
-        case 0x0c: return &RCR;
-        case 0x0d: return &TCR;
-        case 0x0e: return &DCR;
-        case 0x0f: return &IMR;
-        }
-    case 0x03:
-        switch (index) {
-        case 0x00: return &CR;
-        case 0x01: return &CR9346CR;
-        case 0x02: return &BPAGE;
-        case 0x03: return read_mode ? &CONFIG0 : nullptr;
-        case 0x04: return &CONFIG1;
-        case 0x05: return &CONFIG2;
-        case 0x06: return &CONFIG3;
-        case 0x07: return read_mode ? nullptr : &TEST;
-        case 0x08: return read_mode ? &CSNSAV : nullptr;
-        case 0x09: return read_mode ? nullptr : &HLTCLK;
-        case 0x0a: return nullptr;
-        case 0x0b: return read_mode ? &INTR : nullptr;
-        case 0x0c: return read_mode ? nullptr : &FMWP;
-        case 0x0d: return read_mode ? &CONFIG4 : nullptr;
-        case 0x0e: return read_mode ? nullptr : nullptr;
-        case 0x0f: return nullptr;
-        }
-    }
-
-    return nullptr;
-}
-
-// todo: レジスタの初期値の設定
-RTL8019AS::RTL8019AS(std::condition_variable& interrupt_cv)
-    : CR(0x00)
-    , CLDA0(0x00)
-    , CLDA1(0x00)
-    , BNRY(0x00)
-    , TSR(0x00)
-    , NCR(0x00)
-    , FIFO(0x00)
-    , ISR(0xff)
-    , CRDA0(0x00)
-    , CRDA1(0x00)
-    , CHIP8019ID0(0x00)
-    , CHIP8019ID1(0x00)
-    , RSR(0x00)
-    , CNTR0(0x00)
-    , CNTR1(0x00)
-    , CNTR2(0x00)
-    , PSTART(0x00)
-    , PSTOP(0x00)
-    , TPSR(0x00)
-    , TBCR0(0x00)
-    , TBCR1(0x00)
-    , RSAR0(0x00)
-    , RSAR1(0x00)
-    , RBCR0(0x00)
-    , RBCR1(0x00)
-    , RCR(0x00)
-    , TCR(0x00)
-    , DCR(0x00)
-    , IMR(0x00)
-    , PAR0(0x00)
-    , PAR1(0x00)
-    , PAR2(0x00)
-    , PAR3(0x00)
-    , PAR4(0x00)
-    , PAR5(0x00)
-    , CURR(0x00)
-    , MAR0(0x00)
-    , MAR1(0x00)
-    , MAR2(0x00)
-    , MAR3(0x00)
-    , MAR4(0x00)
-    , MAR5(0x00)
-    , MAR6(0x00)
-    , MAR7(0x00)
-    , CR9346CR(0x00)
-    , BPAGE(0x00)
-    , CONFIG0(0x00)
-    , CONFIG1(0x00)
-    , CONFIG2(0x00)
-    , CONFIG3(0x00)
-    , CSNSAV(0x00)
-    , INTR(0x00)
-    , CONFIG4(0x00)
-    , TEST(0x00)
-    , HLTCLK(0x00)
-    , FMWP(0x00)
-    // todo: デバイス名を可変にする
-    , tap_device("tun0", interrupt_cv, BNRY, IMR)
-{
-    this->tap_device.run();
+#include "tap_device.h"
 
 // todo: readme に使い方を書く
 //   $ sudo ip tuntap add dev tun0 mode tun user shimo
 //   $ sudo ip addr add 10.0.0.2/24 dev tun0
 //   $ sudo ip link set tun0 up
 //   $ h8300h kzload.elf
+
+// todo: リングバッファへのアクセスは排他制御する
+
+RTL8019AS::RTL8019AS(std::condition_variable& interrupt_cv)
+    : device_fd(-1)
+    , saprom{0}
+    , terminate_flag(false)
+    , hasInterruption(false)
+    , interrupt_cv(interrupt_cv)
+{
+    strncpy(this->device_name, "tun0", DEVICE_NAME_SIZE);
+
+    // set mac address in SAPROM
+    saprom[0x00] = 0x11;
+    saprom[0x02] = 0x22;
+    saprom[0x04] = 0x33;
+    saprom[0x06] = 0x44;
+    saprom[0x08] = 0x55;
+    saprom[0x0a] = 0x66;
+}
+
+RTL8019AS::~RTL8019AS()
+{
+    terminate();
+    if (this->device_fd >= 0) {
+        ::close(this->device_fd);
+        printf("TAP device stopped\n");
+    }
+}
+
+void RTL8019AS::run()
+{
+    this->device_fd = TAPDevice::create(this->device_name, DEVICE_NAME_SIZE);
+    if (this->device_fd >= 0) {
+        this->prepare_thread = new std::thread(&RTL8019AS::prepare, this);
+    }
+}
+
+void RTL8019AS::terminate()
+{
+    terminate_flag = true;
+
+    if (this->prepare_thread) {
+        if (this->prepare_thread->joinable()) {
+            this->prepare_thread->join();
+        }
+        delete this->prepare_thread;
+    }
+
+    for (int i=0; i < 2; i++) {
+        if (tap_thread[i]) {
+            if (tap_thread[i]->joinable()) {
+                tap_thread[i]->join();
+            }
+            delete tap_thread[i];
+        }
+    }
 }
 
 uint8_t RTL8019AS::read8(uint32_t address)
 {
-    if (address > 0x1f) {
-        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
-        return 0;
-    }
-
-    if (0x10 <= address && address <= 0x17) {
-        // Remote DMA access
-        uint16_t remote_address = ((uint16_t)RSAR1 << 8) + RSAR0;
-        uint8_t value = this->tap_device.dma_read(remote_address);
-        fprintf(stderr, "remote read from 0x%x, get 0x%x\n", remote_address, value);
-        remote_address++;
-        RSAR0 = remote_address & 0xff;
-        RSAR1 = remote_address >> 8;
-        return value;
-    } else if (0x18 <= address && address <= 0x1f) {
-        // RTL8019AS のリセット
+    if (address <= 0x0f) {
+        // Register access
+        return this->rtl8019as_register.read8(address);
+    } else if (address <= 0x17) {
+        // DMA port
+        return this->dma_read(address);
+    } else if (address <= 0x1f) {
+        // reset port
         return 0;
     } else {
-        uint8_t page = getPage();
-        fprintf(stderr, "read from 0x%x, get 0x%x\n", address, *this->getRegister(address, page, true));
-
-        return *this->getRegister(address, page, true);
+        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
+        return 0;
     }
 }
 
 void RTL8019AS::write8(uint32_t address, uint8_t value)
 {
-    if (address > 0x1f) {
+    if (address <= 0x0f) {
+        // Register access
+        return this->rtl8019as_register.write8(address, value);
+    } else if (address <= 0x17) {
+        // DMA port
+        return this->dma_write(address, value);
+    } else if (address <= 0x1f) {
+        // reset port
+        return;
+    } else {
         fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
         return;
-    }
-
-    if (0x10 <= address && address <= 0x17) {
-        // Remote DMA access
-    } else if (0x18 <= address && address <= 0x1f) {
-        // RTL8019AS のリセット
-    } else {
-        fprintf(stderr, "write 0x%x to 0x%x\n", value, address);
-
-        uint8_t page = getPage();
-        *this->getRegister(address, page, false) = value;
     }
 }
 
 interrupt_t RTL8019AS::getInterrupt()
 {
-    return this->tap_device.getInterrupt();
+    return this->hasInterruption ? interrupt_t::IRQ5 : interrupt_t::NONE;
 }
 
 void RTL8019AS::clearInterrupt(interrupt_t type)
 {
-    this->tap_device.clearInterrupt(type);
+    this->hasInterruption = false;
 }
-
 
 void RTL8019AS::dump(FILE* fp)
 {
+}
+
+void RTL8019AS::prepare()
+{
+    this->tap_thread[0] = new std::thread(&RTL8019AS::run_recv_from_tap, this);
+    this->tap_thread[1] = new std::thread(&RTL8019AS::run_send_to_tap, this);
+    if (this->tap_thread[0] && this->tap_thread[1]) {
+        printf("TAP device started\n");
+    }
+}
+
+void RTL8019AS::run_recv_from_tap()
+{
+    const uint16_t MAX_ETHERNET_FRAME_SIZE = 1600;
+    char buffer[MAX_ETHERNET_FRAME_SIZE];
+    const uint8_t PAGE_MAX = 0x80;
+    const uint8_t PAGE_MIN = 0x46;
+
+    while (!this->terminate_flag) {
+        // TAP からのデータを受け取ったらリングバッファに書き込み、割り込みを入れる
+
+        // RTL8019AS の write ポインタは BNRY、read ポインタは CURR
+        // どちらもアドレスではなくリングバッファのページ(256バイト)のインデックスなので注意すること
+        // データを書き込むときは、先頭4バイトには制御用データを入れること
+        // 0: ステータス
+        // 1: 次のページのインデックス
+        // 2,3: サイズ(ヘッダを含む)
+        int nread = ::read(this->device_fd, buffer, sizeof(buffer));
+        if (nread < 0) {
+            perror("error!\n");
+            break;
+        }
+
+        printf("Read %d bytes\n", nread);
+
+        uint8_t bnry = this->rtl8019as_register.get_BNRY() + 1;
+        uint16_t address = (uint16_t)bnry * 256;
+
+        printf("BNRY=0x%02x\n", bnry);
+
+        // todo: リングバッファなので、ページの最大数の剰余を取る
+        uint8_t next = (nread + 4) / 256 + bnry + 1;
+        if (next >= PAGE_MAX) {
+            next = (next % PAGE_MAX) + PAGE_MIN;
+        }
+
+        printf("NEXT=0x%02x\n", next);
+        printf("SIZE= 0x%02x 0x%02x\n", nread & 0xff, nread >> 8);
+
+        // todo: status とは？
+        this->saprom[address + 0] = 0x00;
+        this->saprom[address + 1] = next;
+        // todo: この順番で正しいか確認
+        this->saprom[address + 2] = nread & 0xff;
+        this->saprom[address + 3] = nread >> 8;
+
+        // todo: リングバッファなので、0番目のページに戻ることに注意しつつ256バイト単位でコピー
+
+        // 1ページ目をコピー
+        memcpy(&this->saprom[address + 4], buffer, 256 - 4);
+
+        bnry++;
+        if (bnry == PAGE_MAX) {
+            bnry = PAGE_MIN;
+        }
+
+        // 1ページ目の大きさを減らす
+        nread -= 256 - 4;
+        char* tmp = &buffer[256 - 4];
+        address = (uint16_t)bnry * 256;
+
+        // 2ページ目以降をコピー
+        while (nread > 0) {
+            memcpy(&this->saprom[address], tmp, 256);
+
+            bnry++;
+            if (bnry == PAGE_MAX) {
+                bnry = PAGE_MIN;
+            }
+
+            nread -= 256;
+            tmp += 256;
+            address = (uint16_t)bnry * 256;
+        }
+
+        this->rtl8019as_register.set_BNRY(bnry - 2);
+
+        if (this->rtl8019as_register.get_IMR()) {
+            fprintf(stderr, "IRQ5 interruption set! new BNRY=0x%x\n", this->rtl8019as_register.get_BNRY());
+            this->hasInterruption = true;
+            this->interrupt_cv.notify_all();
+        }
+    }
+}
+
+void RTL8019AS::run_send_to_tap()
+{
+
+}
+
+uint8_t RTL8019AS::dma_read(uint16_t address)
+{
+    uint16_t remote_address = this->rtl8019as_register.get_RSAR();
+
+    uint8_t value = saprom[remote_address];
+    fprintf(stderr, "remote read from 0x%x, get 0x%x\n", remote_address, value);
+
+    remote_address++;
+    this->rtl8019as_register.set_RSAR(remote_address);
+
+    return value;
+}
+
+void RTL8019AS::dma_write(uint16_t address, uint8_t value)
+{
+    uint16_t remote_address = this->rtl8019as_register.get_RSAR();
+
+    saprom[remote_address] = value;
+    fprintf(stderr, "remote write to 0x%x, set 0x%x\n", remote_address, value);
+
+    remote_address++;
+    this->rtl8019as_register.set_RSAR(remote_address);
 }

@@ -126,6 +126,8 @@ void H8300H::init()
     for (int i = 0; i < 3; i++) {
         this->sci[i]->run();
     }
+
+    this->rtl8019as->run();
 }
 
 uint32_t H8300H::load_elf(std::string filepath)
