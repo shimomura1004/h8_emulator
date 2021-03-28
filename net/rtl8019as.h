@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <cstdint>
+#include "interrupt/interrupt_type.h"
 #include "tap_device.h"
 
 class RTL8019AS {
@@ -73,56 +74,13 @@ class RTL8019AS {
     uint8_t HLTCLK;
     uint8_t FMWP;
 
-    uint8_t* const register_table[4][2][16] = {
-        {
-            {
-                &CR, &CLDA0, &CLDA1, &BNRY, &TSR, &NCR, &FIFO, &ISR,
-                &CRDA0, &CRDA1, &CHIP8019ID0, &CHIP8019ID1, &RSR, &CNTR0, &CNTR1, &CNTR2,
-            },
-            {
-                &CR, &PSTART, &PSTOP, &TPSR, &BNRY, &TBCR0, &TBCR1, &ISR,
-                &RSAR0, &RSAR1, &RBCR0, &RBCR1, &RCR, &TCR, &DCR, &IMR, 
-            }
-        },
-        {
-            {
-                &CR, &PAR0, &PAR1, &PAR2, &PAR3, &PAR4, &PAR5, &CURR,
-                &MAR0, &MAR1, &MAR2, &MAR3, &MAR4, &MAR5, &MAR6, &MAR7,
-            },
-            {
-                &CR, &PAR0, &PAR1, &PAR2, &PAR3, &PAR4, &PAR5, &CURR,
-                &MAR0, &MAR1, &MAR2, &MAR3, &MAR4, &MAR5, &MAR6, &MAR7,
-            }
-        },
-        {
-            {
-                &CR, &PSTART, &PSTOP, nullptr, &TPSR, nullptr, nullptr, nullptr,
-                nullptr, nullptr, nullptr, nullptr, &RCR, &TCR, &DCR, &IMR,
-            },
-            {
-                &CR, &PSTART, &PSTOP, nullptr, &TPSR, nullptr, nullptr, nullptr,
-                nullptr, nullptr, nullptr, nullptr, &RCR, &TCR, &DCR, &IMR,
-            },
-        },
-        {
-            {
-                &CR, &CR9346CR, &BPAGE, &CONFIG0, &CONFIG1, &CONFIG2, &CONFIG3, nullptr,
-                &CSNSAV, nullptr, nullptr, &INTR, nullptr, &CONFIG4, nullptr, nullptr,
-            },
-            {
-                &CR, &CR9346CR, &BPAGE, nullptr, &CONFIG1, &CONFIG2, &CONFIG3, &TEST,
-                nullptr, &HLTCLK, nullptr, nullptr, &FMWP,  nullptr, nullptr, nullptr,
-            }
-        }
-    };
-
     TAPDevice tap_device;
 
     uint8_t getPage();
     uint8_t* getRegister(uint8_t index, uint8_t page, bool read_mode);
 
 public:
-    RTL8019AS();
+    RTL8019AS(std::condition_variable& interrupt_cv);
 
     uint8_t read8(uint32_t address);
     // uint16_t read16(uint32_t address);
@@ -130,6 +88,9 @@ public:
     void write8(uint32_t address, uint8_t value);
     // void write16(uint32_t address, uint16_t value);
     // void write32(uint32_t address, uint32_t value);
+
+    interrupt_t getInterrupt();
+    void clearInterrupt(interrupt_t type);
 
     void dump(FILE* fp);
 
