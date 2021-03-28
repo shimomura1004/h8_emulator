@@ -12,6 +12,18 @@
 
 // todo: リングバッファへのアクセスは排他制御する
 
+void debug(uint8_t* buffer, int size)
+{
+    printf("vvvv\n");
+    for (int i=0; i < size; i++) {
+        if (i % 8 == 0) {
+            printf("\n");
+        }
+        printf("%02x ", buffer[i]);
+    }
+    printf("\n^^^^\n");
+}
+
 RTL8019AS::RTL8019AS(std::condition_variable& interrupt_cv)
     : device_fd(-1)
     , saprom{0}
@@ -19,15 +31,15 @@ RTL8019AS::RTL8019AS(std::condition_variable& interrupt_cv)
     , hasInterruption(false)
     , interrupt_cv(interrupt_cv)
 {
-    strncpy(this->device_name, "tun0", DEVICE_NAME_SIZE);
+    strncpy(this->device_name, "tap0", DEVICE_NAME_SIZE);
 
     // set mac address in SAPROM
-    saprom[0x00] = 0x11;
-    saprom[0x02] = 0x22;
-    saprom[0x04] = 0x33;
-    saprom[0x06] = 0x44;
-    saprom[0x08] = 0x55;
-    saprom[0x0a] = 0x66;
+    saprom[0x00] = 0x00;
+    saprom[0x02] = 0x11;
+    saprom[0x04] = 0x22;
+    saprom[0x06] = 0x33;
+    saprom[0x08] = 0x44;
+    saprom[0x0a] = 0x55;
 }
 
 RTL8019AS::~RTL8019AS()
@@ -112,10 +124,6 @@ void RTL8019AS::clearInterrupt(interrupt_t type)
     this->hasInterruption = false;
 }
 
-void RTL8019AS::dump(FILE* fp)
-{
-}
-
 void RTL8019AS::prepare()
 {
     this->tap_thread[0] = new std::thread(&RTL8019AS::run_recv_from_tap, this);
@@ -167,13 +175,18 @@ void RTL8019AS::run_recv_from_tap()
         this->saprom[address + 0] = 0x00;
         this->saprom[address + 1] = next;
         // todo: この順番で正しいか確認
-        this->saprom[address + 2] = nread & 0xff;
-        this->saprom[address + 3] = nread >> 8;
+        // 4バイト分の管理データ分を加算する
+        this->saprom[address + 2] = (nread + 4) & 0xff;
+        this->saprom[address + 3] = (nread + 4) >> 8;
 
         // todo: リングバッファなので、0番目のページに戻ることに注意しつつ256バイト単位でコピー
 
         // 1ページ目をコピー
-        memcpy(&this->saprom[address + 4], buffer, 256 - 4);
+        // RTL8019AS では受信したフレームに対し、先頭に4バイト分の管理データを保持するので、
+        // 4バイト目以降にフレームをコピーする
+        address += 4;
+        memcpy(&this->saprom[address], buffer, std::min(256 - 4, nread));
+        debug(&this->saprom[address], std::min(256 - 4, nread));
 
         bnry++;
         if (bnry == PAGE_MAX) {
@@ -187,7 +200,7 @@ void RTL8019AS::run_recv_from_tap()
 
         // 2ページ目以降をコピー
         while (nread > 0) {
-            memcpy(&this->saprom[address], tmp, 256);
+            memcpy(&this->saprom[address], tmp, std::min(256, nread));
 
             bnry++;
             if (bnry == PAGE_MAX) {
@@ -214,6 +227,7 @@ void RTL8019AS::run_send_to_tap()
 
 }
 
+// todo: CURR を動かさないといけない
 uint8_t RTL8019AS::dma_read(uint16_t address)
 {
     uint16_t remote_address = this->rtl8019as_register.get_RSAR();
@@ -236,4 +250,8 @@ void RTL8019AS::dma_write(uint16_t address, uint8_t value)
 
     remote_address++;
     this->rtl8019as_register.set_RSAR(remote_address);
+}
+
+void RTL8019AS::dump(FILE* fp)
+{
 }

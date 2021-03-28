@@ -13,6 +13,7 @@ class RTL8019AS {
     char device_name[DEVICE_NAME_SIZE];
     int device_fd;
 
+    // todo: マジックナンバーをなくす
     uint8_t saprom[(0x80 - 0x40 + 1) * 256];
     RTL8019ASRegister rtl8019as_register;
 
@@ -20,7 +21,7 @@ class RTL8019AS {
     std::thread* tap_thread[2];
     bool terminate_flag;
 
-    // todo: ISR レジスタが割込みの種別を持っている
+    // todo: ISR レジスタが割込みの種別を持っている、細かくフラグをわけないといけない
     bool hasInterruption;
     std::condition_variable& interrupt_cv;
 
@@ -40,10 +41,10 @@ public:
     interrupt_t getInterrupt();
     void clearInterrupt(interrupt_t type);
 
-    void dump(FILE* fp);
-
     uint8_t dma_read(uint16_t address);
     void dma_write(uint16_t address, uint8_t value);
+
+    void dump(FILE* fp);
 
 public:
     uint8_t read8(uint32_t address);

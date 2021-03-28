@@ -21,7 +21,7 @@ int TAPDevice::create(char* device_name, int buffer_size)
     }
 
     memset(&ifr, 0, sizeof(ifr));
-    ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
+    ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
     strncpy(ifr.ifr_name, device_name, buffer_size);
 
     int err = ioctl(device_fd, TUNSETIFF, (void*)&ifr);
