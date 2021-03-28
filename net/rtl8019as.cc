@@ -224,10 +224,13 @@ void RTL8019AS::run_recv_from_tap()
 
 void RTL8019AS::run_send_to_tap()
 {
-
+    while (!this->terminate_flag) {
+        // todo: 送信バッファへの書き込み完了の通知を受けないといけない
+    }
 }
 
 // todo: CURR を動かさないといけない
+// Remote DMA を開始するときに指定されたサイズだけデータが書かれたら/読まれたら完了
 uint8_t RTL8019AS::dma_read(uint16_t address)
 {
     uint16_t remote_address = this->rtl8019as_register.get_RSAR();

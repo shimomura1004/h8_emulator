@@ -92,8 +92,10 @@ uint8_t* RTL8019ASRegister::getRegister(uint8_t index, uint8_t page, bool read_m
 }
 
 // todo: レジスタの初期値の設定
+// テスト用に、仮で以下の値を設定している
+// ISR(0xff): Remote DMA が常に完了した状態
 RTL8019ASRegister::RTL8019ASRegister()
-    : CR(0x00)
+    : CR(0x04)
     , CLDA0(0x00)
     , CLDA1(0x00)
     , BNRY(0x00)
@@ -193,6 +195,15 @@ uint8_t RTL8019ASRegister::read8(uint32_t address)
 
     uint8_t page = getPage();
     fprintf(stderr, "read from 0x%x, get 0x%x\n", address, *this->getRegister(address, page, true));
+
+    if (address == 0x00) {
+        // テスト用に、CR にアクセスしてきたら、TXP を必ずクリアする
+        CR &= ~(1 << 2);
+    }
+    if (page == 0 && address == 0x07) {
+        // テスト用に、ISR にアクセスしてきたら、CURR をすすめる
+        CURR++;
+    }
 
     return *this->getRegister(address, page, true);
 }
