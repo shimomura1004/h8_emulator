@@ -156,13 +156,13 @@ static int elf_load_program(struct elf_header *header, unsigned char buf[], uint
         }
 
         // セグメントの情報を出力する
-        printf("Offset        : 0x%08x\n", phdr->offset);
-        printf("Virtual Addr  : 0x%08x\n", phdr->virtual_addr);
-        printf("Physical Addr : 0x%08x\n", phdr->physical_addr);
-        printf("File Size     : 0x%08x\n", phdr->file_size);
-        printf("Memory Size   : 0x%08x\n", phdr->memory_size);
-        printf("Flags         : 0x%08x\n", phdr->flags);
-        printf("Align         : 0x%08x\n", phdr->align);
+        // printf("Offset        : 0x%08x\n", phdr->offset);
+        // printf("Virtual Addr  : 0x%08x\n", phdr->virtual_addr);
+        // printf("Physical Addr : 0x%08x\n", phdr->physical_addr);
+        // printf("File Size     : 0x%08x\n", phdr->file_size);
+        // printf("Memory Size   : 0x%08x\n", phdr->memory_size);
+        // printf("Flags         : 0x%08x\n", phdr->flags);
+        // printf("Align         : 0x%08x\n", phdr->align);
     }
 
     return 0;
