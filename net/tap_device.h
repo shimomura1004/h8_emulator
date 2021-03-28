@@ -10,6 +10,7 @@ class TAPDevice {
     static const uint8_t DEVICE_NAME_SIZE = 8;
 
     uint8_t& BNRY;
+    uint8_t& IMR;
 
     char device_name[DEVICE_NAME_SIZE];
     int device_fd;
@@ -21,6 +22,7 @@ class TAPDevice {
 
     bool terminate_flag;
 
+    // todo: ISR レジスタが割込みの種別を持っている
     bool hasInterruption;
     std::condition_variable& interrupt_cv;
 
@@ -31,7 +33,7 @@ class TAPDevice {
     void run_send_to_tap();
 
 public:
-    TAPDevice(const char *device_name, std::condition_variable& interrupt_cv, uint8_t& BNRY);
+    TAPDevice(const char *device_name, std::condition_variable& interrupt_cv, uint8_t& BNRY, uint8_t& IMR);
     ~TAPDevice();
 
     void run();

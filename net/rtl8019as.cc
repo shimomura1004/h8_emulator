@@ -155,7 +155,7 @@ RTL8019AS::RTL8019AS(std::condition_variable& interrupt_cv)
     , HLTCLK(0x00)
     , FMWP(0x00)
     // todo: デバイス名を可変にする
-    , tap_device("tun0", interrupt_cv, BNRY)
+    , tap_device("tun0", interrupt_cv, BNRY, IMR)
 {
     this->tap_device.run();
 

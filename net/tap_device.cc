@@ -127,35 +127,12 @@ void TAPDevice::run_recv_from_tap()
 
         BNRY = bnry - 2;
 
-fprintf(stderr, "IRQ5 interruption set! new BNRY=0x%x\n", BNRY);
-        this->hasInterruption = true;
-        this->interrupt_cv.notify_all();
+        if (IMR) {
+            fprintf(stderr, "IRQ5 interruption set! new BNRY=0x%x\n", BNRY);
+            this->hasInterruption = true;
+            this->interrupt_cv.notify_all();
+        }
     }
-//     // test
-//     const uint16_t BUFFER_SIZE = 10000;
-//     char buffer[BUFFER_SIZE];
-//     unsigned char ip[4];
-
-//     while (this->terminate_flag) {
-//         int nread = this->read(buffer, sizeof(buffer));
-//         if (nread < 0) {
-//             perror("error!\n");
-//             break;
-//         }
-
-//         printf("Read %d bytes\n", nread);
-
-//         memcpy(ip, &buffer[12], 4);
-//         memcpy(&buffer[12], &buffer[16], 4);
-//         memcpy(&buffer[16], ip, 4);
-
-//         buffer[20] = 0;
-//         *((unsigned short *)&buffer[22]) += 8;
-            
-//         nread = this->write(buffer, nread);
-    
-//         printf("Write %d bytes to tun/tap device\n", nread);
-//   }
 }
 
 void TAPDevice::run_send_to_tap()
@@ -163,8 +140,9 @@ void TAPDevice::run_send_to_tap()
 
 }
 
-TAPDevice::TAPDevice(const char *dev_name, std::condition_variable& interrupt_cv, uint8_t& BNRY)
+TAPDevice::TAPDevice(const char *dev_name, std::condition_variable& interrupt_cv, uint8_t& BNRY, uint8_t& IMR)
     : BNRY(BNRY)
+    , IMR(IMR)
     , device_fd(-1)
     , saprom{0}
     , terminate_flag(false)
@@ -249,6 +227,7 @@ void TAPDevice::dma_write(uint16_t address, uint8_t value)
 
 uint16_t TAPDevice::read(char *buffer, uint16_t size)
 {
+    printf("READ TO %p\n", buffer);
     return ::read(this->device_fd, buffer, size);
 }
 
