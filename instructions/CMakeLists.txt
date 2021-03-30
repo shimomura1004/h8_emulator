@@ -36,4 +36,5 @@ add_library(instructions STATIC
 	divxs.cc
 	subx.cc
 	rotl.cc
+	not.cc
 )

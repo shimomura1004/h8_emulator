@@ -13,6 +13,7 @@
 #include "instructions/rotxl.h"
 #include "instructions/subx.h"
 #include "instructions/rotl.h"
+#include "instructions/not.h"
 
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
@@ -84,9 +85,9 @@ instruction_handler_t lookup_17(H8300H* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00:
-    case 0x01: return nullptr; // NOT
-    case 0x03: return nullptr; // NOT
+    case 0x00: return h8instructions::notl::not_b;
+    case 0x01: return h8instructions::notl::not_w;
+    case 0x03: return h8instructions::notl::not_l;
     case 0x05: return h8instructions::extu::extu_w;
     case 0x07: return h8instructions::extu::extu_l;
     case 0x08: return nullptr; // NEG.B
