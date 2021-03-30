@@ -27,7 +27,7 @@ instruction_handler_t lookup_58(H8300H *h8)
     case 0x0c: return h8instructions::bcc::bge_16;
     case 0x0d: return h8instructions::bcc::blt_16;
     case 0x0e: return h8instructions::bcc::bgt_16;
-    case 0x0f: return nullptr; // BLE
+    case 0x0f: return h8instructions::bcc::ble_16;
     default:   return nullptr;
     }
 }

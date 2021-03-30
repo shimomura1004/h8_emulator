@@ -25,6 +25,7 @@ int blt_16(H8300H* h8);
 int bgt_8(H8300H* h8);
 int bgt_16(H8300H* h8);
 int ble_8(H8300H* h8);
+int ble_16(H8300H* h8);
 
 }
 }

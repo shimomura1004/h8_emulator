@@ -259,3 +259,20 @@ int h8instructions::bcc::ble_8(H8300H *h8)
 
     return 0;
 }
+
+int h8instructions::bcc::ble_16(H8300H *h8)
+{
+    uint8_t displacement[2];
+    displacement[1] = h8->fetch_instruction_byte(2);
+    displacement[0] = h8->fetch_instruction_byte(3);
+    int16_t disp = *(int16_t*)displacement;
+
+    h8->pc += 4;
+
+    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
+    if (h8->ccr.z() || n_xor_v) {
+        h8->pc += disp;
+    }
+
+    return 0;
+}
