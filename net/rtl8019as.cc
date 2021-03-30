@@ -16,6 +16,9 @@ void debug(uint8_t* buffer, int size)
 {
     printf("vvvv\n");
     for (int i=0; i < size; i++) {
+        if (i % 4 == 0) {
+            printf(" ");
+        }
         if (i % 8 == 0) {
             printf("\n");
         }
@@ -137,6 +140,8 @@ void RTL8019AS::run_recv_from_tap()
 {
     const uint16_t MAX_ETHERNET_FRAME_SIZE = 1600;
     char buffer[MAX_ETHERNET_FRAME_SIZE];
+
+    // todo: PSTOP/PSTART を読むべき
     const uint8_t PAGE_MAX = 0x80;
     const uint8_t PAGE_MIN = 0x46;
 
@@ -225,7 +230,20 @@ void RTL8019AS::run_recv_from_tap()
 void RTL8019AS::run_send_to_tap()
 {
     while (!this->terminate_flag) {
-        // todo: 送信バッファへの書き込み完了の通知を受けないといけない
+        // TXP がセットされたら、送信処理を開始
+        this->rtl8019as_register.wait_txp_to_be(true);
+
+        // TAP デバイスに書き込んで Ethernet フレームを送信
+        uint16_t tbcr = this->rtl8019as_register.get_TBCR();
+        uint8_t tpsr = this->rtl8019as_register.get_TPSR();
+
+        printf("Send data from 0x%04x, %dbytes\n", tpsr * 256, tbcr);
+        ::write(this->device_fd, &this->saprom[tpsr * 256], tbcr);
+printf("SEND!\n");
+debug(&this->saprom[tpsr * 256], tbcr);
+
+        // TXP をクリアして処理完了を通知
+        this->rtl8019as_register.set_CR_TXP(false);
     }
 }
 
@@ -235,7 +253,7 @@ uint8_t RTL8019AS::dma_read(uint16_t address)
 {
     uint16_t remote_address = this->rtl8019as_register.get_RSAR();
 
-    uint8_t value = saprom[remote_address];
+    uint8_t value = this->saprom[remote_address];
     fprintf(stderr, "remote read from 0x%x, get 0x%x\n", remote_address, value);
 
     remote_address++;
@@ -248,8 +266,8 @@ void RTL8019AS::dma_write(uint16_t address, uint8_t value)
 {
     uint16_t remote_address = this->rtl8019as_register.get_RSAR();
 
-    saprom[remote_address] = value;
-    fprintf(stderr, "remote write to 0x%x, set 0x%x\n", remote_address, value);
+    this->saprom[remote_address] = value;
+    fprintf(stderr, "remote write to 0x%x, set 0x%x, then 0x%x\n", remote_address, value, saprom[remote_address]);
 
     remote_address++;
     this->rtl8019as_register.set_RSAR(remote_address);

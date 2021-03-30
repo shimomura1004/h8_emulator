@@ -3,6 +3,8 @@
 
 #include <cstdio>
 #include <cstdint>
+#include <mutex>
+#include <condition_variable>
 
 class RTL8019ASRegister {
     // page0, read
@@ -72,11 +74,17 @@ class RTL8019ASRegister {
     uint8_t HLTCLK;
     uint8_t FMWP;
 
+    std::condition_variable rtl_cv;
+    std::mutex rtl_mutex;
+
     uint8_t getPage();
     uint8_t* getRegister(uint8_t index, uint8_t page, bool read_mode);
 
 public:
     RTL8019ASRegister();
+
+    bool get_CR_TXP();
+    void set_CR_TXP(bool b);
 
     uint8_t get_BNRY();
     void set_BNRY(uint8_t BNRY);
@@ -84,8 +92,16 @@ public:
     uint16_t get_RSAR();
     void set_RSAR(uint16_t RSAR);
 
+    uint8_t get_TPSR();
+    void set_TPSR(uint8_t TPSR);
+
+    uint16_t get_TBCR();
+    void set_TBCR(uint16_t TBCR);
+
     uint8_t get_IMR();
     void set_IMR(uint8_t IMR);
+
+    void wait_txp_to_be(bool b);
 
     uint8_t read8(uint32_t address);
     void write8(uint32_t address, uint8_t value);

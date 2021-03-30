@@ -154,52 +154,109 @@ RTL8019ASRegister::RTL8019ASRegister()
 {
 }
 
+bool RTL8019ASRegister::get_CR_TXP()
+{
+    return CR & (1 << 2);
+}
+
+void RTL8019ASRegister::set_CR_TXP(bool b)
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    if (b) {
+        // todo: マジックナンバーを消す
+        this->CR |= 1 << 2;
+    } else {
+        this->CR &= ~(1 << 2);
+    }
+    this->rtl_cv.notify_all();
+}
+
 uint8_t RTL8019ASRegister::get_BNRY()
 {
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
     return this->BNRY;
 }
 
 void RTL8019ASRegister::set_BNRY(uint8_t BNRY)
 {
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
     this->BNRY = BNRY;
 }
 
 uint16_t RTL8019ASRegister::get_RSAR()
 {
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
     return ((uint16_t)this->RSAR1 << 8) + this->RSAR0;
 }
 
 void RTL8019ASRegister::set_RSAR(uint16_t RSAR)
 {
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
     this->RSAR0 = RSAR & 0xff;
     this->RSAR1 = RSAR >> 8;
 }
 
+uint8_t RTL8019ASRegister::get_TPSR()
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    return TPSR;
+}
+
+void RTL8019ASRegister::set_TPSR(uint8_t TPSR)
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    this->TPSR = TPSR;
+}
+
+
+uint16_t RTL8019ASRegister::get_TBCR()
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    return ((uint16_t)this->TBCR1 << 8) + this->TBCR0;
+}
+
+void RTL8019ASRegister::set_TBCR(uint16_t TBCR)
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    this->TBCR0 = TBCR & 0xff;
+    this->TBCR1 = TBCR >> 8;
+}
+
 uint8_t RTL8019ASRegister::get_IMR()
 {
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
     return this->IMR;
 }
 
 void RTL8019ASRegister::set_IMR(uint8_t IMR)
 {
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
     this->IMR = IMR;
+}
+
+void RTL8019ASRegister::wait_txp_to_be(bool b)
+{
+    std::unique_lock<std::mutex> txp_lock(this->rtl_mutex);
+    this->rtl_cv.wait(txp_lock, [&]{
+        // todo: マジックナンバーを消す
+        // TXP が true/false になるのを待つ
+        return b == (bool)(CR & (1 << 2));
+    });
 }
 
 // H8 側からレジスタを読む
 uint8_t RTL8019ASRegister::read8(uint32_t address)
 {
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+
     if (address > 0x0f) {
         fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
         return 0;
     }
 
     uint8_t page = getPage();
-    fprintf(stderr, "read from 0x%x, get 0x%x\n", address, *this->getRegister(address, page, true));
+    // fprintf(stderr, "read from 0x%x, get 0x%x\n", address, *this->getRegister(address, page, true));
 
-    if (address == 0x00) {
-        // テスト用に、CR にアクセスしてきたら、TXP を必ずクリアする
-        CR &= ~(1 << 2);
-    }
     if (page == 0 && address == 0x07) {
         // テスト用に、ISR にアクセスしてきたら、CURR をすすめる
         CURR++;
@@ -211,15 +268,22 @@ uint8_t RTL8019ASRegister::read8(uint32_t address)
 // H8 側からレジスタに書き込む
 void RTL8019ASRegister::write8(uint32_t address, uint8_t value)
 {
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+
     if (address > 0x0f) {
         fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
         return;
     }
 
-    fprintf(stderr, "write 0x%x to 0x%x\n", value, address);
+    // fprintf(stderr, "write 0x%x to 0x%x\n", value, address);
 
     uint8_t page = getPage();
     *this->getRegister(address, page, false) = value;
+
+    if (address == 0x00) {
+        // CR への書き込みがあったら notify する
+        this->rtl_cv.notify_all();
+    }
 }
 
 void RTL8019ASRegister::dump(FILE* fp)
