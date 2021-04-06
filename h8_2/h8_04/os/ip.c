@@ -89,6 +89,8 @@ struct icmp_header {
   uint16 checksum;
 };
 
+// チェックサムエラーで ping 応答を受理してもらえていない？
+// ICMP チェックサムと、IP のチェックサム
 // ICMP 応答用のチェックサムを計算
 static uint16 calc_checksum(int size, void *buf)
 {
@@ -105,6 +107,9 @@ static uint16 calc_checksum(int size, void *buf)
     sum += val;
     p++;
   }
+
+  // // こうするとチェックサムが合う。なぜ？
+  // sum++;
 
   while (sum > 0xffff)
     sum = ((sum >> 16) & 0xffff) + (sum & 0xffff);
@@ -144,14 +149,18 @@ static int ip_proc(int size, struct ip_header *hdr)
   if (memcmp(hdr->dst_addr, &ipaddr, IPADDR_SIZE))
     return 0;
 
-  // 4倍？
+  // HL(header length) は、32ビット(4バイト)ワードが何個あるか？を表す
+  // 4倍している
   hdrlen = (hdr->v_hl & 0xf) << 2;
 
-  // total_length はオクテット単位だけど、いいのか？
+  // IPパケットのサイズよりも大きいサイズが指定されていたら、減らす
   if (size > hdr->total_length)
     size = hdr->total_length;
 
-  // IP ヘッダ分を削る
+  puts("header length: 0x"); putxval(hdrlen, 0); puts("\n");
+  puts("total length: 0x"); putxval(size, 0); puts("\n");
+
+  // IP ヘッダ分を削り、IP パケットのデータ部の大きさと先頭ポインタを用意
   nextsize = size - hdrlen;
   nexthdr = (char *)hdr + hdrlen;
 

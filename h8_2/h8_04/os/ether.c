@@ -384,6 +384,9 @@ int ether_recv(int index, char *buf)
   unsigned char header[4];
   int size;
 
+  // BNRY: read ポインタ、この番号までは読み終えている、次回はこの番号の次から読む
+  // CURR: write ポインタ、次にパケットを受信したら、この番号から書く
+
   // ページ0を選択しコマンドを開始
   *NE2000_CR = NE2000_CR_P0 | NE2000_CR_RD_ABORT | NE2000_CR_STA;
   // リングバッファの次の領域を開始アドレスにする
@@ -395,13 +398,13 @@ int ether_recv(int index, char *buf)
   curr = *NE2000_CURR;
 
   if (curr < start)
-    // 境界をまたぐ場合の処理。末尾に飛んでいる。
+    // 書き込みデータがリングバッファの先頭に戻ってしまっていたら
     curr += NE2000_RP_STOP - NE2000_RP_START;
   if (start == curr)
     // 何のデータも受信していない場合
     return 0;
   if (start == NE2000_RP_STOP)
-    // リングバッファを戻す処理？
+    // PSTOP を読もうとしたら、先頭に巻き戻す
     start = NE2000_RP_START;
 
   // まずパケットのサイズを受信
@@ -410,6 +413,7 @@ int ether_recv(int index, char *buf)
   size = ((int)header[3] << 8) + header[2] - 4;
 
   // パケットの本体を受信
+  // リングバッファの末尾を超える可能性があるが、そこはハードがうまくやることを期待している
   read_data((start * 256) + 4, size, buf);
 
   // ページを0に
