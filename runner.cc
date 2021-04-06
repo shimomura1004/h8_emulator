@@ -246,7 +246,7 @@ void Runner::run(bool debug)
 
         // スタックトレースのために PC を保存
         if (interrupted) {
-            call_stack.push_back(h8.pc);
+            // call_stack.push_back(h8.pc);
         }
 
         if (debug_mode) {
@@ -262,13 +262,13 @@ void Runner::run(bool debug)
                 (handler == h8instructions::jsr::jsr_register_indirect))
             {
                 // 関数呼び出し時には今の PC を記録しておく
-                call_stack.push_back(h8.pc);
+                // call_stack.push_back(h8.pc);
             }
 
             if ((handler == h8instructions::rts::rts) ||
                 (handler == h8instructions::rte::rte))
             {
-                call_stack.pop_back();
+                // call_stack.pop_back();
             }
         }
 
