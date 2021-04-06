@@ -98,7 +98,7 @@ RTL8019ASRegister::RTL8019ASRegister()
     : CR(0x04)
     , CLDA0(0x00)
     , CLDA1(0x00)
-    , BNRY(0x00)
+    , BNRY(0x46)
     , TSR(0x00)
     , NCR(0x00)
     , FIFO(0x00)
@@ -111,9 +111,9 @@ RTL8019ASRegister::RTL8019ASRegister()
     , CNTR0(0x00)
     , CNTR1(0x00)
     , CNTR2(0x00)
-    , PSTART(0x00)
-    , PSTOP(0x00)
-    , TPSR(0x00)
+    , PSTART(0x46)
+    , PSTOP(0x80)
+    , TPSR(0x40)
     , TBCR0(0x00)
     , TBCR1(0x00)
     , RSAR0(0x00)
@@ -130,7 +130,7 @@ RTL8019ASRegister::RTL8019ASRegister()
     , PAR3(0x00)
     , PAR4(0x00)
     , PAR5(0x00)
-    , CURR(0x00)
+    , CURR(0x46)
     , MAR0(0x00)
     , MAR1(0x00)
     , MAR2(0x00)
@@ -196,6 +196,30 @@ void RTL8019ASRegister::set_RSAR(uint16_t RSAR)
     this->RSAR1 = RSAR >> 8;
 }
 
+uint8_t RTL8019ASRegister::get_PSTART()
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    return PSTART;
+}
+
+void RTL8019ASRegister::set_PSTART(uint8_t PSTART)
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    this->PSTART = PSTART;
+}
+
+uint8_t RTL8019ASRegister::get_PSTOP()
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    return PSTOP;
+}
+
+void RTL8019ASRegister::set_PSTOP(uint8_t PSTOP)
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    this->PSTOP = PSTOP;
+}
+
 uint8_t RTL8019ASRegister::get_TPSR()
 {
     std::lock_guard<std::mutex> lock(this->rtl_mutex);
@@ -220,6 +244,18 @@ void RTL8019ASRegister::set_TBCR(uint16_t TBCR)
     std::lock_guard<std::mutex> lock(this->rtl_mutex);
     this->TBCR0 = TBCR & 0xff;
     this->TBCR1 = TBCR >> 8;
+}
+
+uint8_t RTL8019ASRegister::get_CURR()
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    return this->CURR;
+}
+
+void RTL8019ASRegister::set_CURR(uint8_t CURR)
+{
+    std::lock_guard<std::mutex> lock(this->rtl_mutex);
+    this->CURR = CURR;
 }
 
 uint8_t RTL8019ASRegister::get_IMR()
@@ -258,8 +294,8 @@ uint8_t RTL8019ASRegister::read8(uint32_t address)
     // fprintf(stderr, "read from 0x%x, get 0x%x\n", address, *this->getRegister(address, page, true));
 
     if (page == 0 && address == 0x07) {
-        // テスト用に、ISR にアクセスしてきたら、CURR をすすめる
-        CURR++;
+        // テスト用に、ISR は常に 0xff
+        ISR = 0xff;
     }
 
     return *this->getRegister(address, page, true);

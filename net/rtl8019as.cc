@@ -141,86 +141,57 @@ void RTL8019AS::run_recv_from_tap()
     const uint16_t MAX_ETHERNET_FRAME_SIZE = 1600;
     char buffer[MAX_ETHERNET_FRAME_SIZE];
 
-    // todo: PSTOP/PSTART を読むべき
-    const uint8_t PAGE_MAX = 0x80;
-    const uint8_t PAGE_MIN = 0x46;
-
     while (!this->terminate_flag) {
         // TAP からのデータを受け取ったらリングバッファに書き込み、割り込みを入れる
+        // CURR の位置の PROM の値を更新し、CURR を進めるのがデバイス側の責務
 
-        // RTL8019AS の write ポインタは BNRY、read ポインタは CURR
+        // RTL8019AS の read ポインタは BNRY、write ポインタは CURR
+        // BNRY: この番号までは読み終えている、次回はこの番号の次から読む
+        // CURR: 次にパケットを受信したら、この番号から書く
+
         // どちらもアドレスではなくリングバッファのページ(256バイト)のインデックスなので注意すること
         // データを書き込むときは、先頭4バイトには制御用データを入れること
         // 0: ステータス
         // 1: 次のページのインデックス
         // 2,3: サイズ(ヘッダを含む)
+
         int nread = ::read(this->device_fd, buffer, sizeof(buffer));
         if (nread < 0) {
             perror("error!\n");
             break;
         }
 
-        printf("Read %d bytes\n", nread);
+        uint8_t curr = this->rtl8019as_register.get_CURR();
+        uint16_t address = (uint16_t)curr * 256;
+        uint16_t head_address = address;
 
-        uint8_t bnry = this->rtl8019as_register.get_BNRY() + 1;
-        uint16_t address = (uint16_t)bnry * 256;
+        uint8_t pstart = this->rtl8019as_register.get_PSTART();
+        uint8_t pstop = this->rtl8019as_register.get_PSTOP();
 
-        printf("BNRY=0x%02x\n", bnry);
-
-        // todo: リングバッファなので、ページの最大数の剰余を取る
-        uint8_t next = (nread + 4) / 256 + bnry + 1;
-        if (next >= PAGE_MAX) {
-            next = (next % PAGE_MAX) + PAGE_MIN;
+        // 管理用の4バイト分を進める
+        uint16_t pos = address + 4;
+        for (int i = 0; i < nread; i++) {
+            if (pos == pstop * 256) {
+                pos = pstart * 256;
+            }
+            this->saprom[pos++] = buffer[i];
         }
-
-        printf("NEXT=0x%02x\n", next);
-        printf("SIZE= 0x%02x 0x%02x\n", nread & 0xff, nread >> 8);
+        uint8_t next_page = pos / 256 + 1;
+        if (next_page >= pstop) {
+            next_page -= (pstop - pstart);
+        }
 
         // todo: status とは？
-        this->saprom[address + 0] = 0x00;
-        this->saprom[address + 1] = next;
-        // todo: この順番で正しいか確認
-        // 4バイト分の管理データ分を加算する
-        this->saprom[address + 2] = (nread + 4) & 0xff;
-        this->saprom[address + 3] = (nread + 4) >> 8;
+        this->saprom[head_address + 0] = 0x00;
+        this->saprom[head_address + 1] = next_page;
+        // サイズは管理用の4バイト込みの大きさを書き込む
+        this->saprom[head_address + 2] = (nread + 4) & 0xff;
+        this->saprom[head_address + 3] = (nread + 4) >> 8;
 
-        // todo: リングバッファなので、0番目のページに戻ることに注意しつつ256バイト単位でコピー
-
-        // 1ページ目をコピー
-        // RTL8019AS では受信したフレームに対し、先頭に4バイト分の管理データを保持するので、
-        // 4バイト目以降にフレームをコピーする
-        address += 4;
-        memcpy(&this->saprom[address], buffer, std::min(256 - 4, nread));
-        debug(&this->saprom[address], std::min(256 - 4, nread));
-
-        bnry++;
-        if (bnry == PAGE_MAX) {
-            bnry = PAGE_MIN;
-        }
-
-        // 1ページ目の大きさを減らす
-        nread -= 256 - 4;
-        char* tmp = &buffer[256 - 4];
-        address = (uint16_t)bnry * 256;
-
-        // 2ページ目以降をコピー
-        while (nread > 0) {
-            memcpy(&this->saprom[address], tmp, std::min(256, nread));
-
-            bnry++;
-            if (bnry == PAGE_MAX) {
-                bnry = PAGE_MIN;
-            }
-
-            nread -= 256;
-            tmp += 256;
-            address = (uint16_t)bnry * 256;
-        }
-
-        this->rtl8019as_register.set_BNRY(bnry - 2);
+        // データを書き込んだので CURR を進める
+        this->rtl8019as_register.set_CURR(next_page);
 
         if (this->rtl8019as_register.get_IMR()) {
-            fprintf(stderr, "IRQ5 interruption set! new BNRY=0x%x\n", this->rtl8019as_register.get_BNRY());
             this->hasInterruption = true;
             this->interrupt_cv.notify_all();
         }
@@ -239,22 +210,22 @@ void RTL8019AS::run_send_to_tap()
 
         printf("Send data from 0x%04x, %dbytes\n", tpsr * 256, tbcr);
         ::write(this->device_fd, &this->saprom[tpsr * 256], tbcr);
-printf("SEND!\n");
-debug(&this->saprom[tpsr * 256], tbcr);
+// printf("SEND!\n");
+// debug(&this->saprom[tpsr * 256], tbcr);
 
         // TXP をクリアして処理完了を通知
         this->rtl8019as_register.set_CR_TXP(false);
     }
 }
 
-// todo: CURR を動かさないといけない
 // Remote DMA を開始するときに指定されたサイズだけデータが書かれたら/読まれたら完了
+// 完了したら ISR_RDC を true にする
 uint8_t RTL8019AS::dma_read(uint16_t address)
 {
     uint16_t remote_address = this->rtl8019as_register.get_RSAR();
 
     uint8_t value = this->saprom[remote_address];
-    fprintf(stderr, "remote read from 0x%x, get 0x%x\n", remote_address, value);
+    // fprintf(stderr, "remote read from 0x%x, get 0x%x\n", remote_address, value);
 
     remote_address++;
     this->rtl8019as_register.set_RSAR(remote_address);
@@ -267,7 +238,7 @@ void RTL8019AS::dma_write(uint16_t address, uint8_t value)
     uint16_t remote_address = this->rtl8019as_register.get_RSAR();
 
     this->saprom[remote_address] = value;
-    fprintf(stderr, "remote write to 0x%x, set 0x%x, then 0x%x\n", remote_address, value, saprom[remote_address]);
+    // fprintf(stderr, "remote write to 0x%x, set 0x%x, then 0x%x\n", remote_address, value, saprom[remote_address]);
 
     remote_address++;
     this->rtl8019as_register.set_RSAR(remote_address);

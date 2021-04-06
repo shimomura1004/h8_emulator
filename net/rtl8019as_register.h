@@ -92,11 +92,20 @@ public:
     uint16_t get_RSAR();
     void set_RSAR(uint16_t RSAR);
 
+    uint8_t get_PSTART();
+    void set_PSTART(uint8_t PSTART);
+
+    uint8_t get_PSTOP();
+    void set_PSTOP(uint8_t PSTOP);
+
     uint8_t get_TPSR();
     void set_TPSR(uint8_t TPSR);
 
     uint16_t get_TBCR();
     void set_TBCR(uint16_t TBCR);
+
+    uint8_t get_CURR();
+    void set_CURR(uint8_t CURR);
 
     uint8_t get_IMR();
     void set_IMR(uint8_t IMR);
