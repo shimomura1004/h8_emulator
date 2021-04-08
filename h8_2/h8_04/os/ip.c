@@ -127,6 +127,7 @@ static int icmp_proc(int size, struct icmp_header *hdr)
     hdr->type = ICMP_TYPE_REPLY;
     hdr->checksum = 0;
     hdr->checksum = calc_checksum(size, hdr);
+    puts("CHECKSUM ICMP: "); putxval(hdr->checksum, 0); puts("\n");
     ret = size;
     break;
   default:
@@ -179,6 +180,7 @@ static int ip_proc(int size, struct ip_header *hdr)
     memcpy(hdr->src_addr, &ipaddr, IPADDR_SIZE);
     hdr->checksum = 0;
     hdr->checksum = calc_checksum(hdrlen, hdr);
+    puts("CHECKSUM IP: "); putxval(hdr->checksum, 0); puts("\n");
     ret += hdrlen;
   }
 
@@ -300,6 +302,30 @@ int ip_main(int argc, char *argv[])
 
   send_use();
   puts("network ready.\n");
+
+// uint16 buf[] = {
+//   0x4500, 0x0054,
+//   0xf16b, 0x4000,
+//   0x4001, 0x0000,
+//   0x0b00, 0x0002,
+//   0x0b00, 0x0001
+// };
+// uint16 buf[] = {
+// 0x4500, 0x0054,
+// 0x5af5, 0x4000,
+// 0x4001, 0x0000, //0xc9b2,
+// 0x0b00, 0x0002,
+// 0x0b00, 0x0001
+// };
+uint16 buf[] = {
+  0x4500, 0x0054,
+  0x5153, 0x4000,
+  0x4001, 0x0000,/*0xd354,*/
+  0x0b00, 0x0002,
+  0x0b00, 0x0001
+};
+uint16 chksum = calc_checksum(sizeof(buf), buf);
+puts("TEST:"); putxval(chksum, 0); puts("\n");
 
   while (1) {
     // Ethernet からデータが受信されるのを待つ
