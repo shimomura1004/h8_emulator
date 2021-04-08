@@ -108,9 +108,6 @@ static uint16 calc_checksum(int size, void *buf)
     p++;
   }
 
-  // // こうするとチェックサムが合う。なぜ？
-  // sum++;
-
   while (sum > 0xffff)
     sum = ((sum >> 16) & 0xffff) + (sum & 0xffff);
 
@@ -127,7 +124,6 @@ static int icmp_proc(int size, struct icmp_header *hdr)
     hdr->type = ICMP_TYPE_REPLY;
     hdr->checksum = 0;
     hdr->checksum = calc_checksum(size, hdr);
-    puts("CHECKSUM ICMP: "); putxval(hdr->checksum, 0); puts("\n");
     ret = size;
     break;
   default:
@@ -158,9 +154,6 @@ static int ip_proc(int size, struct ip_header *hdr)
   if (size > hdr->total_length)
     size = hdr->total_length;
 
-  puts("header length: 0x"); putxval(hdrlen, 0); puts("\n");
-  puts("total length: 0x"); putxval(size, 0); puts("\n");
-
   // IP ヘッダ分を削り、IP パケットのデータ部の大きさと先頭ポインタを用意
   nextsize = size - hdrlen;
   nexthdr = (char *)hdr + hdrlen;
@@ -180,7 +173,6 @@ static int ip_proc(int size, struct ip_header *hdr)
     memcpy(hdr->src_addr, &ipaddr, IPADDR_SIZE);
     hdr->checksum = 0;
     hdr->checksum = calc_checksum(hdrlen, hdr);
-    puts("CHECKSUM IP: "); putxval(hdr->checksum, 0); puts("\n");
     ret += hdrlen;
   }
 
@@ -201,16 +193,12 @@ static int arp_proc(int size, struct arp_header *hdr)
 
   switch (hdr->operation) {
   case ARP_OPERATION_REQUEST:
-    puts("ARP Request!\n");
     // arp 要求だったら、自分の mac アドレスを応答しないといけない
 
     putxval(hdr->target_protocol_addr[0], 2);
     putxval(hdr->target_protocol_addr[1], 2);
     putxval(hdr->target_protocol_addr[2], 2);
     putxval(hdr->target_protocol_addr[3], 2);
-    puts("\n");
-    putxval(ipaddr, 8);
-    puts("\n");
 
     // 問い合わせされている IP アドレスが自分と違ったら無視する
     if (memcmp(hdr->target_protocol_addr, &ipaddr, IPADDR_SIZE))
@@ -248,12 +236,10 @@ static int ethernet_proc(int size, struct ethernet_header *hdr)
   // Ethernet フレームの種類に応じて処理を実行
   switch (hdr->type) {
   case ETHERNET_TYPE_ARP:
-    puts("ARP!\n");
     // arp の場合は応答する
     ret = arp_proc(nextsize, nexthdr);
     break;
   case ETHERNET_TYPE_IP:
-    puts("IP packet!\n");
     // IP パケットであれば IP レイヤで処理する
     ret = ip_proc(nextsize, nexthdr);
     break;
@@ -303,30 +289,6 @@ int ip_main(int argc, char *argv[])
   send_use();
   puts("network ready.\n");
 
-// uint16 buf[] = {
-//   0x4500, 0x0054,
-//   0xf16b, 0x4000,
-//   0x4001, 0x0000,
-//   0x0b00, 0x0002,
-//   0x0b00, 0x0001
-// };
-// uint16 buf[] = {
-// 0x4500, 0x0054,
-// 0x5af5, 0x4000,
-// 0x4001, 0x0000, //0xc9b2,
-// 0x0b00, 0x0002,
-// 0x0b00, 0x0001
-// };
-uint16 buf[] = {
-  0x4500, 0x0054,
-  0x5153, 0x4000,
-  0x4001, 0x0000,/*0xd354,*/
-  0x0b00, 0x0002,
-  0x0b00, 0x0001
-};
-uint16 chksum = calc_checksum(sizeof(buf), buf);
-puts("TEST:"); putxval(chksum, 0); puts("\n");
-
   while (1) {
     // Ethernet からデータが受信されるのを待つ
     kz_recv(MSGBOX_ID_ETHINPUT, &size, &p);
@@ -337,9 +299,6 @@ puts("TEST:"); putxval(chksum, 0); puts("\n");
     // 今回は ICMP echo reply のみに対応するため、これで十分
     size = ethernet_proc(size, (struct ethernet_header *)p);
 
-    puts("received: 0x");
-    putxval(size, 0);
-    puts("bytes\n");
     if (size > 0) {
       send_send(size, p);
       puts("replyed.\n");
