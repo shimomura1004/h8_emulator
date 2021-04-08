@@ -37,7 +37,7 @@ void update_ccr(H8300H* h8, T src_value, T dst_value, T result_value)
     bool c = ( src_value_mth_bit && !dst_value_mth_bit) ||
              (!dst_value_mth_bit &&  result_value_mth_bit) ||
              ( src_value_mth_bit &&  result_value_mth_bit);
-    c ? h8->ccr.set_c() : h8->ccr.clear_v();
+    c ? h8->ccr.set_c() : h8->ccr.clear_c();
 }
 
 }
