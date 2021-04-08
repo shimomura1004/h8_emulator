@@ -6,7 +6,7 @@ int h8instructions::notl::not_b(H8300H *h8)
     uint8_t register_index = b1 & 0x0f;
     Register8& reg = h8->reg8[register_index];
 
-    int8_t value = reg.get();
+    uint8_t value = reg.get();
     value = ~value;
     reg.set(value);
 
@@ -25,7 +25,7 @@ int h8instructions::notl::not_w(H8300H *h8)
     uint8_t register_index = b1 & 0x0f;
     Register16& reg = h8->reg16[register_index];
 
-    int16_t value = reg.get();
+    uint16_t value = reg.get();
     value = ~value;
     reg.set(value);
 
@@ -44,7 +44,7 @@ int h8instructions::notl::not_l(H8300H *h8)
     uint8_t register_index = b1 & 0x07;
     Register32& reg = h8->reg[register_index];
 
-    int32_t value = reg.get();
+    uint32_t value = reg.get();
     value = ~value;
     reg.set(value);
 

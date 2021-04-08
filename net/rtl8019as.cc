@@ -16,10 +16,10 @@ void debug(uint8_t* buffer, int size)
 {
     printf("vvvv\n");
     for (int i=0; i < size; i++) {
-        if (i % 4 == 0) {
+        if (i > 0 && i % 4 == 0) {
             printf(" ");
         }
-        if (i % 8 == 0) {
+        if (i > 0 && i % 8 == 0) {
             printf("\n");
         }
         printf("%02x ", buffer[i]);
@@ -211,7 +211,7 @@ void RTL8019AS::run_send_to_tap()
         printf("Send data from 0x%04x, %dbytes\n", tpsr * 256, tbcr);
         ::write(this->device_fd, &this->saprom[tpsr * 256], tbcr);
 // printf("SEND!\n");
-// debug(&this->saprom[tpsr * 256], tbcr);
+debug(&this->saprom[tpsr * 256], tbcr);
 
         // TXP をクリアして処理完了を通知
         this->rtl8019as_register.set_CR_TXP(false);
