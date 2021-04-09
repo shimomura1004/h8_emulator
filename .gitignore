@@ -2,9 +2,5 @@
 build
 
 *.o
-kzload
-kzload.elf
-kozos
-kozos.elf
 
 osbook_03
