@@ -26,7 +26,6 @@ class RTL8019AS {
     std::condition_variable& interrupt_cv;
 
     void prepare();
-    bool createDevice();
 
     void run_recv_from_tap();
     void run_send_to_tap();

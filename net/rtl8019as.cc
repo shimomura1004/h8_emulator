@@ -44,6 +44,8 @@ void RTL8019AS::run()
     this->device_fd = TAPDevice::create(this->device_name, DEVICE_NAME_SIZE);
     if (this->device_fd >= 0) {
         this->prepare_thread = new std::thread(&RTL8019AS::prepare, this);
+    } else {
+        fprintf(stderr, "Error: network is unavailable\n");
     }
 }
 

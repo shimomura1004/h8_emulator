@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 
-// todo: mac でもビルドできるようにする
+#ifdef __linux__
 #include <linux/if.h>
 #include <linux/if_tun.h>
 
@@ -17,7 +17,7 @@ int TAPDevice::create(char* device_name, int buffer_size)
     int device_fd = open("/dev/net/tun", O_RDWR);
     if (device_fd < 0) {
         fprintf(stderr, "Error: Couldn't create TAP device\n");
-        return false;
+        return -1;
     }
 
     memset(&ifr, 0, sizeof(ifr));
@@ -28,7 +28,7 @@ int TAPDevice::create(char* device_name, int buffer_size)
     if (err < 0) {
         fprintf(stderr, "Error(%d): Couldn't ioctl device %s\n", errno, ifr.ifr_name);
         close(device_fd);
-        return false;
+        return -1;
     }
 
     strncpy(device_name, ifr.ifr_name, buffer_size);
@@ -36,4 +36,9 @@ int TAPDevice::create(char* device_name, int buffer_size)
 
     return device_fd;
 }
-
+#else
+int TAPDevice::create(char* device_name, int buffer_size)
+{
+    return -1;
+}
+#endif
