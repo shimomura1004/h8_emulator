@@ -36,6 +36,7 @@ typedef struct _kz_thread {
   } syscall;
 
   kz_context context; /* コンテキスト情報 */
+  char dummy[8];
 } kz_thread;
 
 /* メッセージ・バッファ */
@@ -371,9 +372,9 @@ static kz_thread_id_t thread_recv(kz_msgbox_id_t id, int *sizep, char **pp)
 }
 
 /* システム・コールの処理(kz_setintr():割込みハンドラ登録) */
+static void thread_intr(softvec_type_t type, unsigned long sp);
 static int thread_setintr(softvec_type_t type, kz_handler_t handler)
 {
-  static void thread_intr(softvec_type_t type, unsigned long sp);
 
   /*
    * 割込みを受け付けるために，ソフトウエア・割込みベクタに
