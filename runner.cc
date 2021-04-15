@@ -244,6 +244,7 @@ void Runner::run(bool debug)
     while (1) {
         bool interrupted = h8.handle_interrupt();
 
+        // todo: これ、debug モード中以外で push したらダメでは
         // スタックトレースのために PC を保存
         if (interrupted) {
             // call_stack.push_back(h8.pc);
