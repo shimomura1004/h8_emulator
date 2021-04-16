@@ -2,6 +2,8 @@
 #include "operation_map/operation_map.h"
 #include "sci/sci.h"
 
+#include "instructions/add.h"
+
 // todo: 次の命令を判別だけする関数がほしい
 
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
@@ -20,8 +22,33 @@ int H8300H::execute_next_instruction()
     }
     
     // todo: デバッグ情報を取りやすくするため、パースと実行をわけたい
-    // lookup のとき、関数ポインタだけでなく、引数をパースした結果まで含める
-    // 戻り値は { pointer, set<パラメタ名->値> } な構造体とする
+    if (handler == h8instructions::add::add_immediate_b) {
+        instruction_parser_t parser = h8instructions::add::add_immediate_b_parse;
+        Instruction instruction;
+
+        // parser(this, instruction);
+        // int result = instruction.run(this, instruction);
+        parser(this, &instruction);
+
+        char name[8];
+        char op1[8];
+        char op2[8];
+        instruction.stringify_name(name);
+        instruction.stringify_op1(op1);
+        instruction.stringify_op2(op2);
+        printf("[%06x] %s %s,%s\n", this->pc, name, op1, op2);
+
+        int result = instruction.run(this);
+
+
+        if (result != 0) {
+            uint8_t first_byte = fetch_instruction_byte(0);
+            fprintf(stderr, "Instruction execution error(%d): [0x%02x, ...] at address 0x%06x\n", result, first_byte, pc);
+        }
+
+        return result;
+    }
+
     int result = handler(this);
     if (result != 0) {
         uint8_t first_byte = fetch_instruction_byte(0);

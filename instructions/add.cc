@@ -47,6 +47,41 @@ int h8instructions::add::add_immediate_b(H8300H* h8)
     return 0;
 }
 
+void h8instructions::add::add_immediate_b_parse(H8300H* h8, Instruction* instruction)
+{
+    uint8_t b0 = h8->fetch_instruction_byte(0);
+
+    instruction->name = "add.b";
+    instruction->op1.s8 = h8->fetch_instruction_byte(1);
+    instruction->op1.mode = addressing_mode_t::Immediate8;
+    instruction->op2.u8 = b0 & 0x0f;
+    instruction->op2.mode = addressing_mode_t::RegisterDirect8;
+
+    instruction->parser = h8instructions::add::add_immediate_b_parse;
+    instruction->runner = h8instructions::add::add_immediate_b_run;
+}
+
+int h8instructions::add::add_immediate_b_run(H8300H* h8, Instruction* instruction)
+{
+    Register8& dst = h8->reg8[instruction->op2.u8];
+    int8_t src_value = instruction->op1.s8;
+    int8_t dst_value = dst.get();
+    int8_t result_value = src_value + dst_value;
+    dst.set(result_value);
+
+    update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
+
+    h8->pc += 2;
+
+    return 0;
+}
+
+// InstructionInfo *h8instructions::add::add_immediate_b_helper(H8300H* h8, Instruction& instruction)
+// {
+//     // どういう形にするか？
+//     // 聞きたいのは、命令の名前とかオペランドの値とか
+// }
+
 int h8instructions::add::add_register_direct_b(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
