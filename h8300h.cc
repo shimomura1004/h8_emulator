@@ -6,6 +6,16 @@
 
 // todo: 次の命令を判別だけする関数がほしい
 
+instruction_parser_t parser_lookup(instruction_handler_t handler) {
+    if (handler == h8instructions::add::add_immediate_b) {
+        return h8instructions::add::add_immediate_b_parse;
+    } else if (handler == h8instructions::add::add_register_direct_b) {
+        return h8instructions::add::add_register_direct_b_parse;
+    } else {
+        return nullptr;
+    }
+}
+
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
 {
     return mcu.read8(pc + offset);
@@ -20,14 +30,11 @@ int H8300H::execute_next_instruction()
         fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%06x\n", first_byte, pc);
         return -1;
     }
-    
-    // todo: デバッグ情報を取りやすくするため、パースと実行をわけたい
-    if (handler == h8instructions::add::add_immediate_b) {
-        instruction_parser_t parser = h8instructions::add::add_immediate_b_parse;
-        Instruction instruction;
 
-        // parser(this, instruction);
-        // int result = instruction.run(this, instruction);
+    // todo: デバッグ情報を取りやすくするため、パースと実行をわけたい
+    instruction_parser_t parser = parser_lookup(handler);
+    if (parser) {
+        Instruction instruction;
         parser(this, &instruction);
 
         char name[8];
@@ -36,7 +43,7 @@ int H8300H::execute_next_instruction()
         instruction.stringify_name(name);
         instruction.stringify_op1(op1);
         instruction.stringify_op2(op2);
-        printf("[%06x] %s %s,%s\n", this->pc, name, op1, op2);
+        printf("[0x%06x] %s %s,%s\n", pc, name, op1, op2);
 
         int result = instruction.run(this);
 

@@ -103,6 +103,38 @@ int h8instructions::add::add_register_direct_b(H8300H* h8)
     return 0;
 }
 
+void h8instructions::add::add_register_direct_b_parse(H8300H* h8, Instruction* instruction)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+
+    instruction->name = "add.b";
+    instruction->op1.u8 = (b1 & 0xf0) >> 4;
+    instruction->op1.mode = addressing_mode_t::RegisterDirect8;
+    instruction->op2.u8 = (b1 & 0x0f);
+    instruction->op1.mode = addressing_mode_t::RegisterDirect8;
+
+    instruction->parser = h8instructions::add::add_register_direct_b_parse;
+    instruction->runner = h8instructions::add::add_register_direct_b_run;
+}
+
+int h8instructions::add::add_register_direct_b_run(H8300H* h8, Instruction* instruction)
+{
+    const Register8& src = h8->reg8[instruction->op1.u8];
+    Register8& dst = h8->reg8[instruction->op2.u8];
+
+    int8_t src_value = src.get();
+    int8_t dst_value = dst.get();
+    int8_t result_value = src_value + dst_value;
+
+    dst.set(result_value);
+
+    update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
+
+    h8->pc += 2;
+
+    return 0;
+}
+
 int h8instructions::add::add_immediate_w(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
