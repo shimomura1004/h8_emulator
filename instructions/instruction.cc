@@ -33,7 +33,7 @@ void Instruction::stringify_op(Operand& op, char *buf) {
         sprintf(buf, "#0x%x", op.s8 & 0xff);
         break;
     case Immediate16:
-        sprintf(buf, "#0x%x", op.s8 & 0xffff);
+        sprintf(buf, "#0x%x", op.s16 & 0xffff);
         break;
     case Immediate32:
         sprintf(buf, "#0x%x", op.s32 & 0xffffffff);
