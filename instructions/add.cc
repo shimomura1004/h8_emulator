@@ -321,10 +321,30 @@ int h8instructions::add::add_register_direct_l(H8300H* h8)
 
 void h8instructions::add::add_register_direct_l_parse(H8300H* h8, Instruction* instruction)
 {
+    uint8_t b1 = h8->fetch_instruction_byte(1);
 
+    instruction->name = "add.l";
+    instruction->op1.u8 = (b1 & 0x70) >> 4;
+    instruction->op1.mode = addressing_mode_t::RegisterDirect32;
+    instruction->op2.u8 = (b1 & 0x07);
+    instruction->op2.mode = addressing_mode_t::RegisterDirect32;
+
+    instruction->parser = h8instructions::add::add_register_direct_l_parse;
+    instruction->runner = h8instructions::add::add_register_direct_l_run;
 }
 
 int h8instructions::add::add_register_direct_l_run(H8300H* h8, Instruction* instruction)
 {
+    const Register32& src = h8->reg[instruction->op1.u8];
+    Register32& dst = h8->reg[instruction->op2.u8];
 
+    int32_t src_value = src.get();
+    int32_t dst_value = dst.get();
+    int32_t result_value = dst_value + src_value;
+
+    dst.set(result_value);
+    update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
+    h8->pc += 2;
+
+    return 0;
 }

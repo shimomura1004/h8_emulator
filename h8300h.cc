@@ -4,24 +4,6 @@
 
 #include "instructions/add.h"
 
-// todo: 次の命令を判別だけする関数がほしい
-
-instruction_parser_t parser_lookup(instruction_handler_t handler) {
-    if (handler == h8instructions::add::add_immediate_b) {
-        return h8instructions::add::add_immediate_b_parse;
-    } else if (handler == h8instructions::add::add_register_direct_b) {
-        return h8instructions::add::add_register_direct_b_parse;
-    } else if (handler == h8instructions::add::add_immediate_w) {
-        return h8instructions::add::add_immediate_w_parse;
-    } else if (handler == h8instructions::add::add_register_direct_w) {
-        return  h8instructions::add::add_register_direct_w_parse;
-    } else if (handler == h8instructions::add::add_immediate_l) {
-        return h8instructions::add::add_immediate_l_parse;
-    } else {
-        return nullptr;
-    }
-}
-
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
 {
     return mcu.read8(pc + offset);
@@ -37,21 +19,20 @@ int H8300H::execute_next_instruction()
         return -1;
     }
 
-    // todo: デバッグ情報を取りやすくするため、パースと実行をわけたい
-    instruction_parser_t parser = parser_lookup(handler);
-    if (parser) {
+    // todo: デバッグ用に、特定の命令だけ新しいものに置き換える
+    instruction_handler_t target_from = h8instructions::add::add_register_direct_l;
+    instruction_parser_t target_to = h8instructions::add::add_register_direct_l_parse;
+    if (handler == target_from){
         Instruction instruction;
-        parser(this, &instruction);
+        target_to(this, &instruction);
 
-        if (parser == h8instructions::add::add_immediate_l_parse) {
-            char name[8];
-            char op1[16];
-            char op2[16];
-            instruction.stringify_name(name);
-            instruction.stringify_op1(op1);
-            instruction.stringify_op2(op2);
-            printf("[0x%06x] %s %s,%s\n", pc, name, op1, op2);
-        }
+        char name[8];
+        char op1[16];
+        char op2[16];
+        instruction.stringify_name(name);
+        instruction.stringify_op1(op1);
+        instruction.stringify_op2(op2);
+        printf("[0x%06x] %s %s,%s\n", pc, name, op1, op2);
 
         int result = instruction.run(this);
 
