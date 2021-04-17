@@ -34,7 +34,7 @@ void Instruction::stringify_op(Operand& op, char *buf) {
     case Immediate16:
         sprintf(buf, "#0x%x", op.s8 & 0xffff);
         break;
-    case Immediate24:
+    case Immediate32:
         break;
     case ProgramCounterRelative8:
         break;

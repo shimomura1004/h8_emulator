@@ -161,7 +161,7 @@ void h8instructions::add::add_immediate_w_parse(H8300H* h8, Instruction* instruc
     int16_t immediate = *(int16_t*)imm;
 
     instruction->name = "add.w";
-    instruction->op1.s8 = immediate;
+    instruction->op1.s16 = immediate;
     instruction->op1.mode = addressing_mode_t::Immediate16;
     instruction->op2.u8 = b1 & 0x0f;
     instruction->op2.mode = addressing_mode_t::RegisterDirect16;
@@ -174,7 +174,7 @@ int h8instructions::add::add_immediate_w_run(H8300H* h8, Instruction* instructio
 {
     Register16& dst = h8->reg16[instruction->op2.u8];
 
-    int16_t src_value = instruction->op1.s8;
+    int16_t src_value = instruction->op1.s16;
     int16_t dst_value = dst.get();
     int16_t result_value = src_value + dst_value;
 

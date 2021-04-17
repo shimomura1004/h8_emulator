@@ -28,7 +28,7 @@ enum addressing_mode_t {
     AbsoluteAddress24,
     Immediate8,
     Immediate16,
-    Immediate24,
+    Immediate32,
     ProgramCounterRelative8,
     ProgramCounterRelative16,
     MemoryIndirect,
