@@ -11,6 +11,7 @@ void Instruction::stringify_op(Operand& op, char *buf) {
         sprintf(buf, "%c%d", (op.u8 < 8 ? 'r' : 'e'), op.u8 % 8);
         break;
     case RegisterDirect32:
+        sprintf(buf, "er%d", op.u8);
         break;
     case RegisterIndirect:
         break;
@@ -35,6 +36,7 @@ void Instruction::stringify_op(Operand& op, char *buf) {
         sprintf(buf, "#0x%x", op.s8 & 0xffff);
         break;
     case Immediate32:
+        sprintf(buf, "#0x%x", op.s32 & 0xffffffff);
         break;
     case ProgramCounterRelative8:
         break;
