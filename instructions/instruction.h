@@ -1,8 +1,6 @@
 #ifndef _INSTRUCTION_INSTRUCTION_INCLUDED_
 #define _INSTRUCTION_INSTRUCTION_INCLUDED_
 
-#include "instruction_info.h"
-
 // todo: add と mov が表現できればたぶん大丈夫
 
 // todo: アドレッシングモードは不要か？

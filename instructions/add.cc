@@ -209,12 +209,32 @@ int h8instructions::add::add_register_direct_w(H8300H* h8)
 
 void h8instructions::add::add_register_direct_w_parse(H8300H* h8, Instruction* instruction)
 {
+    uint8_t b1 = h8->fetch_instruction_byte(1);
 
+    instruction->name = "add.w";
+    instruction->op1.s8 = (b1 & 0xf0) >> 4;
+    instruction->op1.mode = addressing_mode_t::RegisterDirect16;
+    instruction->op2.u8 = (b1 & 0x0f);
+    instruction->op2.mode = addressing_mode_t::RegisterDirect16;
+
+    instruction->parser = h8instructions::add::add_register_direct_w_parse;
+    instruction->runner = h8instructions::add::add_register_direct_w_run;
 }
 
 int h8instructions::add::add_register_direct_w_run(H8300H* h8, Instruction* instruction)
 {
+    const Register16& src = h8->reg16[instruction->op1.u8];
+    Register16& dst = h8->reg16[instruction->op2.u8];
 
+    int16_t src_value = src.get();
+    int16_t dst_value = dst.get();
+    int16_t result_value = src_value + dst_value;
+
+    dst.set(result_value);
+    update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
+    h8->pc += 2;
+
+    return 0;
 }
 
 // todo: 消す
