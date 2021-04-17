@@ -264,12 +264,38 @@ int h8instructions::add::add_immediate_l(H8300H* h8)
 
 void h8instructions::add::add_immediate_l_parse(H8300H* h8, Instruction* instruction)
 {
+    uint8_t b1 = h8->fetch_instruction_byte(1);
 
+    uint8_t imm[4];
+    imm[3] = h8->fetch_instruction_byte(2);
+    imm[2] = h8->fetch_instruction_byte(3);
+    imm[1] = h8->fetch_instruction_byte(4);
+    imm[0] = h8->fetch_instruction_byte(5);
+    int32_t immediate = *(int32_t*)imm;
+
+    instruction->name = "add.l";
+    instruction->op1.s32 = immediate;
+    instruction->op1.mode = addressing_mode_t::Immediate32;
+    instruction->op2.u8 = b1 & 0x07;
+    instruction->op2.mode = addressing_mode_t::RegisterDirect32;
+
+    instruction->parser = h8instructions::add::add_immediate_l_parse;
+    instruction->runner = h8instructions::add::add_immediate_l_run;
 }
 
 int h8instructions::add::add_immediate_l_run(H8300H* h8, Instruction* instruction)
 {
+    Register32& dst = h8->reg[instruction->op2.u8];
 
+    int32_t src_value = instruction->op1.s32;
+    int32_t dst_value = dst.get();
+    int32_t result_value = src_value + dst_value;
+
+    dst.set(result_value);
+    update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
+    h8->pc += 6;
+
+    return 0;
 }
 
 // todo: 消す
