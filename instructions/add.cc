@@ -29,6 +29,7 @@ static void update_ccr(H8300H* h8, T src_value, T dst_value, T result_value)
     c ? h8->ccr.set_c() : h8->ccr.clear_v();
 }
 
+// todo: 消す
 int h8instructions::add::add_immediate_b(H8300H* h8)
 {
     uint8_t b0 = h8->fetch_instruction_byte(0);
@@ -67,21 +68,15 @@ int h8instructions::add::add_immediate_b_run(H8300H* h8, Instruction* instructio
     int8_t src_value = instruction->op1.s8;
     int8_t dst_value = dst.get();
     int8_t result_value = src_value + dst_value;
+
     dst.set(result_value);
-
     update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
-
     h8->pc += 2;
 
     return 0;
 }
 
-// InstructionInfo *h8instructions::add::add_immediate_b_helper(H8300H* h8, Instruction& instruction)
-// {
-//     // どういう形にするか？
-//     // 聞きたいのは、命令の名前とかオペランドの値とか
-// }
-
+// todo: 消す
 int h8instructions::add::add_register_direct_b(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
@@ -127,14 +122,13 @@ int h8instructions::add::add_register_direct_b_run(H8300H* h8, Instruction* inst
     int8_t result_value = src_value + dst_value;
 
     dst.set(result_value);
-
     update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
-
     h8->pc += 2;
 
     return 0;
 }
 
+// todo: 消す
 int h8instructions::add::add_immediate_w(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
@@ -148,6 +142,7 @@ int h8instructions::add::add_immediate_w(H8300H* h8)
 
     int16_t dst_value = dst.get();
     int16_t result_value = src_value + dst_value;
+
     dst.set(result_value);
 
     update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
@@ -157,6 +152,40 @@ int h8instructions::add::add_immediate_w(H8300H* h8)
     return 0;
 }
 
+void h8instructions::add::add_immediate_w_parse(H8300H* h8, Instruction* instruction)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t imm[2];
+    imm[1] = h8->fetch_instruction_byte(2);
+    imm[0] = h8->fetch_instruction_byte(3);
+    int16_t immediate = *(int16_t*)imm;
+
+    instruction->name = "add.w";
+    instruction->op1.s8 = immediate;
+    instruction->op1.mode = addressing_mode_t::Immediate16;
+    instruction->op2.u8 = b1 & 0x0f;
+    instruction->op2.mode = addressing_mode_t::RegisterDirect16;
+
+    instruction->parser = h8instructions::add::add_immediate_w_parse;
+    instruction->runner = h8instructions::add::add_immediate_w_run;
+}
+
+int h8instructions::add::add_immediate_w_run(H8300H* h8, Instruction* instruction)
+{
+    Register16& dst = h8->reg16[instruction->op2.u8];
+
+    int16_t src_value = instruction->op1.s8;
+    int16_t dst_value = dst.get();
+    int16_t result_value = src_value + dst_value;
+
+    dst.set(result_value);
+    update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
+    h8->pc += 4;
+
+    return 0;
+}
+
+// todo: 消す
 int h8instructions::add::add_register_direct_w(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
@@ -178,6 +207,17 @@ int h8instructions::add::add_register_direct_w(H8300H* h8)
     return 0;
 }
 
+void h8instructions::add::add_register_direct_w_parse(H8300H* h8, Instruction* instruction)
+{
+
+}
+
+int h8instructions::add::add_register_direct_w_run(H8300H* h8, Instruction* instruction)
+{
+
+}
+
+// todo: 消す
 int h8instructions::add::add_immediate_l(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
@@ -202,6 +242,17 @@ int h8instructions::add::add_immediate_l(H8300H* h8)
     return 0;
 }
 
+void h8instructions::add::add_immediate_l_parse(H8300H* h8, Instruction* instruction)
+{
+
+}
+
+int h8instructions::add::add_immediate_l_run(H8300H* h8, Instruction* instruction)
+{
+
+}
+
+// todo: 消す
 int h8instructions::add::add_register_direct_l(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
@@ -220,4 +271,14 @@ int h8instructions::add::add_register_direct_l(H8300H* h8)
     h8->pc += 2;
 
     return 0;
+}
+
+void h8instructions::add::add_register_direct_l_parse(H8300H* h8, Instruction* instruction)
+{
+
+}
+
+int h8instructions::add::add_register_direct_l_run(H8300H* h8, Instruction* instruction)
+{
+
 }

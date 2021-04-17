@@ -11,6 +11,8 @@ instruction_parser_t parser_lookup(instruction_handler_t handler) {
         return h8instructions::add::add_immediate_b_parse;
     } else if (handler == h8instructions::add::add_register_direct_b) {
         return h8instructions::add::add_register_direct_b_parse;
+    } else if (handler == h8instructions::add::add_immediate_w) {
+        return h8instructions::add::add_immediate_w_parse;
     } else {
         return nullptr;
     }

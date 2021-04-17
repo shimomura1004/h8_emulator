@@ -63,6 +63,7 @@ protected:
             sprintf(buf, "r%d%c", op.u8 % 8, (op.u8 < 8 ? 'h' : 'l'));
             break; 
         case RegisterDirect16:
+            sprintf(buf, "%c%d", (op.u8 < 8 ? 'r' : 'e'), op.u8 % 8);
             break;
         case RegisterDirect32:
             break;
@@ -83,9 +84,10 @@ protected:
         case AbsoluteAddress24:
             break;
         case Immediate8:
-            sprintf(buf, "#0x%02x", op.s8 & 0xff);
+            sprintf(buf, "#0x%x", op.s8 & 0xff);
             break;
         case Immediate16:
+            sprintf(buf, "#0x%x", op.s8 & 0xffff);
             break;
         case Immediate24:
             break;
