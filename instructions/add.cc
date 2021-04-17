@@ -212,7 +212,7 @@ void h8instructions::add::add_register_direct_w_parse(H8300H* h8, Instruction* i
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
     instruction->name = "add.w";
-    instruction->op1.s8 = (b1 & 0xf0) >> 4;
+    instruction->op1.u8 = (b1 & 0xf0) >> 4;
     instruction->op1.mode = addressing_mode_t::RegisterDirect16;
     instruction->op2.u8 = (b1 & 0x0f);
     instruction->op2.mode = addressing_mode_t::RegisterDirect16;
