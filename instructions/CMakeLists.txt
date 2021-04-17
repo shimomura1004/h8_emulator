@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 add_library(instructions STATIC
     instruction_table.cc
+	instruction.cc
 	mov_register_direct.cc
 	mov_register_indirect.cc
 	mov_register_indirect_displacement.cc
