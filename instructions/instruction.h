@@ -34,6 +34,7 @@ enum addressing_mode_t {
     MemoryIndirect,
 };
 
+// todo: 別ファイルにする
 struct Operand {
     addressing_mode_t mode;
     union {
@@ -43,7 +44,54 @@ struct Operand {
         uint8_t  u8;
         uint16_t u16;
         uint32_t u32;
+        struct {
+            uint8_t disp16_register_index;
+            int16_t disp16_displacement;
+        };
+        struct {
+            uint8_t disp24_register_index;
+            int32_t disp24_displacement;
+        };
     };
+
+    void set_register_direct8(uint8_t register_index);
+    void set_register_direct16(uint8_t register_index);
+    void set_register_direct32(uint8_t register_index);
+    void set_register_indirect(uint8_t register_index);
+    void set_register_indirect_with_displacement16(uint8_t register_index, int16_t displacement);
+    void set_register_indirect_with_displacement24(uint8_t register_index, int32_t displacement);
+    void set_register_indirect_with_post_incement(uint8_t register_index);
+    void set_register_indirect_with_pre_decrement(uint8_t register_index);
+    void set_absolute_address8(uint8_t address);
+    void set_absolute_address16(uint16_t address);
+    void set_absolute_address24(uint32_t address);
+    void set_immediate8(int8_t immediate);
+    void set_immediate16(int16_t immediate);
+    void set_immediate32(int32_t immediate);
+    void set_program_counter_relative8(int8_t offset);
+    void set_program_counter_relative16(int16_t offset);
+    void set_memory_indirect(uint8_t address);
+
+    uint8_t  get_register_direct8();
+    uint8_t  get_register_direct16();
+    uint8_t  get_register_direct32();
+    uint8_t  get_register_indirect();
+    uint8_t  get_register_indirect_with_displacement16_register();
+    int16_t  get_register_indirect_with_displacement16_displacement();
+    uint8_t  get_register_indirect_with_displacement24_register();
+    int32_t  get_register_indirect_with_displacement24_displacement();
+    uint8_t  get_register_indirect_with_post_incement();
+    uint8_t  get_register_indirect_with_pre_decrement();
+    uint8_t  get_absolute_address8();
+    uint16_t get_absolute_address16();
+    uint32_t get_absolute_address24();
+    int8_t   get_immediate8();
+    int16_t  get_immediate16();
+    int32_t  get_immediate32();
+    int8_t   get_program_counter_relative8();
+    int16_t  get_program_counter_relative16();
+    uint8_t  get_memory_indirect();
+
 };
 
 class Instruction;
