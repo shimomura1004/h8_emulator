@@ -35,7 +35,7 @@ enum addressing_mode_t {
 };
 
 // todo: 別ファイルにする
-struct Operand {
+class Operand {
     addressing_mode_t mode;
     union {
         int8_t   s8;
@@ -53,6 +53,9 @@ struct Operand {
             int32_t disp24_displacement;
         };
     };
+
+public:
+    void stringify(char *buf);
 
     void set_register_direct8(uint8_t register_index);
     void set_register_direct16(uint8_t register_index);
@@ -115,8 +118,6 @@ public:
     int run(H8300H* h8) { return this->runner(h8, this); }
 
     void stringify_name(char *buf);
-    void stringify_op1(char *buf);
-    void stringify_op2(char *buf);
 
 };
 

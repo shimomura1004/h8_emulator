@@ -53,10 +53,8 @@ void h8instructions::add::add_immediate_b_parse(H8300H* h8, Instruction* instruc
     uint8_t b0 = h8->fetch_instruction_byte(0);
 
     instruction->name = "add.b";
-    instruction->op1.s8 = h8->fetch_instruction_byte(1);
-    instruction->op1.mode = addressing_mode_t::Immediate8;
-    instruction->op2.u8 = b0 & 0x0f;
-    instruction->op2.mode = addressing_mode_t::RegisterDirect8;
+    instruction->op1.set_immediate8(h8->fetch_instruction_byte(1));
+    instruction->op2.set_register_direct8(b0 & 0x0f);
 
     instruction->parser = h8instructions::add::add_immediate_b_parse;
     instruction->runner = h8instructions::add::add_immediate_b_run;
@@ -64,8 +62,8 @@ void h8instructions::add::add_immediate_b_parse(H8300H* h8, Instruction* instruc
 
 int h8instructions::add::add_immediate_b_run(H8300H* h8, Instruction* instruction)
 {
-    Register8& dst = h8->reg8[instruction->op2.u8];
-    int8_t src_value = instruction->op1.s8;
+    Register8& dst = h8->reg8[instruction->op2.get_register_direct8()];
+    int8_t src_value = instruction->op1.get_immediate8();
     int8_t dst_value = dst.get();
     int8_t result_value = src_value + dst_value;
 
@@ -103,10 +101,8 @@ void h8instructions::add::add_register_direct_b_parse(H8300H* h8, Instruction* i
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
     instruction->name = "add.b";
-    instruction->op1.u8 = (b1 & 0xf0) >> 4;
-    instruction->op1.mode = addressing_mode_t::RegisterDirect8;
-    instruction->op2.u8 = (b1 & 0x0f);
-    instruction->op1.mode = addressing_mode_t::RegisterDirect8;
+    instruction->op1.set_register_direct8((b1 & 0xf0) >> 4);
+    instruction->op2.set_register_direct8(b1 & 0x0f);
 
     instruction->parser = h8instructions::add::add_register_direct_b_parse;
     instruction->runner = h8instructions::add::add_register_direct_b_run;
@@ -114,8 +110,8 @@ void h8instructions::add::add_register_direct_b_parse(H8300H* h8, Instruction* i
 
 int h8instructions::add::add_register_direct_b_run(H8300H* h8, Instruction* instruction)
 {
-    const Register8& src = h8->reg8[instruction->op1.u8];
-    Register8& dst = h8->reg8[instruction->op2.u8];
+    const Register8& src = h8->reg8[instruction->op1.get_register_direct8()];
+    Register8& dst = h8->reg8[instruction->op2.get_register_direct8()];
 
     int8_t src_value = src.get();
     int8_t dst_value = dst.get();
@@ -161,10 +157,8 @@ void h8instructions::add::add_immediate_w_parse(H8300H* h8, Instruction* instruc
     int16_t immediate = *(int16_t*)imm;
 
     instruction->name = "add.w";
-    instruction->op1.s16 = immediate;
-    instruction->op1.mode = addressing_mode_t::Immediate16;
-    instruction->op2.u8 = b1 & 0x0f;
-    instruction->op2.mode = addressing_mode_t::RegisterDirect16;
+    instruction->op1.set_immediate16(immediate);
+    instruction->op2.set_register_direct16(b1 & 0x0f);
 
     instruction->parser = h8instructions::add::add_immediate_w_parse;
     instruction->runner = h8instructions::add::add_immediate_w_run;
@@ -172,9 +166,9 @@ void h8instructions::add::add_immediate_w_parse(H8300H* h8, Instruction* instruc
 
 int h8instructions::add::add_immediate_w_run(H8300H* h8, Instruction* instruction)
 {
-    Register16& dst = h8->reg16[instruction->op2.u8];
+    Register16& dst = h8->reg16[instruction->op2.get_register_direct16()];
 
-    int16_t src_value = instruction->op1.s16;
+    int16_t src_value = instruction->op1.get_immediate16();
     int16_t dst_value = dst.get();
     int16_t result_value = src_value + dst_value;
 
@@ -212,10 +206,8 @@ void h8instructions::add::add_register_direct_w_parse(H8300H* h8, Instruction* i
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
     instruction->name = "add.w";
-    instruction->op1.u8 = (b1 & 0xf0) >> 4;
-    instruction->op1.mode = addressing_mode_t::RegisterDirect16;
-    instruction->op2.u8 = (b1 & 0x0f);
-    instruction->op2.mode = addressing_mode_t::RegisterDirect16;
+    instruction->op1.set_register_direct16((b1 & 0xf0) >> 4);
+    instruction->op2.set_register_direct16(b1 & 0x0f);
 
     instruction->parser = h8instructions::add::add_register_direct_w_parse;
     instruction->runner = h8instructions::add::add_register_direct_w_run;
@@ -223,8 +215,8 @@ void h8instructions::add::add_register_direct_w_parse(H8300H* h8, Instruction* i
 
 int h8instructions::add::add_register_direct_w_run(H8300H* h8, Instruction* instruction)
 {
-    const Register16& src = h8->reg16[instruction->op1.u8];
-    Register16& dst = h8->reg16[instruction->op2.u8];
+    const Register16& src = h8->reg16[instruction->op1.get_register_direct16()];
+    Register16& dst = h8->reg16[instruction->op2.get_register_direct16()];
 
     int16_t src_value = src.get();
     int16_t dst_value = dst.get();
@@ -274,10 +266,8 @@ void h8instructions::add::add_immediate_l_parse(H8300H* h8, Instruction* instruc
     int32_t immediate = *(int32_t*)imm;
 
     instruction->name = "add.l";
-    instruction->op1.s32 = immediate;
-    instruction->op1.mode = addressing_mode_t::Immediate32;
-    instruction->op2.u8 = b1 & 0x07;
-    instruction->op2.mode = addressing_mode_t::RegisterDirect32;
+    instruction->op1.set_immediate32(immediate);
+    instruction->op2.set_register_direct32(b1 & 0x07);
 
     instruction->parser = h8instructions::add::add_immediate_l_parse;
     instruction->runner = h8instructions::add::add_immediate_l_run;
@@ -285,9 +275,9 @@ void h8instructions::add::add_immediate_l_parse(H8300H* h8, Instruction* instruc
 
 int h8instructions::add::add_immediate_l_run(H8300H* h8, Instruction* instruction)
 {
-    Register32& dst = h8->reg[instruction->op2.u8];
+    Register32& dst = h8->reg[instruction->op2.get_register_direct32()];
 
-    int32_t src_value = instruction->op1.s32;
+    int32_t src_value = instruction->op1.get_immediate32();
     int32_t dst_value = dst.get();
     int32_t result_value = src_value + dst_value;
 
@@ -324,10 +314,8 @@ void h8instructions::add::add_register_direct_l_parse(H8300H* h8, Instruction* i
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
     instruction->name = "add.l";
-    instruction->op1.u8 = (b1 & 0x70) >> 4;
-    instruction->op1.mode = addressing_mode_t::RegisterDirect32;
-    instruction->op2.u8 = (b1 & 0x07);
-    instruction->op2.mode = addressing_mode_t::RegisterDirect32;
+    instruction->op1.set_register_direct32((b1 & 0x70) >> 4);
+    instruction->op2.set_register_direct32(b1 & 0x07);
 
     instruction->parser = h8instructions::add::add_register_direct_l_parse;
     instruction->runner = h8instructions::add::add_register_direct_l_run;
@@ -335,8 +323,8 @@ void h8instructions::add::add_register_direct_l_parse(H8300H* h8, Instruction* i
 
 int h8instructions::add::add_register_direct_l_run(H8300H* h8, Instruction* instruction)
 {
-    const Register32& src = h8->reg[instruction->op1.u8];
-    Register32& dst = h8->reg[instruction->op2.u8];
+    const Register32& src = h8->reg[instruction->op1.get_register_direct32()];
+    Register32& dst = h8->reg[instruction->op2.get_register_direct32()];
 
     int32_t src_value = src.get();
     int32_t dst_value = dst.get();

@@ -5,6 +5,7 @@ find_package(Threads)
 include_directories(${h8300h_SOURCE_DIR})
 
 add_definitions("-Wall -I. -std=c++11 -pthread -g")
+# add_definitions("-Wconversion")
 
 add_subdirectory(sci)
 add_subdirectory(instructions)

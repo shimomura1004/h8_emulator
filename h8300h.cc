@@ -20,8 +20,8 @@ int H8300H::execute_next_instruction()
     }
 
     // todo: デバッグ用に、特定の命令だけ新しいものに置き換える
-    instruction_handler_t target_from = h8instructions::add::add_register_direct_l;
-    instruction_parser_t target_to = h8instructions::add::add_register_direct_l_parse;
+    instruction_handler_t target_from = h8instructions::add::add_immediate_l;
+    instruction_parser_t target_to = h8instructions::add::add_immediate_l_parse;
     if (handler == target_from){
         Instruction instruction;
         target_to(this, &instruction);
@@ -30,8 +30,8 @@ int H8300H::execute_next_instruction()
         char op1[16];
         char op2[16];
         instruction.stringify_name(name);
-        instruction.stringify_op1(op1);
-        instruction.stringify_op2(op2);
+        instruction.op1.stringify(op1);
+        instruction.op2.stringify(op2);
         printf("[0x%06x] %s %s,%s\n", pc, name, op1, op2);
 
         int result = instruction.run(this);
