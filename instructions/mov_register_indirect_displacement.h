@@ -14,6 +14,9 @@ int register_indirect_with_displacement24_b(H8300H* h8);
 // int register_indirect_with_displacement24_w(H8300H* h8);
 int register_indirect_with_displacement24_l(H8300H* h8);
 
+int register_indirect_with_increment_decrement_b(H8300H* h8);
+int register_indirect_with_increment_decrement_l(H8300H* h8);
+
 }
 }
 

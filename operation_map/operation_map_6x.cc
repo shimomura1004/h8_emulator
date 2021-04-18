@@ -30,7 +30,7 @@ instruction_handler_t lookup_6x(H8300H *h8300h)
     case 0x09: return h8instructions::mov::register_indirect_w;
     case 0x0a: return h8instructions::mov::mov;
     case 0x0b: return h8instructions::mov::mov;
-    case 0x0c: return h8instructions::mov::mov;
+    case 0x0c: return h8instructions::mov::register_indirect_with_increment_decrement_b;
     case 0x0d: return h8instructions::mov::mov;
     case 0x0e: return h8instructions::mov::register_indirect_with_displacement16_b;
     case 0x0f: return h8instructions::mov::register_indirect_with_displacement16_w;
