@@ -11,6 +11,12 @@ uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
 
 int H8300H::execute_next_instruction()
 {
+    // todo: 移行のために…実装してないものだけ古い実装にフォールバックできないか？
+    // 問題は mov だけ。mov の operation_map を細分化するところから始める？
+    // 1. mov.cc のトップの switch 文に全てのパターンが現れるように修正
+    // 2. operation_map にその switch 文をマージ
+    // 3. 1つずつ置き換えていく
+
     instruction_handler_t handler = OperationMap::lookup(this);
 
     if (handler == nullptr) {
