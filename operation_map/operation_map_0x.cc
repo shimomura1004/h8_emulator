@@ -1,6 +1,7 @@
 #include "operation_map_0x.h"
 #include "instructions/mov.h"
 #include "instructions/mov_register_direct.h"
+#include "instructions/mov_register_indirect.h"
 #include "instructions/adds.h"
 #include "instructions/add.h"
 #include "instructions/mulxs.h"
@@ -10,6 +11,15 @@
 #include "instructions/sleep.h"
 #include "instructions/xor.h"
 #include "instructions/divxs.h"
+
+instruction_handler_t lookup_0100(H8300H* h8300h)
+{
+    unsigned char b2 = h8300h->fetch_instruction_byte(2);
+    switch (b2) {
+    case 0x69: return h8instructions::mov::register_indirect_l;
+    default:   return h8instructions::mov::mov;
+    }
+}
 
 instruction_handler_t lookup_01C05x(H8300H* h8300h)
 {
@@ -51,7 +61,7 @@ instruction_handler_t lookup_01(H8300H* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return h8instructions::mov::mov;
+    case 0x00: return lookup_0100(h8300h);
     case 0x04: return nullptr; // LDC/STC
     case 0x08: return h8instructions::sleep::sleep;
     case 0x0c: return lookup_01C05x(h8300h);

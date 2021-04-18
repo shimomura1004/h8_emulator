@@ -3,6 +3,7 @@ add_library(instructions STATIC
     instruction_table.cc
 	mov.cc
 	mov_register_direct.cc
+	mov_register_indirect.cc
 	jsr.cc
 	exts.cc
 	shll.cc
