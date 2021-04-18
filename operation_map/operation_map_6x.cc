@@ -1,6 +1,7 @@
 #include "operation_map_6x.h"
 #include "instructions/mov.h"
 #include "instructions/mov_register_indirect.h"
+#include "instructions/mov_register_indirect_displacement.h"
 
 instruction_handler_t lookup_67(H8300H* h8300h)
 {
@@ -27,12 +28,12 @@ instruction_handler_t lookup_6x(H8300H *h8300h)
     case 0x07: return lookup_67(h8300h);
     case 0x08: return h8instructions::mov::register_indirect_b;
     case 0x09: return h8instructions::mov::register_indirect_w;
-    case 0x0a:
-    case 0x0b:
-    case 0x0c:
-    case 0x0d:
-    case 0x0e:
-    case 0x0f: return h8instructions::mov::mov;
+    case 0x0a: return h8instructions::mov::mov;
+    case 0x0b: return h8instructions::mov::mov;
+    case 0x0c: return h8instructions::mov::mov;
+    case 0x0d: return h8instructions::mov::mov;
+    case 0x0e: return h8instructions::mov::register_indirect_with_displacement16_b;
+    case 0x0f: return h8instructions::mov::register_indirect_with_displacement16_w;
     default:   return nullptr;
     }
 }

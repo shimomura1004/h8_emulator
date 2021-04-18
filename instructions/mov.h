@@ -10,18 +10,8 @@ template<class T>
 void update_ccr(H8300H* h8300h, T value) {
     CCR& ccr = h8300h->ccr;
 
-    if (value < 0) {
-        ccr.set_n();
-    } else {
-        ccr.clear_n();
-    }
-
-    if (value == 0) {
-        ccr.set_z();
-    } else {
-        ccr.clear_z();
-    }
-
+    (value < 0)  ? ccr.set_n() : ccr.clear_n();
+    (value == 0) ? ccr.set_z() : ccr.clear_z();
     ccr.clear_v();
 }
 

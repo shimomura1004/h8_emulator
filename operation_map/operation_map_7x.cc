@@ -5,6 +5,7 @@
 #include "operation_map_7Fx.h"
 
 #include "instructions/mov.h"
+#include "instructions/mov_register_indirect_displacement.h"
 #include "instructions/and.h"
 #include "instructions/add.h"
 #include "instructions/sub.h"
@@ -29,7 +30,7 @@ instruction_handler_t lookup_7x(H8300H *h8300h)
     case 0x05: return lookup_75(h8300h);
     case 0x06: return lookup_76(h8300h);
     case 0x07: return lookup_77(h8300h);
-    case 0x08: return h8instructions::mov::mov;
+    case 0x08: return h8instructions::mov::register_indirect_with_displacement24_b;
     case 0x09: return lookup_79(h8300h);
     case 0x0a: return lookup_7A(h8300h);
     case 0x0b: return nullptr; // EEPMOV

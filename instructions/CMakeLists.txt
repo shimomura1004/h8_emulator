@@ -4,6 +4,7 @@ add_library(instructions STATIC
 	mov.cc
 	mov_register_direct.cc
 	mov_register_indirect.cc
+	mov_register_indirect_displacement.cc
 	jsr.cc
 	exts.cc
 	shll.cc
