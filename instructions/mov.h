@@ -6,6 +6,25 @@
 namespace h8instructions {
 namespace mov {
 
+template<class T>
+void update_ccr(H8300H* h8300h, T value) {
+    CCR& ccr = h8300h->ccr;
+
+    if (value < 0) {
+        ccr.set_n();
+    } else {
+        ccr.clear_n();
+    }
+
+    if (value == 0) {
+        ccr.set_z();
+    } else {
+        ccr.clear_z();
+    }
+
+    ccr.clear_v();
+}
+
 // MOV 命令は下位バイトまで読まないと判定ができないため mov 関数内部で分岐させる
 int mov(H8300H *h8);
 

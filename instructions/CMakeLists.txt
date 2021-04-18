@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 add_library(instructions STATIC
     instruction_table.cc
 	mov.cc
+	mov_register_direct.cc
 	jsr.cc
 	exts.cc
 	shll.cc
