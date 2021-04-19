@@ -52,6 +52,7 @@ class Operand {
 
 public:
     void stringify(char *buf);
+    addressing_mode_t get_mode();
 
     void set_register_direct8(uint8_t register_index);
     void set_register_direct16(uint8_t register_index);
