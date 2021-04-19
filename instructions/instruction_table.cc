@@ -34,12 +34,6 @@ using namespace h8instructions;
 // todo: 削除する
 const char* lookup_instruction_name(instruction_handler_t handler)
 {
-    if (handler == add::add_immediate_b) return "add::add_immediate_b";
-    if (handler == add::add_register_direct_b) return "add::add_register_direct_b";
-    if (handler == add::add_immediate_w) return "add::add_immediate_w";
-    if (handler == add::add_immediate_l) return "add::add_immediate_l";
-    if (handler == add::add_register_direct_l) return "add::add_register_direct_l";
-
     if (handler == adds::adds) return "adds::adds";
 
     if (handler == andl::and_immediate_b) return "andl::and_immediate_b";
@@ -88,8 +82,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
 
     if (handler == jsr::jsr_register_indirect) return "jsr::jsr_register_indirect";
     if (handler == jsr::jsr_absolute_address) return "jsr::jsr_absolute_address";
-
-    // if (handler == mov::mov) return "mov::mov";
 
     if (handler == mulxs::mulxs_b) return "mulxs::mulxs_b";
     if (handler == mulxs::mulxs_w) return "mulxs::mulxs_w";

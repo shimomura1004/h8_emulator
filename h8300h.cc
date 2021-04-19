@@ -2,7 +2,8 @@
 #include "operation_map/operation_map.h"
 #include "sci/sci.h"
 
-#include "instructions/add.h"
+// todo: デバッグ用
+#include <set>
 
 uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
 {
@@ -11,25 +12,27 @@ uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
 
 int H8300H::execute_next_instruction()
 {
-    // todo: 移行のために…実装してないものだけ古い実装にフォールバックできないか？
-    // 問題は mov だけ。mov の operation_map を細分化するところから始める？
-    // 1. mov.cc のトップの switch 文に全てのパターンが現れるように修正
-    // 2. operation_map にその switch 文をマージ
-    // 3. 1つずつ置き換えていく
-
     instruction_parser_t parser = operation_map2::lookup(this);
 
     if (parser) {
         Instruction instruction;
         parser(this, &instruction);
 
-        char name[8];
-        char op1[16];
-        char op2[16];
-        instruction.stringify_name(name);
-        instruction.op1.stringify(op1);
-        instruction.op2.stringify(op2);
-        printf("[0x%06x] %s %s,%s\n", pc, name, op1, op2);
+        {
+            // 初回のみ命令を print し動作確認
+            static std::set<instruction_parser_t> tmp;
+            if (tmp.find(parser) == tmp.end()) {
+                tmp.insert(parser);
+                
+                char name[8];
+                char op1[16];
+                char op2[16];
+                instruction.stringify_name(name);
+                instruction.op1.stringify(op1);
+                instruction.op2.stringify(op2);
+                printf("[0x%06x] %s %s,%s\n", pc, name, op1, op2);
+            }
+        }
 
         int result = instruction.run(this);
 

@@ -7,17 +7,6 @@
 namespace h8instructions {
 namespace add {
 
-// todo: 消す
-int add_immediate_b(H8300H* h8);
-int add_register_direct_b(H8300H* h8);
-
-int add_immediate_w(H8300H* h8);
-int add_register_direct_w(H8300H* h8);
-
-int add_immediate_l(H8300H* h8);
-int add_register_direct_l(H8300H* h8);
-
-
 // add.b #xx:8,Rd
 void add_immediate_b_parse(H8300H* h8, Instruction* instruction);
 int add_immediate_b_run(H8300H* h8, Instruction* instruction);
