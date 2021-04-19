@@ -149,8 +149,8 @@ instruction_parser_t lookup_7x(H8300H *h8300h)
 
 instruction_parser_t lookup_74(H8300H* h8300h)
 {
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh_msb = (b1 & 0x80) == 0;
+    // unsigned char b1 = h8300h->fetch_instruction_byte(1);
+    // unsigned char bh_msb = (b1 & 0x80) == 0;
 
     return nullptr;
     // return bh_msb ? nullptr  // BOR
@@ -159,8 +159,8 @@ instruction_parser_t lookup_74(H8300H* h8300h)
 
 instruction_parser_t lookup_75(H8300H* h8300h)
 {
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh_msb = (b1 & 0x80) == 0;
+    // unsigned char b1 = h8300h->fetch_instruction_byte(1);
+    // unsigned char bh_msb = (b1 & 0x80) == 0;
 
     return nullptr;
     // return bh_msb ? nullptr  // BXOR
@@ -169,8 +169,8 @@ instruction_parser_t lookup_75(H8300H* h8300h)
 
 instruction_parser_t lookup_76(H8300H* h8300h)
 {
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh_msb = (b1 & 0x80) == 0;
+    // unsigned char b1 = h8300h->fetch_instruction_byte(1);
+    // unsigned char bh_msb = (b1 & 0x80) == 0;
 
     return nullptr;
     // return bh_msb ? nullptr  // BAND
@@ -179,8 +179,8 @@ instruction_parser_t lookup_76(H8300H* h8300h)
 
 instruction_parser_t lookup_77(H8300H* h8300h)
 {
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh_msb = (b1 & 0x80) == 0;
+    // unsigned char b1 = h8300h->fetch_instruction_byte(1);
+    // unsigned char bh_msb = (b1 & 0x80) == 0;
 
     return nullptr;
     // return bh_msb ? h8instructions::bld::bld_register_direct
