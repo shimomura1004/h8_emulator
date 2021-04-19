@@ -6,9 +6,13 @@
 typedef int(*instruction_handler_t)(H8300H*);
 
 namespace operation_map {
-
 instruction_handler_t lookup(H8300H* h8300h);
+}
 
+#include "instructions/instruction.h"
+
+namespace operation_map2 {
+instruction_parser_t lookup(H8300H* h8300h);
 }
 
 #endif

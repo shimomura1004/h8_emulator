@@ -13,7 +13,9 @@
 #include "instructions/xor.h"
 #include "instructions/or.h"
 
-instruction_handler_t operation_map::lookup(H8300H* h8300h)
+namespace operation_map {
+
+instruction_handler_t lookup(H8300H* h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
     unsigned char ah = (b0 & 0xf0) >> 4;
@@ -37,4 +39,15 @@ instruction_handler_t operation_map::lookup(H8300H* h8300h)
     case 0x0f: return h8instructions::mov::immediate_b;
     default:   return nullptr;
     }
+}
+
+}
+
+namespace operation_map2 {
+
+instruction_parser_t lookup(H8300H* h8300h)
+{
+    return nullptr;
+}
+
 }

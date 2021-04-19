@@ -17,20 +17,11 @@ int H8300H::execute_next_instruction()
     // 2. operation_map にその switch 文をマージ
     // 3. 1つずつ置き換えていく
 
-    instruction_handler_t handler = operation_map::lookup(this);
+    instruction_parser_t parser = operation_map2::lookup(this);
 
-    if (handler == nullptr) {
-        uint8_t first_byte = fetch_instruction_byte(0);
-        fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%06x\n", first_byte, pc);
-        return -1;
-    }
-
-    // todo: デバッグ用に、特定の命令だけ新しいものに置き換える
-    instruction_handler_t target_from = h8instructions::add::add_immediate_l;
-    instruction_parser_t target_to = h8instructions::add::add_immediate_l_parse;
-    if (handler == target_from){
+    if (parser) {
         Instruction instruction;
-        target_to(this, &instruction);
+        parser(this, &instruction);
 
         char name[8];
         char op1[16];
@@ -42,22 +33,36 @@ int H8300H::execute_next_instruction()
 
         int result = instruction.run(this);
 
-
         if (result != 0) {
             uint8_t first_byte = fetch_instruction_byte(0);
             fprintf(stderr, "Instruction execution error(%d): [0x%02x, ...] at address 0x%06x\n", result, first_byte, pc);
         }
 
         return result;
-    }
+    } else {
+        {
+            // todo: 移行のためのフォールバック処理
+            instruction_handler_t handler = operation_map::lookup(this);
 
-    int result = handler(this);
-    if (result != 0) {
-        uint8_t first_byte = fetch_instruction_byte(0);
-        fprintf(stderr, "Instruction execution error(%d): [0x%02x, ...] at address 0x%06x\n", result, first_byte, pc);
-    }
+            if (handler == nullptr) {
+                uint8_t first_byte = fetch_instruction_byte(0);
+                fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%06x\n", first_byte, pc);
+                return -1;
+            }
 
-    return result;
+            int result = handler(this);
+            if (result != 0) {
+                uint8_t first_byte = fetch_instruction_byte(0);
+                fprintf(stderr, "Instruction execution error(%d): [0x%02x, ...] at address 0x%06x\n", result, first_byte, pc);
+            }
+
+            return result;
+        }
+
+        // uint8_t first_byte = fetch_instruction_byte(0);
+        // fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%06x\n", first_byte, pc);
+        // return -1;
+    }
 }
 
 // todo: スタック操作関係は別クラスに移動
