@@ -15,9 +15,6 @@ void update_ccr(H8300H* h8300h, T value) {
     ccr.clear_v();
 }
 
-// MOV 命令は下位バイトまで読まないと判定ができないため mov 関数内部で分岐させる
-int mov(H8300H *h8);
-
 }
 }
 

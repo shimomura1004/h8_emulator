@@ -243,6 +243,11 @@ int register_indirect_with_increment_decrement_b(H8300H* h8)
     return 0;
 }
 
+int register_indirect_with_displacement24_w(H8300H* h8)
+{
+    return -1;
+}
+
 int register_indirect_with_increment_decrement_l(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
