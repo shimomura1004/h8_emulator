@@ -3,6 +3,7 @@
 #include "instructions/mov_register_direct.h"
 #include "instructions/mov_register_indirect.h"
 #include "instructions/mov_register_indirect_displacement.h"
+#include "instructions/mov_absolute_address.h"
 #include "instructions/adds.h"
 #include "instructions/add.h"
 #include "instructions/mulxs.h"
@@ -18,6 +19,7 @@ instruction_handler_t lookup_0100(H8300H* h8300h)
     unsigned char b2 = h8300h->fetch_instruction_byte(2);
     switch (b2) {
     case 0x69: return h8instructions::mov::register_indirect_l;
+    case 0x6b: return h8instructions::mov::absolute_address_24_l;
     case 0x6d: return h8instructions::mov::register_indirect_with_increment_decrement_l;
     case 0x6f: return h8instructions::mov::register_indirect_with_displacement16_l;
     case 0x78: return h8instructions::mov::register_indirect_with_displacement24_l;
