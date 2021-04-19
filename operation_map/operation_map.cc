@@ -6,7 +6,7 @@
 #include "operation_map_6x.h"
 #include "operation_map_7x.h"
 
-#include "instructions/mov.h"
+#include "instructions/mov_immediate.h"
 #include "instructions/cmp.h"
 #include "instructions/and.h"
 #include "instructions/add.h"
@@ -34,7 +34,7 @@ instruction_handler_t OperationMap::lookup(H8300H* h8300h)
     case 0x0c: return h8instructions::orl::or_immediate_b;
     case 0x0d: return h8instructions::xorl::xor_immediate_b;
     case 0x0e: return h8instructions::andl::and_immediate_b;
-    case 0x0f: return h8instructions::mov::mov;
+    case 0x0f: return h8instructions::mov::immediate_b;
     default:   return nullptr;
     }
 }
