@@ -51,14 +51,14 @@ instruction_parser_t lookup(H8300H* h8300h)
     unsigned char ah = (b0 & 0xf0) >> 4;
 
     switch (ah) {
-    // case 0x00: return lookup_0x(h8300h);
+    case 0x00: return lookup_0x(h8300h);
     // case 0x01: return lookup_1x(h8300h);
     // case 0x02:
     // case 0x03: return nullptr; // MOV.B
     // case 0x04: return lookup_4x(h8300h);
     // case 0x05: return lookup_5x(h8300h);
     // case 0x06: return lookup_6x(h8300h);
-    // case 0x07: return lookup_7x(h8300h);
+    case 0x07: return lookup_7x(h8300h);
     case 0x08: return h8instructions::add::add_immediate_b_parse;
     // case 0x09: return nullptr; // ADDX
     // case 0x0a: return h8instructions::cmp::cmp_immediate_b;
