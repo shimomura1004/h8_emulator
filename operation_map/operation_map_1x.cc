@@ -15,6 +15,8 @@
 #include "instructions/rotl.h"
 #include "instructions/not.h"
 
+namespace operation_map {
+
 instruction_handler_t lookup_10(H8300H* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
@@ -178,4 +180,6 @@ instruction_handler_t lookup_1x(H8300H *h8300h)
     case 0x0f: return lookup_1F(h8300h);
     default:   return nullptr;
     }
+}
+
 }

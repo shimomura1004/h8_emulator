@@ -1,6 +1,8 @@
 #include "operation_map_7Dx.h"
 #include "instructions/bset.h"
 
+namespace operation_map {
+
 instruction_handler_t lookup_7Dr067x(H8300H* h8300h)
 {
     unsigned char b3 = h8300h->fetch_instruction_byte(3);
@@ -24,4 +26,6 @@ instruction_handler_t lookup_7Dr0xx(H8300H* h8300h)
     case 0x72: return nullptr; // BCLR
     default:   return nullptr;
     }
+}
+
 }

@@ -1,6 +1,8 @@
 #include "operation_map_4x.h"
 #include "instructions/bcc.h"
 
+namespace operation_map {
+
 instruction_handler_t lookup_4x(H8300H *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
@@ -25,4 +27,6 @@ instruction_handler_t lookup_4x(H8300H *h8300h)
     case 0x0f: return h8instructions::bcc::ble_8;
     default:   return nullptr;
     }
+}
+
 }

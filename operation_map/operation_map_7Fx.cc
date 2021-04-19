@@ -1,5 +1,7 @@
 #include "operation_map_7Fx.h"
 
+namespace operation_map {
+
 instruction_handler_t lookup_7Faa67x(H8300H* h8300h)
 {
     unsigned char b3 = h8300h->fetch_instruction_byte(3);
@@ -33,4 +35,6 @@ instruction_handler_t lookup_7Faaxx(H8300H* h8300h)
         };
     default: return nullptr;
     }
+}
+
 }

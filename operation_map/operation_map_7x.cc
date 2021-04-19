@@ -17,6 +17,8 @@
 #include "instructions/or.h"
 #include "instructions/bld.h"
 
+namespace operation_map {
+
 instruction_handler_t lookup_7x(H8300H *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
@@ -111,4 +113,6 @@ instruction_handler_t lookup_7A(H8300H* h8300h)
     case 0x06: return h8instructions::andl::and_immediate_l;
     default:   return nullptr;
     }
+}
+
 }

@@ -203,7 +203,7 @@ int Runner::proccess_debugger_command()
             set_breakpoint_command(buf);
             continue;
         } else if (MATCH(buf, LOOKUP)) {
-            instruction_handler_t handler = OperationMap::lookup(&h8);
+            instruction_handler_t handler = operation_map::lookup(&h8);
             fprintf(stderr, "%s\n", lookup_instruction_name(handler));
             continue;
         } else if (MATCH(buf, STEP_OUT)) {
@@ -258,7 +258,7 @@ void Runner::run(bool debug)
 
             // todo: instruction のパース結果を使ってもう少し情報を出力したい
             // スタックトレースのために PC を保存
-            instruction_handler_t handler = OperationMap::lookup(&h8);
+            instruction_handler_t handler = operation_map::lookup(&h8);
             if ((handler == h8instructions::jsr::jsr_absolute_address) ||
                 (handler == h8instructions::jsr::jsr_register_indirect))
             {

@@ -13,7 +13,7 @@
 #include "instructions/xor.h"
 #include "instructions/or.h"
 
-instruction_handler_t OperationMap::lookup(H8300H* h8300h)
+instruction_handler_t operation_map::lookup(H8300H* h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
     unsigned char ah = (b0 & 0xf0) >> 4;

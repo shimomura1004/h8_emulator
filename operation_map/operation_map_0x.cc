@@ -14,6 +14,8 @@
 #include "instructions/xor.h"
 #include "instructions/divxs.h"
 
+namespace operation_map {
+
 instruction_handler_t lookup_0100(H8300H* h8300h)
 {
     unsigned char b2 = h8300h->fetch_instruction_byte(2);
@@ -155,4 +157,6 @@ instruction_handler_t lookup_0x(H8300H *h8300h)
     case 0x0f: return lookup_0F(h8300h);
     default:   return nullptr;
     }
+}
+
 }

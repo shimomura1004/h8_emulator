@@ -4,6 +4,8 @@
 #include "instructions/mov_register_indirect_displacement.h"
 #include "instructions/mov_absolute_address.h"
 
+namespace operation_map {
+
 instruction_handler_t lookup_67(H8300H* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
@@ -37,4 +39,6 @@ instruction_handler_t lookup_6x(H8300H *h8300h)
     case 0x0f: return h8instructions::mov::register_indirect_with_displacement16_w;
     default:   return nullptr;
     }
+}
+
 }

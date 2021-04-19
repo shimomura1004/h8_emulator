@@ -17,7 +17,7 @@ int H8300H::execute_next_instruction()
     // 2. operation_map にその switch 文をマージ
     // 3. 1つずつ置き換えていく
 
-    instruction_handler_t handler = OperationMap::lookup(this);
+    instruction_handler_t handler = operation_map::lookup(this);
 
     if (handler == nullptr) {
         uint8_t first_byte = fetch_instruction_byte(0);
