@@ -32,7 +32,7 @@ instruction_handler_t lookup_6x(H8300H *h8300h)
     case 0x08: return h8instructions::mov::register_indirect_b;
     case 0x09: return h8instructions::mov::register_indirect_w;
     case 0x0a: return nullptr;
-    case 0x0b: return h8instructions::mov::absolute_address_24_w;
+    case 0x0b: return nullptr;
     case 0x0c: return h8instructions::mov::register_indirect_with_increment_decrement_b;
     case 0x0d: return h8instructions::mov::register_indirect_with_displacement24_w;
     case 0x0e: return h8instructions::mov::register_indirect_with_displacement16_b;
@@ -73,7 +73,7 @@ instruction_parser_t lookup_6x(H8300H *h8300h)
     // case 0x08: return h8instructions::mov::register_indirect_b;
     // case 0x09: return h8instructions::mov::register_indirect_w;
     case 0x0a: return h8instructions::mov::absolute_address_24_b_parse;
-    // case 0x0b: return h8instructions::mov::absolute_address_24_w;
+    case 0x0b: return h8instructions::mov::absolute_address_24_w_parse;
     // case 0x0c: return h8instructions::mov::register_indirect_with_increment_decrement_b;
     // case 0x0d: return h8instructions::mov::register_indirect_with_displacement24_w;
     // case 0x0e: return h8instructions::mov::register_indirect_with_displacement16_b;
