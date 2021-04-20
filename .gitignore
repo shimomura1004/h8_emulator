@@ -3,4 +3,5 @@ build
 
 *.o
 
-osbook_03
+manual
+osbook_*
