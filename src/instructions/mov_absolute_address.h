@@ -7,8 +7,6 @@
 namespace h8instructions {
 namespace mov {
 
-int absolute_address_24_l(H8300H* h8);
-
 void absolute_address_24_b_parse(H8300H* h8, Instruction* instruction);
 int absolute_address_24_b_run(H8300H* h8, Instruction* instruction);
 
