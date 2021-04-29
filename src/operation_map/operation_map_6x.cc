@@ -29,7 +29,7 @@ instruction_handler_t lookup_6x(H8300H *h8300h)
     case 0x05: return nullptr; // XOR
     case 0x06: return nullptr; // AND
     case 0x07: return lookup_67(h8300h);
-    case 0x08: return h8instructions::mov::register_indirect_b;
+    case 0x08: return nullptr;
     case 0x09: return h8instructions::mov::register_indirect_w;
     case 0x0a: return nullptr;
     case 0x0b: return nullptr;
@@ -70,7 +70,7 @@ instruction_parser_t lookup_6x(H8300H *h8300h)
     case 0x05: return nullptr; // XOR
     case 0x06: return nullptr; // AND
     case 0x07: return lookup_67(h8300h);
-    // case 0x08: return h8instructions::mov::register_indirect_b;
+    case 0x08: return h8instructions::mov::register_indirect_b_parse;
     // case 0x09: return h8instructions::mov::register_indirect_w;
     case 0x0a: return h8instructions::mov::absolute_address_24_b_parse;
     case 0x0b: return h8instructions::mov::absolute_address_24_w_parse;
