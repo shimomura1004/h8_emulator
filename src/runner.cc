@@ -116,16 +116,17 @@ void Runner::write_value_command(char *buf)
 #define STEP1       "s"
 #define STEP2       "step"
 #define CONTINUE1   "c"
-#define CONTINUE2  "continue"
+#define CONTINUE2   "continue"
 #define BREAK1      "b "
 #define BREAK2      "break"
 #define LOOKUP      "lookup"
-#define STEP_OUT   "so"
+#define STEP_OUT    "so"
 #define PRINT_PC_MODE   "printpc"
 #define WRITE_REG   "writereg"
 #define CALL_STACK  "bt"
-#define QUIT1        "q"
-#define QUIT2        "quit"
+#define QUIT1       "q"
+#define QUIT2       "quit"
+#define PRINT       "p"
 
 // todo: メモリの内容を一部確認するコマンドがほしい
 // todo: レジスタを書き換えるコマンドがほしい
@@ -190,6 +191,7 @@ int Runner::proccess_debugger_command()
             continue;
         } else if (MATCH(buf, REG1) || MATCH(buf, REG2)) {
             h8.print_registers();
+            continue;
         } else if (MATCH(buf, DUMP)) {
             h8.mcu.dump("core");
             fprintf(stderr, "Memory dumped to 'core' file\n");
@@ -209,16 +211,38 @@ int Runner::proccess_debugger_command()
         } else if (MATCH(buf, STEP_OUT)) {
             continue_mode = true;
             step_out_mode = true;
+            continue;
         } else if (MATCH(buf, PRINT_PC_MODE)) {
             print_pc_mode = !print_pc_mode;
             fprintf(stderr, "Print PC mode: %s\n", print_pc_mode ? "on" : "off");
             continue;
         } else if (MATCH(buf, WRITE_REG)) {
             write_value_command(buf);
+            continue;
         } else if (MATCH(buf, CALL_STACK)) {
             for (int i = call_stack.size() - 1; i >= 0; --i) {
                 printf("%02d 0x%06x\n", i, call_stack[i]);
             }
+            continue;
+        } else if (MATCH(buf, PRINT)) {
+            instruction_parser_t parser = operation_map2::lookup(&h8);
+
+            if (parser) {
+                Instruction instruction;
+                parser(&h8, &instruction);
+                
+                char name[8];
+                char op1[16];
+                char op2[16];
+                instruction.stringify_name(name);
+                instruction.op1.stringify(op1);
+                instruction.op2.stringify(op2);
+
+                printf("%s %s,%s\n", name, op1, op2);
+            } else {
+                fprintf(stderr, "Error: unknown instruction\n");
+            }
+            
             continue;
         } else if (MATCH(buf, QUIT1) || MATCH(buf, QUIT2)) {
             return -1;
@@ -277,7 +301,9 @@ void Runner::run(bool debug)
             printf("PC: 0x%08x\n", h8.pc);
         }
 
+        // 次の命令を実行
         result = h8.step();
+
         if (result != 0) {
             fprintf(stderr, "Core dumped.\n");
             h8.mcu.dump("core");
