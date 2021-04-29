@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.14)
 add_library(operation_map STATIC
     operation_map.cc
     operation_map_0x.cc
