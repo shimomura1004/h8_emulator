@@ -232,8 +232,8 @@ int Runner::proccess_debugger_command()
                 parser(&h8, &instruction);
                 
                 char name[8];
-                char op1[16];
-                char op2[16];
+                char op1[32];
+                char op2[32];
                 instruction.stringify_name(name);
                 instruction.op1.stringify(op1);
                 instruction.op2.stringify(op2);
