@@ -23,7 +23,7 @@ instruction_handler_t lookup_0100(H8300H* h8300h)
     case 0x69: return nullptr;
     case 0x6b: return nullptr;
     case 0x6d: return h8instructions::mov::register_indirect_with_increment_decrement_l;
-    case 0x6f: return h8instructions::mov::register_indirect_with_displacement16_l;
+    case 0x6f: return nullptr;
     case 0x78: return h8instructions::mov::register_indirect_with_displacement24_l;
     default:   return nullptr;
     }
@@ -172,7 +172,7 @@ instruction_parser_t lookup_0100(H8300H* h8300h)
     case 0x69: return h8instructions::mov::register_indirect_l_parse;
     case 0x6b: return h8instructions::mov::absolute_address_24_l_parse;
     // case 0x6d: return h8instructions::mov::register_indirect_with_increment_decrement_l;
-    // case 0x6f: return h8instructions::mov::register_indirect_with_displacement16_l;
+    case 0x6f: return h8instructions::mov::register_indirect_with_displacement16_l_parser;
     // case 0x78: return h8instructions::mov::register_indirect_with_displacement24_l;
     default:   return nullptr;
     }
