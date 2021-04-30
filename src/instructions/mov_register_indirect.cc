@@ -1,40 +1,6 @@
 #include "mov_register_indirect.h"
 #include "mov.h"
 
-int h8instructions::mov::register_indirect_l(H8300H* h8)
-{
-    const uint8_t b3 = h8->fetch_instruction_byte(3);
-    const uint8_t b3_msb = b3 & 0x80;
-
-    if (b3_msb) {
-        uint8_t dst_register_index = (b3 & 0x70) >> 4;
-        uint8_t src_register_index = (b3 & 0x07);
-        const Register32& dst = h8->reg[dst_register_index];
-        const Register32& src = h8->reg[src_register_index];
-
-        int32_t value = src.get();
-        uint32_t address = dst.get();
-        h8->mcu.write32(address, value);
-
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
-    } else {
-        uint8_t src_register_index = (b3 & 0x70) >> 4;
-        uint8_t dst_register_index = (b3 & 0x07);
-        const Register32& src = h8->reg[src_register_index];
-        Register32& dst = h8->reg[dst_register_index];
-
-        uint32_t address = src.get();
-        int32_t value = h8->mcu.read32(address);
-        dst.set(value);
-
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
-    }
-
-    h8->pc += 4;
-
-    return 0;
-}
-
 namespace h8instructions {
 namespace mov {
 
@@ -160,8 +126,66 @@ int register_indirect_w_run(H8300H* h8, Instruction* instruction)
     }
 }
 
-// void register_indirect_l_parse(H8300H* h8, Instruction* instruction);
-// int register_indirect_l_run(H8300H* h8, Instruction* instruction);
+void register_indirect_l_parse(H8300H* h8, Instruction* instruction)
+{
+    const uint8_t b3 = h8->fetch_instruction_byte(3);
+    const uint8_t b3_msb = b3 & 0x80;
+
+    instruction->name = "mov.l";
+    instruction->parser = h8instructions::mov::register_indirect_l_parse;
+    instruction->runner = h8instructions::mov::register_indirect_l_run;
+
+    if (b3_msb) {
+        // Rs,@ERd
+        instruction->op1.set_register_direct32(b3 & 0x07);
+        instruction->op2.set_register_indirect((b3 & 0x70) >> 4);
+    } else {
+        // @ERs,Rd
+        instruction->op1.set_register_indirect((b3 & 0x70) >> 4);
+        instruction->op2.set_register_direct32(b3 & 0x07);
+    }
+}
+
+int register_indirect_l_run(H8300H* h8, Instruction* instruction)
+{
+    addressing_mode_t mode = instruction->op1.get_mode();
+
+    switch (mode) {
+    case addressing_mode_t::RegisterDirect32: {
+        // Rs,@ERd
+        const Register32& src = h8->reg[instruction->op1.get_register_direct32()];
+        const Register32& dst = h8->reg[instruction->op2.get_register_indirect()];
+
+        int32_t value = src.get();
+        uint32_t address = dst.get();
+        h8->mcu.write32(address, value);
+
+        h8instructions::mov::update_ccr<int32_t>(h8, value);
+
+        h8->pc += 4;
+
+        return 0;
+    }
+    case addressing_mode_t::RegisterIndirect: {
+        // @ERs,Rd
+        const Register32& src = h8->reg[instruction->op1.get_register_indirect()];
+        Register32& dst = h8->reg[instruction->op2.get_register_direct32()];
+
+        uint32_t address = src.get();
+        int32_t value = h8->mcu.read32(address);
+        dst.set(value);
+
+        h8instructions::mov::update_ccr<int32_t>(h8, value);
+
+        h8->pc += 4;
+
+        return 0;
+    }
+    default:
+        fprintf(stderr, "Error: mismatched operator and operands\n");
+        return -1;
+    }
+}
 
 }
 }

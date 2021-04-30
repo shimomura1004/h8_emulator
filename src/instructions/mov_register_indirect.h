@@ -7,8 +7,6 @@
 namespace h8instructions {
 namespace mov {
 
-int register_indirect_l(H8300H* h8);
-
 void register_indirect_b_parse(H8300H* h8, Instruction* instruction);
 int register_indirect_b_run(H8300H* h8, Instruction* instruction);
 void register_indirect_w_parse(H8300H* h8, Instruction* instruction);
