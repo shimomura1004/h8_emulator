@@ -16,7 +16,7 @@ void Operand::stringify(char *buf) {
         sprintf(buf, "@er%d", this->u8);
         break;
     case addressing_mode_t::RegisterIndirectWithDisplacement16:
-        sprintf(buf, "@(0x%x:16,er%d)", this->disp16_displacement, this->disp16_register_index);
+        sprintf(buf, "@(0x%hx:16,er%d)", this->disp16_displacement, this->disp16_register_index);
         break;
     case addressing_mode_t::RegisterIndirectWithDisplacement24:
         sprintf(buf, "@(0x%x:24,er%d)", this->disp24_displacement, this->disp24_register_index);
@@ -31,7 +31,7 @@ void Operand::stringify(char *buf) {
         sprintf(buf, "@0x%x:8", this->u8);
         break;
     case addressing_mode_t::AbsoluteAddress16:
-        sprintf(buf, "@0x%x:16", this->u16);
+        sprintf(buf, "@0x%hx:16", this->u16);
         break;
     case addressing_mode_t::AbsoluteAddress24:
         sprintf(buf, "@0x%x:24", this->u32);
@@ -40,7 +40,7 @@ void Operand::stringify(char *buf) {
         sprintf(buf, "#0x%x", this->s8 & 0xff);
         break;
     case addressing_mode_t::Immediate16:
-        sprintf(buf, "#0x%x", this->s16 & 0xffff);
+        sprintf(buf, "#0x%hx", (int16_t)(this->s16 & 0xffff));
         break;
     case addressing_mode_t::Immediate32:
         sprintf(buf, "#0x%x", this->s32 & 0xffffffff);
@@ -49,10 +49,10 @@ void Operand::stringify(char *buf) {
         sprintf(buf, "@(0x%x:8,PC)", this->s8 & 0xff);
         break;
     case addressing_mode_t::ProgramCounterRelative16:
-        sprintf(buf, "@(0x%x:16,PC)", this->s16 & 0xffff);
+        sprintf(buf, "@(0x%hx:16,PC)", (int16_t)(this->s16 & 0xffff));
         break;
     case addressing_mode_t::MemoryIndirect:
-        sprintf(buf, "@@%d (0x%x)", this->u8, this->u8);
+        sprintf(buf, "@@%d (0x%hx)", this->u8, this->u8);
         break;
     default:
         fprintf(stderr, "Error: Unknown addressing mode\n");
