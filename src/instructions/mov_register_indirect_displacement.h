@@ -7,7 +7,6 @@
 namespace h8instructions {
 namespace mov {
 
-int register_indirect_with_displacement16_w(H8300H* h8);
 int register_indirect_with_displacement16_l(H8300H* h8);
 
 int register_indirect_with_displacement24_b(H8300H* h8);
