@@ -4,47 +4,6 @@
 namespace h8instructions {
 namespace mov {
 
-int register_indirect_with_displacement16_b(H8300H* h8)
-{
-    uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t b1_msb = b1 & 0x80;
-
-    uint8_t displacement[2];
-    displacement[1] = h8->fetch_instruction_byte(2);
-    displacement[0] = h8->fetch_instruction_byte(3);
-    int16_t disp = *(int16_t*)displacement;
-
-    if (b1_msb) {
-        // Rs,@(d:16,ERd)
-        const uint8_t dst_register_index = (b1 & 0x70) >> 4;
-        const uint8_t src_register_index = (b1 & 0x0f);
-        Register32& dst = h8->reg[dst_register_index];
-        const Register8& src = h8->reg8[src_register_index];
-
-        uint8_t value = src.get();
-        uint32_t address = dst.get() + disp;
-        h8->mcu.write8(address, value);
-
-        h8instructions::mov::update_ccr<int8_t>(h8, value);
-    } else {
-        // @(d:16,ERs),Rd
-        uint8_t src_register_index = (b1 & 0x70) >> 4;
-        uint8_t dst_register_index = (b1 & 0x0f);
-        const Register32& src = h8->reg[src_register_index];
-        Register8& dst = h8->reg8[dst_register_index];
-
-        uint32_t address = src.get() + disp;
-        uint8_t value = h8->mcu.read8(address);
-        dst.set(value);
-
-        h8instructions::mov::update_ccr<int8_t>(h8, value);
-    }
-
-    h8->pc += 4;
-
-    return 0;
-}
-
 int register_indirect_with_displacement16_w(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
@@ -273,6 +232,97 @@ int register_indirect_with_increment_decrement_l(H8300H* h8)
 
     return 0;
 }
+
+}
+}
+
+namespace h8instructions {
+namespace mov {
+
+void register_indirect_with_displacement16_b_parser(H8300H* h8, Instruction* instruction)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+    uint8_t b1_msb = b1 & 0x80;
+
+    uint8_t disp[2];
+    disp[1] = h8->fetch_instruction_byte(2);
+    disp[0] = h8->fetch_instruction_byte(3);
+    int16_t displacement = *(int16_t*)disp;
+
+    instruction->name = "mov.b";
+    instruction->parser = h8instructions::mov::register_indirect_with_displacement16_b_parser;
+    instruction->runner = h8instructions::mov::register_indirect_with_displacement16_b_run;
+
+    if (b1_msb) {
+        // Rs,@(d:16,ERd)
+        instruction->op1.set_register_direct8(b1 & 0x0f);
+        instruction->op2.set_register_indirect_with_displacement16((b1 & 0x70) >> 4, displacement);
+    } else {
+        // @(d:16,ERs),Rd
+        instruction->op1.set_register_indirect_with_displacement16((b1 & 0x70) >> 4, displacement);
+        instruction->op2.set_register_direct8(b1 & 0x0f);
+    }
+}
+
+int register_indirect_with_displacement16_b_run(H8300H* h8, Instruction* instruction)
+{
+    addressing_mode_t mode = instruction->op1.get_mode();
+
+    switch (mode) {
+    case addressing_mode_t::RegisterDirect8: {
+        // Rs,@(d:16,ERd)
+        const Register8& src = h8->reg8[instruction->op1.get_register_direct8()];
+        Register32& dst = h8->reg[instruction->op2.get_register_indirect_with_displacement16_register()];
+        int16_t displacement = instruction->op2.get_register_indirect_with_displacement16_displacement();
+
+        uint8_t value = src.get();
+        uint32_t address = dst.get() + displacement;
+        h8->mcu.write8(address, value);
+
+        h8instructions::mov::update_ccr<int8_t>(h8, value);
+
+        h8->pc += 4;
+
+        return 0;
+    }
+    case addressing_mode_t::RegisterIndirectWithDisplacement16: {
+        // @(d:16,ERs),Rd
+        const Register32& src = h8->reg[instruction->op1.get_register_indirect_with_displacement16_register()];
+        Register8& dst = h8->reg8[instruction->op2.get_register_direct8()];
+        int16_t displacement = instruction->op1.get_register_indirect_with_displacement16_displacement();
+
+        uint32_t address = src.get() + displacement;
+        uint8_t value = h8->mcu.read8(address);
+        dst.set(value);
+
+        h8instructions::mov::update_ccr<int8_t>(h8, value);
+
+        h8->pc += 4;
+
+        return 0;
+    }
+    default:
+        fprintf(stderr, "Error: mismatched operator and operands\n");
+        return -1;
+    }  
+}
+
+// void register_indirect_with_displacement16_w_parser(H8300H* h8, Instruction* instruction);
+// int register_indirect_with_displacement16_w_run(H8300H* h8, Instruction* instruction);
+// void register_indirect_with_displacement16_l_parser(H8300H* h8, Instruction* instruction);
+// int register_indirect_with_displacement16_l_run(H8300H* h8, Instruction* instruction);
+
+// void register_indirect_with_displacement24_b_parser(H8300H* h8, Instruction* instruction);
+// int register_indirect_with_displacement24_b_run(H8300H* h8, Instruction* instruction);
+// void register_indirect_with_displacement24_w_parser(H8300H* h8, Instruction* instruction);
+// int register_indirect_with_displacement24_w_run(H8300H* h8, Instruction* instruction);
+// void register_indirect_with_displacement24_l_parser(H8300H* h8, Instruction* instruction);
+// int register_indirect_with_displacement24_l_run(H8300H* h8, Instruction* instruction);
+
+// void register_indirect_with_increment_decrement_b_parser(H8300H* h8, Instruction* instruction);
+// int register_indirect_with_increment_decrement_b_run(H8300H* h8, Instruction* instruction);
+// void register_indirect_with_increment_decrement_l_parser(H8300H* h8, Instruction* instruction);
+// int register_indirect_with_increment_decrement_l_run(H8300H* h8, Instruction* instruction);
 
 }
 }
