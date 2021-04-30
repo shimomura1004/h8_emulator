@@ -5,7 +5,9 @@ add_library(instructions STATIC
 	instruction.cc
 	mov_register_direct.cc
 	mov_register_indirect.cc
-	mov_register_indirect_displacement.cc
+	mov_register_indirect_displacement16.cc
+	mov_register_indirect_displacement24.cc
+	mov_register_indirect_displacement_prepost.cc
 	mov_absolute_address.cc
 	mov_immediate.cc
 	jsr.cc

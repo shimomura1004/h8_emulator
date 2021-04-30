@@ -1,7 +1,9 @@
 #include "operation_map_6x.h"
 #include "instructions/mov.h"
 #include "instructions/mov_register_indirect.h"
-#include "instructions/mov_register_indirect_displacement.h"
+#include "instructions/mov_register_indirect_displacement16.h"
+#include "instructions/mov_register_indirect_displacement24.h"
+#include "instructions/mov_register_indirect_displacement_prepost.h"
 #include "instructions/mov_absolute_address.h"
 
 namespace operation_map {
