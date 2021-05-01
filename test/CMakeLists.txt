@@ -9,7 +9,11 @@ include_directories(
 add_definitions("-Wall -I. -std=c++11 -pthread -g")
 # add_definitions("-Wconversion")
 
-add_executable(example example.cc)
+# test cases in static library IS NOT linked because there is no references from main object
+add_executable(example
+    example.cc
+    instructions/mov_immediate_test.cc
+)
 target_link_libraries(example
     gtest_main
     gmock)
