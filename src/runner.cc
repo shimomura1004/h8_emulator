@@ -141,7 +141,7 @@ static bool print_pc_mode = false;
 int Runner::proccess_debugger_command()
 {
     if (continue_mode) {
-        if (breakpoints.find(h8.pc) == breakpoints.end()) {
+        if (breakpoints.find(h8.cpu.pc()) == breakpoints.end()) {
             return 0;
         } else {
             continue_mode = false;
@@ -298,7 +298,7 @@ void Runner::run(bool debug)
         }
 
         if (print_pc_mode) {
-            printf("PC: 0x%08x\n", h8.pc);
+            printf("PC: 0x%08x\n", h8.cpu.pc());
         }
 
         // 次の命令を実行

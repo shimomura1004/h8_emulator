@@ -2,6 +2,6 @@
 
 int h8instructions::nop::nop(H8300H* h8)
 {
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
     return 0;
 }

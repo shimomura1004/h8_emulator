@@ -3,8 +3,8 @@
 int h8instructions::bcc::bra_8(H8300H* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
-    h8->pc += disp;
+    h8->cpu.pc() += 2;
+    h8->cpu.pc() += disp;
 
     return 0;
 }
@@ -16,8 +16,8 @@ int h8instructions::bcc::bra_16(H8300H* h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
-    h8->pc += disp;
+    h8->cpu.pc() += 4;
+    h8->cpu.pc() += disp;
 
     return 0;
 }
@@ -25,10 +25,10 @@ int h8instructions::bcc::bhi_8(H8300H* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
 
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    if (!(h8->ccr.c() || h8->ccr.z())) {
-        h8->pc += disp;
+    if (!(h8->cpu.ccr().c() || h8->cpu.ccr().z())) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -41,10 +41,10 @@ int h8instructions::bcc::bhi_16(H8300H* h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
-    if (!(h8->ccr.c() || h8->ccr.z())) {
-        h8->pc += disp;
+    if (!(h8->cpu.ccr().c() || h8->cpu.ccr().z())) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -53,10 +53,10 @@ int h8instructions::bcc::bhi_16(H8300H* h8)
 int h8instructions::bcc::bls_8(H8300H* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    if (h8->ccr.c() || h8->ccr.z()) {
-        h8->pc += disp;
+    if (h8->cpu.ccr().c() || h8->cpu.ccr().z()) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -69,10 +69,10 @@ int h8instructions::bcc::bls_16(H8300H* h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
-    if (h8->ccr.c() || h8->ccr.z()) {
-        h8->pc += disp;
+    if (h8->cpu.ccr().c() || h8->cpu.ccr().z()) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -81,10 +81,10 @@ int h8instructions::bcc::bls_16(H8300H* h8)
 int h8instructions::bcc::bcc_8(H8300H* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    if (!h8->ccr.c()) {
-        h8->pc += disp;
+    if (!h8->cpu.ccr().c()) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -93,10 +93,10 @@ int h8instructions::bcc::bcc_8(H8300H* h8)
 int h8instructions::bcc::bcs_8(H8300H* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    if (h8->ccr.c()) {
-        h8->pc += disp;
+    if (h8->cpu.ccr().c()) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;}
@@ -104,10 +104,10 @@ int h8instructions::bcc::bcs_8(H8300H* h8)
 int h8instructions::bcc::bne_8(H8300H *h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    if (!h8->ccr.z()) {
-        h8->pc += disp;
+    if (!h8->cpu.ccr().z()) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -120,10 +120,10 @@ int h8instructions::bcc::bne_16(H8300H* h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
-    if (!h8->ccr.z()) {
-        h8->pc += disp;
+    if (!h8->cpu.ccr().z()) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -132,10 +132,10 @@ int h8instructions::bcc::bne_16(H8300H* h8)
 int h8instructions::bcc::beq_8(H8300H *h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    if (h8->ccr.z()) {
-        h8->pc += disp;
+    if (h8->cpu.ccr().z()) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -148,10 +148,10 @@ int h8instructions::bcc::beq_16(H8300H *h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
-    if (h8->ccr.z()) {
-        h8->pc += disp;
+    if (h8->cpu.ccr().z()) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -160,11 +160,11 @@ int h8instructions::bcc::beq_16(H8300H *h8)
 int h8instructions::bcc::bge_8(H8300H *h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
+    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
     if (!n_xor_v) {
-        h8->pc += disp;
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -177,11 +177,11 @@ int h8instructions::bcc::bge_16(H8300H* h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
-    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
+    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
     if (!n_xor_v) {
-        h8->pc += disp;
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -190,11 +190,11 @@ int h8instructions::bcc::bge_16(H8300H* h8)
 int h8instructions::bcc::blt_8(H8300H* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
+    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
     if (n_xor_v) {
-        h8->pc += disp;
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -207,11 +207,11 @@ int h8instructions::bcc::blt_16(H8300H* h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
-    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
+    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
     if (n_xor_v) {
-        h8->pc += disp;
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -220,11 +220,11 @@ int h8instructions::bcc::blt_16(H8300H* h8)
 int h8instructions::bcc::bgt_8(H8300H* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
-    if (!(h8->ccr.z() || n_xor_v)) {
-        h8->pc += disp;
+    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
+    if (!(h8->cpu.ccr().z() || n_xor_v)) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -237,11 +237,11 @@ int h8instructions::bcc::bgt_16(H8300H* h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
-    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
-    if (!(h8->ccr.z() || n_xor_v)) {
-        h8->pc += disp;
+    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
+    if (!(h8->cpu.ccr().z() || n_xor_v)) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -250,11 +250,11 @@ int h8instructions::bcc::bgt_16(H8300H* h8)
 int h8instructions::bcc::ble_8(H8300H *h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
-    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
-    if (h8->ccr.z() || n_xor_v) {
-        h8->pc += disp;
+    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
+    if (h8->cpu.ccr().z() || n_xor_v) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;
@@ -267,11 +267,11 @@ int h8instructions::bcc::ble_16(H8300H *h8)
     displacement[0] = h8->fetch_instruction_byte(3);
     int16_t disp = *(int16_t*)displacement;
 
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
-    bool n_xor_v = (h8->ccr.n() && !h8->ccr.v()) || (!h8->ccr.n() && h8->ccr.v());
-    if (h8->ccr.z() || n_xor_v) {
-        h8->pc += disp;
+    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
+    if (h8->cpu.ccr().z() || n_xor_v) {
+        h8->cpu.pc() += disp;
     }
 
     return 0;

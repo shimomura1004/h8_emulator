@@ -52,14 +52,14 @@ int absolute_address_24_b_run(H8300H* h8, Instruction* instruction)
     case addressing_mode_t::AbsoluteAddress24:
         return -1;
     case addressing_mode_t::RegisterDirect8: {
-        const Register8& src = h8->reg8[instruction->op1.get_register_direct8()];
+        const Register8& src = h8->cpu.reg8(instruction->op1.get_register_direct8());
         uint32_t absolute = instruction->op2.get_absolute_address24();
 
         uint8_t value = src.get();
         h8->mcu.write8(absolute, value);
 
         h8instructions::mov::update_ccr<int8_t>(h8, (int8_t)value);
-        h8->pc += 6;
+        h8->cpu.pc() += 6;
 
         return 0;
     }
@@ -115,26 +115,26 @@ int absolute_address_24_w_run(H8300H* h8, Instruction* instruction)
 
     switch (mode) {
     case addressing_mode_t::AbsoluteAddress24: {
-        Register16& dst = h8->reg16[instruction->op2.get_register_direct16()];
+        Register16& dst = h8->cpu.reg16(instruction->op2.get_register_direct16());
         uint32_t absolute = instruction->op1.get_absolute_address24();
 
         uint16_t value = h8->mcu.read16(absolute);
         dst.set(value);
 
         h8instructions::mov::update_ccr<int16_t>(h8, value);
-        h8->pc += 6;
+        h8->cpu.pc() += 6;
 
         return 0;
     }
     case addressing_mode_t::RegisterDirect16: {
-        const Register16& src = h8->reg16[instruction->op1.get_register_direct16()];
+        const Register16& src = h8->cpu.reg16(instruction->op1.get_register_direct16());
         uint32_t absolute = instruction->op2.get_absolute_address24();
 
         uint16_t value = src.get();
         h8->mcu.write16(absolute, value);
 
         h8instructions::mov::update_ccr<int16_t>(h8, value);
-        h8->pc += 6;
+        h8->cpu.pc() += 6;
 
         return 0;
     }
@@ -182,26 +182,26 @@ int absolute_address_24_l_run(H8300H* h8, Instruction* instruction)
 
     switch (mode) {
     case addressing_mode_t::AbsoluteAddress24: {
-        Register32& dst = h8->reg[instruction->op2.get_register_direct32()];
+        Register32& dst = h8->cpu.reg32(instruction->op2.get_register_direct32());
         uint32_t absolute = instruction->op1.get_absolute_address24();
 
         int32_t value = h8->mcu.read32(absolute);
         dst.set(value);
 
         h8instructions::mov::update_ccr<int32_t>(h8, value);
-        h8->pc += 8;
+        h8->cpu.pc() += 8;
 
         return 0;
     }
     case addressing_mode_t::RegisterDirect32: {
-        const Register32& src = h8->reg[instruction->op1.get_register_direct32()];
+        const Register32& src = h8->cpu.reg32(instruction->op1.get_register_direct32());
         uint32_t absolute = instruction->op2.get_absolute_address24();
 
         uint32_t value = src.get();
         h8->mcu.write32(absolute, value);
 
         h8instructions::mov::update_ccr<int32_t>(h8, value);
-        h8->pc += 8;
+        h8->cpu.pc() += 8;
 
         return 0;
     }

@@ -18,12 +18,12 @@ void immediate_b_parse(H8300H* h8, Instruction* instruction)
 
 int immediate_b_run(H8300H* h8, Instruction* instruction)
 {
-    Register8& reg = h8->reg8[instruction->op2.get_register_direct8()];
+    Register8& reg = h8->cpu.reg8(instruction->op2.get_register_direct8());
     int8_t value = instruction->op1.get_immediate8();
 
     reg.set(value);
     h8instructions::mov::update_ccr<int8_t>(h8, value);
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
     return 0;
 }
@@ -46,12 +46,12 @@ void immediate_w_parse(H8300H* h8, Instruction* instruction)
 
 int immediate_w_run(H8300H* h8, Instruction* instruction)
 {
-    Register16& reg = h8->reg16[instruction->op2.get_register_direct16()];
+    Register16& reg = h8->cpu.reg16(instruction->op2.get_register_direct16());
     int16_t value = instruction->op1.get_immediate16();
 
     reg.set(value);
     h8instructions::mov::update_ccr<int16_t>(h8, value);
-    h8->pc += 4;
+    h8->cpu.pc() += 4;
 
     return 0;
 }
@@ -77,12 +77,12 @@ void immediate_l_parse(H8300H* h8, Instruction* instruction)
 
 int immediate_l_run(H8300H* h8, Instruction* instruction)
 {
-    Register32& reg = h8->reg[instruction->op2.get_register_direct32()];
+    Register32& reg = h8->cpu.reg32(instruction->op2.get_register_direct32());
     int32_t value = instruction->op1.get_immediate32();
 
     reg.set(value);
     h8instructions::mov::update_ccr<int32_t>(h8, value);
-    h8->pc += 6;
+    h8->cpu.pc() += 6;
 
     return 0;
 }

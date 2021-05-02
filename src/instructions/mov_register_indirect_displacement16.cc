@@ -36,8 +36,8 @@ int register_indirect_with_displacement16_b_run(H8300H* h8, Instruction* instruc
     switch (mode) {
     case addressing_mode_t::RegisterDirect8: {
         // Rs,@(d:16,ERd)
-        const Register8& src = h8->reg8[instruction->op1.get_register_direct8()];
-        Register32& dst = h8->reg[instruction->op2.get_register_indirect_with_displacement16_register()];
+        const Register8& src = h8->cpu.reg8(instruction->op1.get_register_direct8());
+        Register32& dst = h8->cpu.reg32(instruction->op2.get_register_indirect_with_displacement16_register());
         int16_t displacement = instruction->op2.get_register_indirect_with_displacement16_displacement();
 
         uint8_t value = src.get();
@@ -46,14 +46,14 @@ int register_indirect_with_displacement16_b_run(H8300H* h8, Instruction* instruc
 
         h8instructions::mov::update_ccr<int8_t>(h8, value);
 
-        h8->pc += 4;
+        h8->cpu.pc() += 4;
 
         return 0;
     }
     case addressing_mode_t::RegisterIndirectWithDisplacement16: {
         // @(d:16,ERs),Rd
-        const Register32& src = h8->reg[instruction->op1.get_register_indirect_with_displacement16_register()];
-        Register8& dst = h8->reg8[instruction->op2.get_register_direct8()];
+        const Register32& src = h8->cpu.reg32(instruction->op1.get_register_indirect_with_displacement16_register());
+        Register8& dst = h8->cpu.reg8(instruction->op2.get_register_direct8());
         int16_t displacement = instruction->op1.get_register_indirect_with_displacement16_displacement();
 
         uint32_t address = src.get() + displacement;
@@ -62,7 +62,7 @@ int register_indirect_with_displacement16_b_run(H8300H* h8, Instruction* instruc
 
         h8instructions::mov::update_ccr<int8_t>(h8, value);
 
-        h8->pc += 4;
+        h8->cpu.pc() += 4;
 
         return 0;
     }
@@ -104,8 +104,8 @@ int register_indirect_with_displacement16_w_run(H8300H* h8, Instruction* instruc
     switch (mode) {
     case addressing_mode_t::RegisterDirect16: {
         // Rs,@(d:16,ERd)
-        const Register16& src = h8->reg16[instruction->op1.get_register_direct16()];
-        Register32& dst = h8->reg[instruction->op2.get_register_indirect_with_displacement16_register()];
+        const Register16& src = h8->cpu.reg16(instruction->op1.get_register_direct16());
+        Register32& dst = h8->cpu.reg32(instruction->op2.get_register_indirect_with_displacement16_register());
         int16_t displacement = instruction->op2.get_register_indirect_with_displacement16_displacement();
 
         uint16_t value = src.get();
@@ -114,14 +114,14 @@ int register_indirect_with_displacement16_w_run(H8300H* h8, Instruction* instruc
 
         h8instructions::mov::update_ccr<int16_t>(h8, value);
 
-        h8->pc += 4;
+        h8->cpu.pc() += 4;
 
         return 0;
     }
     case addressing_mode_t::RegisterIndirectWithDisplacement16: {
         // @(d:16,ERs),Rd
-        const Register32& src = h8->reg[instruction->op1.get_register_indirect_with_displacement16_register()];
-        Register16& dst = h8->reg16[instruction->op2.get_register_direct16()];
+        const Register32& src = h8->cpu.reg32(instruction->op1.get_register_indirect_with_displacement16_register());
+        Register16& dst = h8->cpu.reg16(instruction->op2.get_register_direct16());
         int16_t displacement = instruction->op1.get_register_indirect_with_displacement16_displacement();
 
         uint32_t address = src.get() + displacement;
@@ -130,7 +130,7 @@ int register_indirect_with_displacement16_w_run(H8300H* h8, Instruction* instruc
 
         h8instructions::mov::update_ccr<int16_t>(h8, value);
 
-        h8->pc += 4;
+        h8->cpu.pc() += 4;
 
         return 0;
     }
@@ -173,8 +173,8 @@ int register_indirect_with_displacement16_l_run(H8300H* h8, Instruction* instruc
 
     switch (mode) {
     case addressing_mode_t::RegisterDirect32: {
-        const Register32& src = h8->reg[instruction->op1.get_register_direct32()];
-        const Register32& dst = h8->reg[instruction->op2.get_register_indirect_with_displacement16_register()];
+        const Register32& src = h8->cpu.reg32(instruction->op1.get_register_direct32());
+        const Register32& dst = h8->cpu.reg32(instruction->op2.get_register_indirect_with_displacement16_register());
         int16_t displacement = instruction->op2.get_register_indirect_with_displacement16_displacement();
 
         int32_t value = src.get();
@@ -183,13 +183,13 @@ int register_indirect_with_displacement16_l_run(H8300H* h8, Instruction* instruc
 
         h8instructions::mov::update_ccr<int32_t>(h8, value);
 
-        h8->pc += 6;
+        h8->cpu.pc() += 6;
 
         return 0;
     }
     case addressing_mode_t::RegisterIndirectWithDisplacement16: {
-        const Register32& src = h8->reg[instruction->op1.get_register_indirect_with_displacement16_register()];
-        Register32& dst = h8->reg[instruction->op2.get_register_direct32()];
+        const Register32& src = h8->cpu.reg32(instruction->op1.get_register_indirect_with_displacement16_register());
+        Register32& dst = h8->cpu.reg32(instruction->op2.get_register_direct32());
         int16_t displacement = instruction->op1.get_register_indirect_with_displacement16_displacement();
 
         uint32_t address = src.get() + displacement;
@@ -198,7 +198,7 @@ int register_indirect_with_displacement16_l_run(H8300H* h8, Instruction* instruc
 
         h8instructions::mov::update_ccr<int32_t>(h8, value);
 
-        h8->pc += 6;
+        h8->cpu.pc() += 6;
 
         return 0;
     }

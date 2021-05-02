@@ -4,6 +4,7 @@
 #include <string>
 #include <mutex>
 #include <condition_variable>
+#include "registers/cpu.h"
 #include "registers/h8register.h"
 #include "registers/ccr.h"
 #include "mcu.h"
@@ -15,12 +16,7 @@
 
 class H8300H {
 public:
-    Register32 reg[8];
-    Register32& sp;
-    Register16 reg16[16];
-    Register8 reg8[16];
-    CCR ccr;
-    uint32_t pc;
+    ICPU& cpu;
 
     // todo: ペリフェラル類の依存関係を整理
     // mcu が他のペリフェラルをコントローラする感じにできないか？
@@ -53,7 +49,7 @@ public:
     void restore_pc_and_ccr_from_stack();
 
 public:
-    H8300H(bool use_stdio=false);
+    H8300H(ICPU& cpu, bool use_stdio=false);
     ~H8300H();
 
     void init();

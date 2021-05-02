@@ -17,7 +17,7 @@ int h8instructions::trapa::trapa(H8300H *h8)
 
     // CCR.I ビットは割り込み処理部でセットされる
 
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
     return 0;
 }

@@ -21,10 +21,10 @@ void update_ccr(H8300H* h8, T src_value, T dst_value, T result_value)
     bool h = ( src_value_nth_bit && !dst_value_nth_bit) ||
              (!dst_value_nth_bit &&  result_value_nth_bit) ||
              ( src_value_nth_bit &&  result_value_nth_bit);
-    h ? h8->ccr.set_h() : h8->ccr.clear_h();
+    h ? h8->cpu.ccr().set_h() : h8->cpu.ccr().clear_h();
 
-    result_value < 0 ? h8->ccr.set_n() : h8->ccr.clear_n();
-    result_value == 0 ? h8->ccr.set_z() : h8->ccr.clear_z();
+    result_value < 0 ? h8->cpu.ccr().set_n() : h8->cpu.ccr().clear_n();
+    result_value == 0 ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
 
     bool src_value_mth_bit = src_value & (1 << (n - 1));
     bool dst_value_mth_bit = dst_value & (1 << (n - 1));
@@ -32,12 +32,12 @@ void update_ccr(H8300H* h8, T src_value, T dst_value, T result_value)
 
     bool v = (!src_value_mth_bit &&  dst_value_mth_bit && !result_value_mth_bit) ||
              ( src_value_mth_bit && !dst_value_mth_bit &&  result_value_mth_bit);
-    v ? h8->ccr.set_v() : h8->ccr.clear_v();
+    v ? h8->cpu.ccr().set_v() : h8->cpu.ccr().clear_v();
 
     bool c = ( src_value_mth_bit && !dst_value_mth_bit) ||
              (!dst_value_mth_bit &&  result_value_mth_bit) ||
              ( src_value_mth_bit &&  result_value_mth_bit);
-    c ? h8->ccr.set_c() : h8->ccr.clear_c();
+    c ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c();
 }
 
 }

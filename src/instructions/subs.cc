@@ -4,7 +4,7 @@ int h8instructions::subs::subs(H8300H* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t register_index = b1 & 0x0f;
-    Register32& reg = h8->reg[register_index];
+    Register32& reg = h8->cpu.reg32(register_index);
 
     switch ((b1 & 0xf0) >> 4)
     {
@@ -21,7 +21,7 @@ int h8instructions::subs::subs(H8300H* h8)
         return -1;
     }
 
-    h8->pc += 2;
+    h8->cpu.pc() += 2;
 
     return 0;
 }

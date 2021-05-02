@@ -10,7 +10,8 @@ int main (int argc, char* argv[])
     }
 
     // stdio を使うときは screen コマンドを使うこと
-    H8300H h8;
+    H8300H_CPU cpu;
+    H8300H h8(cpu);
     h8.init();
 
     uint32_t start_addr = h8.load_elf(argv[1]);
@@ -21,7 +22,7 @@ int main (int argc, char* argv[])
     printf("Start execution from 0x%x\n", start_addr);
 
     // 本当はリセット割り込みを発生させて開始するべき
-    h8.pc = start_addr;
+    h8.cpu.pc() = start_addr;
 
     Runner runner(h8);
     runner.run(argc > 2);
