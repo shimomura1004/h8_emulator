@@ -1,10 +1,8 @@
 #ifndef _CPU_INCLUDED_
 #define _CPU_INCLUDED_
 
-#include "registers/h8register.h"
-#include "registers/ccr.h"
-
-// todo: registers/cpu を cpu/cpu にリネームする
+#include "cpu/h8register.h"
+#include "cpu/ccr.h"
 
 class ICPU {
 public:

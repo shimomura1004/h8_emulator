@@ -4,9 +4,9 @@
 #include <string>
 #include <mutex>
 #include <condition_variable>
-#include "registers/cpu.h"
-#include "registers/h8register.h"
-#include "registers/ccr.h"
+#include "cpu/cpu.h"
+#include "cpu/h8register.h"
+#include "cpu/ccr.h"
 #include "mcu.h"
 #include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"

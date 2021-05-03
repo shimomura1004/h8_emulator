@@ -6,7 +6,7 @@ include_directories(${h8300h_SOURCE_DIR}/src)
 add_definitions("-Wall -I. -std=c++11 -pthread -g")
 # add_definitions("-Wconversion")
 
-add_subdirectory(registers)
+add_subdirectory(cpu)
 add_subdirectory(sci)
 add_subdirectory(instructions)
 add_subdirectory(operation_map)
