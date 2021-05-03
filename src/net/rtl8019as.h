@@ -8,13 +8,15 @@
 #include "interrupt/interrupt_type.h"
 #include "rtl8019as_register.h"
 
+// todo: ping への応答が1秒近くかかっている
+
 class RTL8019AS {
     static const uint8_t DEVICE_NAME_SIZE = 8;
     char device_name[DEVICE_NAME_SIZE];
     int device_fd;
 
-    // todo: マジックナンバーをなくす
-    uint8_t saprom[(0x80 - 0x40 + 1) * 256];
+    // SAPROM には 256 バイトのページが 0x80 個ある
+    uint8_t saprom[0x80 * 256];
     RTL8019ASRegister rtl8019as_register;
 
     std::thread* prepare_thread;
