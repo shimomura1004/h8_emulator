@@ -3,20 +3,20 @@
 
 #include "sci/sci.h"
 #include "timer/timer8.h"
-#include "net/rtl8019as.h"
+#include "net/nic.h"
 #include "interrupt_type.h"
 
 class InterruptController {
     ISCI** sci;
     ITimer8* timer8;
-    RTL8019AS* rtl8019as;
+    INIC* nic;
 
     // todo: mutex は不要？
     std::mutex mutex;
     uint64_t interrupt_flag;
 
 public:
-    InterruptController(ISCI** sci, ITimer8* timer8, RTL8019AS* rtl8019as);
+    InterruptController(ISCI** sci, ITimer8* timer8, INIC* nic);
 
     void set(interrupt_t type);
     void clear(interrupt_t type);

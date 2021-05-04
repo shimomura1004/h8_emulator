@@ -17,12 +17,12 @@
 #endif
 #endif
 
-MCU::MCU(IDRAM* dram, ISCI** sci, ITimer8* timer8, IOPort* ioport, RTL8019AS* rtl8019as)
+MCU::MCU(IDRAM* dram, ISCI** sci, ITimer8* timer8, IOPort* ioport, INIC* nic)
     : dram(dram)
     , sci(sci)
     , timer8(timer8)
     , ioport(ioport)
-    , rtl8019as(rtl8019as)
+    , nic(nic)
 {}
 
 uint8_t MCU::read8(uint32_t address)
@@ -41,7 +41,7 @@ uint8_t MCU::read8(uint32_t address)
     } else if (ioport_ddr_start <= address && address <= ioport_ddr_end) {
         return ioport->read8(address - ioport_ddr_start);
     } else if (area1_start <= address && address <= area1_end) {
-        return rtl8019as->read8(address - area1_start);
+        return nic->read8(address - area1_start);
     } else if (area2_start <= address && address <= area2_end) {
         return dram->read8(address - area2_start);
     } else if (sci0_start <= address && address <= sci0_end) {
@@ -105,7 +105,7 @@ void MCU::write8(uint32_t address, uint8_t value)
     } else if (ioport_ddr_start <= address && address <= ioport_ddr_end) {
         ioport->write8(address - ioport_ddr_start, value);
     } else if (area1_start <= address && address <= area1_end) {
-        rtl8019as->write8(address - area1_start, value);
+        nic->write8(address - area1_start, value);
     } else if (area2_start <= address && address <= area2_end) {
         dram->write8(address - area2_start, value);
     } else if (sci0_start <= address && address <= sci0_end) {

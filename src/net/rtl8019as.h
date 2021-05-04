@@ -1,16 +1,15 @@
 #ifndef _RTL8019AS_INCLUDED_
 #define _RTL8019AS_INCLUDED_
 
-#include <cstdio>
 #include <cstdint>
 #include <thread>
 #include <condition_variable>
-#include "interrupt/interrupt_type.h"
+#include "nic.h"
 #include "rtl8019as_register.h"
 
 // todo: ping への応答が1秒近くかかっている
 
-class RTL8019AS {
+class RTL8019AS : public INIC {
     static const uint8_t DEVICE_NAME_SIZE = 8;
     char device_name[DEVICE_NAME_SIZE];
     int device_fd;
@@ -34,22 +33,22 @@ class RTL8019AS {
 
 public:
     RTL8019AS(std::condition_variable& interrupt_cv);
-    ~RTL8019AS();
+    virtual ~RTL8019AS() override;
 
-    void run();
-    void terminate();
+    virtual void run() override;
+    virtual void terminate() override;
 
-    interrupt_t getInterrupt();
-    void clearInterrupt(interrupt_t type);
+    virtual interrupt_t getInterrupt() override;
+    virtual void clearInterrupt(interrupt_t type) override;
 
-    uint8_t dma_read(uint16_t address);
-    void dma_write(uint16_t address, uint8_t value);
+    virtual uint8_t dma_read(uint16_t address) override;
+    virtual void dma_write(uint16_t address, uint8_t value) override;
 
-    void dump(FILE* fp);
+    virtual void dump(FILE* fp) override;
 
 public:
-    uint8_t read8(uint32_t address);
-    void write8(uint32_t address, uint8_t value);
+    virtual uint8_t read8(uint32_t address) override;
+    virtual void write8(uint32_t address, uint8_t value) override;
 
 };
 

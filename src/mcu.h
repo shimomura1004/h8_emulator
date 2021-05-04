@@ -9,7 +9,7 @@
 #include "ioport/ioport.h"
 #include "dram/dram.h"
 #include "bus/buscontroller.h"
-#include "net/rtl8019as.h"
+#include "net/nic.h"
 
 class MCU {
     // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
@@ -81,8 +81,8 @@ class MCU {
     // IO ポート
     IOPort *ioport;
 
-    // RTL8019AS
-    RTL8019AS *rtl8019as;
+    // ネットワークインタフェース(RTL8019AS)
+    INIC *nic;
 
     // バスコントローラ
     BusController bus_controller;
@@ -91,7 +91,7 @@ class MCU {
     std::mutex mutex;
 
 public:
-    MCU(IDRAM *dram, ISCI** sci, ITimer8 *timer8, IOPort *ioport, RTL8019AS *rtl8019as);
+    MCU(IDRAM *dram, ISCI** sci, ITimer8 *timer8, IOPort *ioport, INIC *nic);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

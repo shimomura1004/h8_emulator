@@ -1,10 +1,11 @@
 #include "h8300h.h"
 #include "operation_map/operation_map.h"
 
-// todo: H8300H_DRAM/H8300H_SCI/H8300H_Timer8 を外部から注入すれば不要
+// todo: H8300H_DRAM/H8300H_SCI/H8300H_Timer8/RTL8019AS を外部から注入すれば不要
 #include "dram/h8300h_dram.h"
 #include "sci/h8300h_sci.h"
 #include "timer/h8300h_timer8.h"
+#include "net/rtl8019as.h"
 
 // todo: デバッグ用
 #include <set>
@@ -138,9 +139,9 @@ H8300H::H8300H(ICPU& cpu, bool use_stdio)
     , sci{ new H8300H_SCI(0, interrupt_cv), new H8300H_SCI(1, interrupt_cv, use_stdio), new H8300H_SCI(2, interrupt_cv) }
     , timer8(new H8300H_Timer8(interrupt_cv))
     , ioport(new IOPort())
-    , rtl8019as(new RTL8019AS(interrupt_cv))
-    , mcu(dram, sci, timer8, ioport, rtl8019as)
-    , interrupt_controller(this->sci, this->timer8, this->rtl8019as)
+    , nic(new RTL8019AS(interrupt_cv))
+    , mcu(dram, sci, timer8, ioport, nic)
+    , interrupt_controller(this->sci, this->timer8, this->nic)
     , terminate(false)
     , is_sleep(false)
 {
@@ -161,7 +162,7 @@ void H8300H::init()
         this->sci[i]->run();
     }
 
-    this->rtl8019as->run();
+    this->nic->run();
 }
 
 uint32_t H8300H::load_elf(std::string filepath)

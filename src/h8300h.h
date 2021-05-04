@@ -10,8 +10,9 @@
 #include "interrupt/interrupt_controller.h"
 #include "timer/timer8.h"
 #include "ioport/ioport.h"
-#include "net/rtl8019as.h"
+#include "net/nic.h"
 
+// todo: H8300H は CPU の名前、ボードの名前に変える
 class H8300H {
 public:
     ICPU& cpu;
@@ -22,7 +23,7 @@ public:
     ISCI* sci[3];
     ITimer8 *timer8;
     IOPort *ioport;
-    RTL8019AS *rtl8019as;
+    INIC *nic;
     MCU mcu;
     InterruptController interrupt_controller;
 
