@@ -31,7 +31,7 @@ constexpr static uint8_t timer8_interrupt_num = sizeof(timer8_interrupts) / size
 constexpr static uint8_t sci_interrupt_num = sizeof(sci_interrupts) / sizeof(interrupt_t);
 constexpr static uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
 
-InterruptController::InterruptController(ISCI** sci, Timer8* timer8, RTL8019AS* rtl8019as)
+InterruptController::InterruptController(ISCI** sci, ITimer8* timer8, RTL8019AS* rtl8019as)
     : sci(sci)
     , timer8(timer8)
     , rtl8019as(rtl8019as)

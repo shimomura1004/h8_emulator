@@ -2,8 +2,9 @@
 #include "operation_map/operation_map.h"
 #include "sci/sci.h"
 
-// todo: H8300H_SCI を外部から注入すれば不要
+// todo: H8300H_SCI/H8300H_Timer8 を外部から注入すれば不要
 #include "sci/h8300h_sci.h"
+#include "timer/h8300h_timer8.h"
 
 // todo: デバッグ用
 #include <set>
@@ -134,7 +135,7 @@ H8300H::H8300H(ICPU& cpu, bool use_stdio)
     : cpu(cpu)
     // todo: 外部から注入する
     , sci{ new H8300H_SCI(0, interrupt_cv), new H8300H_SCI(1, interrupt_cv, use_stdio), new H8300H_SCI(2, interrupt_cv) }
-    , timer8(new Timer8(interrupt_cv))
+    , timer8(new H8300H_Timer8(interrupt_cv))
     , ioport(new IOPort())
     , rtl8019as(new RTL8019AS(interrupt_cv))
     , mcu(sci, timer8, ioport, rtl8019as)

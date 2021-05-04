@@ -8,7 +8,7 @@
 
 class InterruptController {
     ISCI** sci;
-    Timer8* timer8;
+    ITimer8* timer8;
     RTL8019AS* rtl8019as;
 
     // todo: mutex は不要？
@@ -16,7 +16,7 @@ class InterruptController {
     uint64_t interrupt_flag;
 
 public:
-    InterruptController(ISCI** sci, Timer8* timer8, RTL8019AS* rtl8019as);
+    InterruptController(ISCI** sci, ITimer8* timer8, RTL8019AS* rtl8019as);
 
     void set(interrupt_t type);
     void clear(interrupt_t type);

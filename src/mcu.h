@@ -76,7 +76,7 @@ class MCU {
     ISCI** sci;
 
     // 8ビットタイマ
-    Timer8 *timer8;
+    ITimer8 *timer8;
 
     // IO ポート
     IOPort *ioport;
@@ -91,7 +91,7 @@ class MCU {
     std::mutex mutex;
 
 public:
-    MCU(ISCI** sci, Timer8 *timer8, IOPort *ioport, RTL8019AS *rtl8019as);
+    MCU(ISCI** sci, ITimer8 *timer8, IOPort *ioport, RTL8019AS *rtl8019as);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);
