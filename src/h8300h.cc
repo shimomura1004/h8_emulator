@@ -129,7 +129,7 @@ void H8300H::restore_pc_and_ccr_from_stack()
 
 H8300H::H8300H(ICPU& cpu, bool use_stdio)
     : cpu(cpu)
-    , sci{ new SCI(0, interrupt_cv), new SCI(1, interrupt_cv, use_stdio), new SCI(2, interrupt_cv) }
+    , sci{ new H8300H_SCI(0, interrupt_cv), new H8300H_SCI(1, interrupt_cv, use_stdio), new H8300H_SCI(2, interrupt_cv) }
     , timer8(new Timer8(interrupt_cv))
     , ioport(new IOPort())
     , rtl8019as(new RTL8019AS(interrupt_cv))

@@ -20,7 +20,7 @@ public:
 
     // todo: ペリフェラル類の依存関係を整理
     // mcu が他のペリフェラルをコントローラする感じにできないか？
-    SCI* sci[3];
+    ISCI* sci[3];
     Timer8 *timer8;
     IOPort *ioport;
     RTL8019AS *rtl8019as;

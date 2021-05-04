@@ -7,7 +7,26 @@
 #include "interrupt/interrupt_type.h"
 #include "sci_registers.h"
 
-class SCI {
+class ISCI {
+public:
+    virtual ~ISCI() {}
+
+    virtual void run() = 0;
+    virtual void terminate() = 0;
+
+    virtual interrupt_t getInterrupt() = 0;
+    virtual void clearInterrupt(interrupt_t type) = 0;
+
+    virtual void dump(FILE* fp) = 0;
+
+public:
+    virtual uint8_t read(uint32_t address) = 0;
+    virtual void write(uint32_t address, uint8_t value) = 0;
+
+};
+
+
+class H8300H_SCI : public ISCI {
     static const interrupt_t TXI_TABLE[3];
     static const interrupt_t RXI_TABLE[3];
 
@@ -41,21 +60,21 @@ private:
     void run_send_to_h8();
 
 public:
-    SCI(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio = false);
-    ~SCI();
+    H8300H_SCI(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio = false);
+    ~H8300H_SCI() override;
 
-    void run();
-    void terminate();
+    void run() override;
+    void terminate() override;
 
-    interrupt_t getInterrupt();
-    void clearInterrupt(interrupt_t type);
+    interrupt_t getInterrupt() override;
+    void clearInterrupt(interrupt_t type) override;
 
-    void dump(FILE* fp);
+    void dump(FILE* fp) override;
 
 public:
     // H8 のアプリコードからアクセスされる
-    uint8_t read(uint32_t address);
-    void write(uint32_t address, uint8_t value);
+    uint8_t read(uint32_t address) override;
+    void write(uint32_t address, uint8_t value) override;
 
 };
 

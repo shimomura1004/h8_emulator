@@ -73,7 +73,7 @@ class MCU {
     DRAM dram2;
 
     // H8/3069F には3つの SCI が内蔵されている
-    SCI** sci;
+    ISCI** sci;
 
     // 8ビットタイマ
     Timer8 *timer8;
@@ -91,7 +91,7 @@ class MCU {
     std::mutex mutex;
 
 public:
-    MCU(SCI** sci, Timer8 *timer8, IOPort *ioport, RTL8019AS *rtl8019as);
+    MCU(ISCI** sci, Timer8 *timer8, IOPort *ioport, RTL8019AS *rtl8019as);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

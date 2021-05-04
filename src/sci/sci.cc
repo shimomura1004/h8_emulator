@@ -14,15 +14,15 @@
 // つまり起動直後(TDRE=1)のゴミ値は TSR にコピーされず、送信されないということ
 // その後は？
 
-const interrupt_t SCI::TXI_TABLE[3] = {
+const interrupt_t H8300H_SCI::TXI_TABLE[3] = {
     interrupt_t::TXI0, interrupt_t::TXI1, interrupt_t::TXI2
 };
 
-const interrupt_t SCI::RXI_TABLE[3] = {
+const interrupt_t H8300H_SCI::RXI_TABLE[3] = {
     interrupt_t::RXI0, interrupt_t::RXI1, interrupt_t::RXI2
 };
 
-bool SCI::open_sci_socket()
+bool H8300H_SCI::open_sci_socket()
 {
     if (this->use_stdio) {
         this->sci_sock_fd = 0;
@@ -71,20 +71,20 @@ bool SCI::open_sci_socket()
     return true;
 }
 
-void SCI::prepare()
+void H8300H_SCI::prepare()
 {
     if (!this->open_sci_socket()) {
         return;
     }
 
-    this->sci_thread[0] = new std::thread(&SCI::run_recv_from_h8, this);
-    this->sci_thread[1] = new std::thread(&SCI::run_send_to_h8, this);
+    this->sci_thread[0] = new std::thread(&H8300H_SCI::run_recv_from_h8, this);
+    this->sci_thread[1] = new std::thread(&H8300H_SCI::run_send_to_h8, this);
     if (this->sci_thread[0] && this->sci_thread[1]) {
         printf("SCI(%d) started\n", this->index);
     }
 }
 
-void SCI::run_recv_from_h8() {
+void H8300H_SCI::run_recv_from_h8() {
     while (!terminate_flag) {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
@@ -113,7 +113,7 @@ void SCI::run_recv_from_h8() {
     }
 }
 
-void SCI::run_send_to_h8() {
+void H8300H_SCI::run_send_to_h8() {
     while (!terminate_flag) {
         char c;
         ssize_t size;
@@ -158,7 +158,7 @@ void SCI::run_send_to_h8() {
     }
 }
 
-SCI::SCI(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio)
+H8300H_SCI::H8300H_SCI(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio)
     : use_stdio(use_stdio)
     , index(index)
     , terminate_flag(false)
@@ -167,7 +167,7 @@ SCI::SCI(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio)
     , hasRxiInterruption(false)
 {}
 
-SCI::~SCI()
+H8300H_SCI::~H8300H_SCI()
 {
     terminate();
     close(this->sci_socket);
@@ -175,11 +175,11 @@ SCI::~SCI()
     printf("SCI(%d) stopped\n", index);
 }
 
-void SCI::run() {
-    this->prepare_thread = new std::thread(&SCI::prepare, this);
+void H8300H_SCI::run() {
+    this->prepare_thread = new std::thread(&H8300H_SCI::prepare, this);
 }
 
-void SCI::terminate() {
+void H8300H_SCI::terminate() {
     terminate_flag = true;
 
     if (this->prepare_thread) {
@@ -199,26 +199,26 @@ void SCI::terminate() {
     }
 }
 
-interrupt_t SCI::getInterrupt()
+interrupt_t H8300H_SCI::getInterrupt()
 {
     if (this->hasTxiInterruption) {
-        return SCI::TXI_TABLE[this->index];
+        return H8300H_SCI::TXI_TABLE[this->index];
     } else if (this->hasRxiInterruption) {
-        return SCI::RXI_TABLE[this->index];
+        return H8300H_SCI::RXI_TABLE[this->index];
     } else {
         return interrupt_t::NONE;
     }
 }
 
-void SCI::clearInterrupt(interrupt_t type)
+void H8300H_SCI::clearInterrupt(interrupt_t type)
 {
-    if (type == SCI::TXI_TABLE[this->index]) {
+    if (type == H8300H_SCI::TXI_TABLE[this->index]) {
         if (this->hasTxiInterruption) {
             this->hasTxiInterruption = false;
         } else {
             fprintf(stderr, "Error: SCI(%d) does not generate TXI%d\n", this->index, this->index);
         }
-    } else if (type == SCI::RXI_TABLE[this->index]) {
+    } else if (type == H8300H_SCI::RXI_TABLE[this->index]) {
         if (this->hasRxiInterruption) {
             this->hasRxiInterruption = false;
         } else {
@@ -229,18 +229,18 @@ void SCI::clearInterrupt(interrupt_t type)
     }
 }
 
-void SCI::dump(FILE* fp)
+void H8300H_SCI::dump(FILE* fp)
 {
     sci_registers.dump(fp);
 }
 
 // H8 上で動くアプリからはこちらの API で SCI にアクセスされる
-uint8_t SCI::read(uint32_t address)
+uint8_t H8300H_SCI::read(uint32_t address)
 {
     return sci_registers.read(address);
 }
 
-void SCI::write(uint32_t address, uint8_t value)
+void H8300H_SCI::write(uint32_t address, uint8_t value)
 {
     sci_registers.write(address, value);
 }

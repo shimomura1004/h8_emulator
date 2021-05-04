@@ -17,7 +17,7 @@
 #endif
 #endif
 
-MCU::MCU(SCI** sci, Timer8* timer8, IOPort* ioport, RTL8019AS* rtl8019as)
+MCU::MCU(ISCI** sci, Timer8* timer8, IOPort* ioport, RTL8019AS* rtl8019as)
     : sci(sci)
     , timer8(timer8)
     , ioport(ioport)

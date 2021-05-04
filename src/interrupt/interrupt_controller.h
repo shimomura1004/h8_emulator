@@ -7,7 +7,7 @@
 #include "interrupt_type.h"
 
 class InterruptController {
-    SCI** sci;
+    ISCI** sci;
     Timer8* timer8;
     RTL8019AS* rtl8019as;
 
@@ -16,7 +16,7 @@ class InterruptController {
     uint64_t interrupt_flag;
 
 public:
-    InterruptController(SCI** sci, Timer8* timer8, RTL8019AS* rtl8019as);
+    InterruptController(ISCI** sci, Timer8* timer8, RTL8019AS* rtl8019as);
 
     void set(interrupt_t type);
     void clear(interrupt_t type);
