@@ -1,4 +1,4 @@
-#include "sci_registers.h"
+#include "h8300h_sci_registers.h"
 
 bool H8300H_SCI_Registers::get_bit_from_nolock(uint8_t value, uint8_t bit_index)
 {

@@ -5,8 +5,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#include "sci.h"
-#include "sci_registers.h"
+#include "h8300h_sci.h"
 
 // todo: たまに入力を取りこぼす
 // todo: 最初に割込みを有効にした瞬間にゴミが出力されるが、正しい挙動か？
