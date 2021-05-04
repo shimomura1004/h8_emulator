@@ -17,8 +17,9 @@
 #endif
 #endif
 
-MCU::MCU(ISCI** sci, ITimer8* timer8, IOPort* ioport, RTL8019AS* rtl8019as)
-    : sci(sci)
+MCU::MCU(IDRAM* dram, ISCI** sci, ITimer8* timer8, IOPort* ioport, RTL8019AS* rtl8019as)
+    : dram(dram)
+    , sci(sci)
     , timer8(timer8)
     , ioport(ioport)
     , rtl8019as(rtl8019as)
@@ -42,7 +43,7 @@ uint8_t MCU::read8(uint32_t address)
     } else if (area1_start <= address && address <= area1_end) {
         return rtl8019as->read8(address - area1_start);
     } else if (area2_start <= address && address <= area2_end) {
-        return dram2.read8(address - area2_start);
+        return dram->read8(address - area2_start);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         return sci[0]->read(address - sci0_start);
@@ -70,7 +71,7 @@ uint16_t MCU::read16(uint32_t address)
     } else if (timer23_start <= address && address <= timer23_end) {
         return this->timer8->read16(address - timer23_start, 1);
     } else if (area2_start <= address && address <= area2_end) {
-        return dram2.read16(address - area2_start);
+        return dram->read16(address - area2_start);
     } else {
         fprintf(stderr, "Error: Invalid read(16) access to 0x%06x\n", address);
         return 0;
@@ -85,7 +86,7 @@ uint32_t MCU::read32(uint32_t address)
         std::lock_guard<std::mutex> lock(mutex);
         return bswap32_if_little_endian(*(uint32_t*)&ram[address - ram_start]);
     } else if (area2_start <= address && address <= area2_end) {
-        return dram2.read32(address - area2_start);
+        return dram->read32(address - area2_start);
     } else {
         fprintf(stderr, "Error: Invalid read(32) access to 0x%06x\n", address);
         return 0;
@@ -106,7 +107,7 @@ void MCU::write8(uint32_t address, uint8_t value)
     } else if (area1_start <= address && address <= area1_end) {
         rtl8019as->write8(address - area1_start, value);
     } else if (area2_start <= address && address <= area2_end) {
-        dram2.write8(address - area2_start, value);
+        dram->write8(address - area2_start, value);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
         sci[0]->write(address - sci0_start, value);
@@ -130,7 +131,7 @@ void MCU::write16(uint32_t address, uint16_t value)
     } else if (timer23_start <= address && address <= timer23_end) {
         timer8->write16(address - timer23_start, value, 1);
     } else if (area2_start <= address && address <= area2_end) {
-        dram2.write16(address - area2_start, value);
+        dram->write16(address - area2_start, value);
     } else {
         fprintf(stderr, "Error: Invalid write(16) access to 0x%06x\n", address);
     }
@@ -141,7 +142,7 @@ void MCU::write32(uint32_t address, uint32_t value)
     if (ram_start <= address && address <= ram_end) {
         *(uint32_t*)&ram[address - ram_start] = bswap32_if_little_endian(value);
     } else if (area2_start <= address && address <= area2_end) {
-        dram2.write32(address - area2_start, value);
+        dram->write32(address - area2_start, value);
     } else {
         fprintf(stderr, "Error: Invalid write(32) access to 0x%06x\n", address);
     }
@@ -176,7 +177,7 @@ void MCU::dump(std::string filepath)
 
     // todo: RTL8019AS のダンプに対応
 
-    dram2.dump(fp);
+    dram->dump(fp);
 
     // DRAM(エリア2)から内蔵 RAM までは0で埋める
     for (uint32_t i = area2_end + 1; i < ram_start; i++) {

@@ -18,6 +18,7 @@ public:
 
     // todo: ペリフェラル類の依存関係を整理
     // mcu が他のペリフェラルをコントローラする感じにできないか？
+    IDRAM* dram;
     ISCI* sci[3];
     ITimer8 *timer8;
     IOPort *ioport;

@@ -70,7 +70,7 @@ class MCU {
     uint8_t ram[ram_end - ram_start + 1];
 
     // 外部 DRAM
-    DRAM dram2;
+    IDRAM *dram;
 
     // H8/3069F には3つの SCI が内蔵されている
     ISCI** sci;
@@ -91,7 +91,7 @@ class MCU {
     std::mutex mutex;
 
 public:
-    MCU(ISCI** sci, ITimer8 *timer8, IOPort *ioport, RTL8019AS *rtl8019as);
+    MCU(IDRAM *dram, ISCI** sci, ITimer8 *timer8, IOPort *ioport, RTL8019AS *rtl8019as);
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);
