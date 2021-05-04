@@ -46,6 +46,12 @@ Start serial console.
     unknown.
     command> 
 
+sender is a helper program to interact with h8300h's serial port. Press ':' to enter command mode.
+- send (file)
+    - read the file and send to h8300h
+- exec (executable file)
+    - execute the file and send the output to h8300h
+
 ## Enable networking
     # Prepare tap device
     $ sudo ip tuntap add dev tap0 mode tap user h8

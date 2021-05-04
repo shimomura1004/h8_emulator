@@ -124,6 +124,7 @@ int register_indirect_with_increment_decrement_l(H8300H* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     if ((b3 & 0x80) == 0) {
+        // post-increment: @ERs+,ERd
         uint8_t src_register_index = (b3 & 0x70) >> 4;
         uint8_t dst_register_index = (b3 & 0x07);
         Register32& dst = h8->cpu.reg32(dst_register_index);
@@ -133,6 +134,7 @@ int register_indirect_with_increment_decrement_l(H8300H* h8)
 
         h8instructions::mov::update_ccr<int32_t>(h8, value);
     } else {
+        // pre-decrement: ERs,@-ERd
         uint8_t src_register_index = (b3 & 0x07);
         uint8_t dst_register_index = (b3 & 0x70) >> 4;
         Register32& src = h8->cpu.reg32(src_register_index);

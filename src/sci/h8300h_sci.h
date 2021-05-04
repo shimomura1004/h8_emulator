@@ -8,6 +8,7 @@
 #include "sci.h"
 #include "h8300h_sci_registers.h"
 
+// todo: H8300H に特有の機能はなく、generic な実装としてよい
 class H8300H_SCI : public ISCI {
     static const interrupt_t TXI_TABLE[3];
     static const interrupt_t RXI_TABLE[3];

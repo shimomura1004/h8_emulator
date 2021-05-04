@@ -4,12 +4,6 @@
 #include <unistd.h>
 #include "tap_device.h"
 
-// todo: readme に使い方を書く
-//   $ sudo ip tuntap add dev tun0 mode tun user shimo
-//   $ sudo ip addr add 10.0.0.2/24 dev tun0
-//   $ sudo ip link set tun0 up
-//   $ h8300h kzload.elf
-
 // todo: リングバッファへのアクセスは排他制御する
 
 RTL8019AS::RTL8019AS(std::condition_variable& interrupt_cv)

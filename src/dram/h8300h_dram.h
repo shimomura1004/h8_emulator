@@ -6,6 +6,7 @@
 
 #include "dram.h"
 
+// todo: H8300H に特有の機能はなく、generic な実装としてよい
 class H8300H_DRAM : public IDRAM {
     // 2MB のメモリ
     uint8_t ram[0x200000];

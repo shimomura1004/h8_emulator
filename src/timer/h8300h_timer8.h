@@ -6,6 +6,7 @@
 #include "timer8.h"
 #include "tmr8.h"
 
+// todo: H8300H に特有の機能はなく、generic な実装としてよい
 // 8ビットタイマ4つ分
 class H8300H_Timer8 : public ITimer8 {
     TMR8 tmr8[4];
