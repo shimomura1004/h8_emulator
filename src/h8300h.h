@@ -5,8 +5,6 @@
 #include <mutex>
 #include <condition_variable>
 #include "cpu/cpu.h"
-#include "cpu/h8register.h"
-#include "cpu/ccr.h"
 #include "mcu.h"
 #include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"

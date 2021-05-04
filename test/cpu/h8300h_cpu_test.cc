@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "cpu/cpu.h"
+#include "cpu/h8300h_cpu.h"
 
 /*
 H8/300H マイコンのレジスタ構成

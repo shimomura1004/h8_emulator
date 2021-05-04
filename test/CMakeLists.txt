@@ -14,7 +14,7 @@ add_definitions("-Wall -I. -std=c++11 -pthread -g")
 add_executable(example
     example.cc
     instructions/mov_immediate_test.cc
-    cpu/cpu_test.cc
+    cpu/h8300h_cpu_test.cc
 )
 target_link_libraries(example
     cpu

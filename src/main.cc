@@ -2,6 +2,8 @@
 #include "h8300h.h"
 #include "runner.h"
 
+#include "cpu/h8300h_cpu.h"
+
 int main (int argc, char* argv[])
 {
     if (argc < 2) {

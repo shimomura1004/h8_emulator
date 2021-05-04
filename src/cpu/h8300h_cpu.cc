@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "h8300h_cpu.h"
 
 H8300H_CPU::H8300H_CPU()
     : _sp(_reg[7])
