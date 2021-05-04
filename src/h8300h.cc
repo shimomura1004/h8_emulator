@@ -2,11 +2,11 @@
 #include "operation_map/operation_map.h"
 
 // todo: H8300H_DRAM/H8300H_SCI/H8300H_Timer8/RTL8019AS を外部から注入すれば不要
-#include "dram/h8300h_dram.h"
-#include "sci/h8300h_sci.h"
-#include "timer/h8300h_timer8.h"
-#include "net/rtl8019as.h"
-#include "interrupt/general_interrupt_controller.h"
+// #include "dram/h8300h_dram.h"
+// #include "sci/h8300h_sci.h"
+// #include "timer/h8300h_timer8.h"
+// #include "net/rtl8019as.h"
+// #include "interrupt/general_interrupt_controller.h"
 
 // todo: デバッグ用
 #include <set>
@@ -133,40 +133,39 @@ void H8300H::restore_pc_and_ccr_from_stack()
     this->cpu.pc() = ccr_pc & 0x00ffffff;
 }
 
-H8300H::H8300H(ICPU& cpu, bool use_stdio)
+H8300H::H8300H(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller)
     : cpu(cpu)
-    // todo: 外部から注入する
-    , dram(new H8300H_DRAM())
-    , sci{ new H8300H_SCI(0, interrupt_cv), new H8300H_SCI(1, interrupt_cv, use_stdio), new H8300H_SCI(2, interrupt_cv) }
-    , timer8(new H8300H_Timer8(interrupt_cv))
-    , ioport(new IOPort())
-    , nic(new RTL8019AS(interrupt_cv))
-    , mcu(dram, sci, timer8, ioport, nic)
-    , interrupt_controller(new GeneralInterruptController(this->sci, this->timer8, this->nic))
+    // // todo: 外部から注入する
+    // , dram(new H8300H_DRAM())
+    // , sci{ new H8300H_SCI(0, interrupt_cv), new H8300H_SCI(1, interrupt_cv, use_stdio), new H8300H_SCI(2, interrupt_cv) }
+    // , timer8(new H8300H_Timer8(interrupt_cv))
+    // , ioport(new IOPort())
+    // , nic(new RTL8019AS(interrupt_cv))
+    // , mcu(dram, sci, timer8, ioport, nic)
+    , mcu(mcu)
+    // , interrupt_controller(new GeneralInterruptController(this->sci, this->timer8, this->nic))
+    , interrupt_controller(interrupt_controller)
     , terminate(false)
     , is_sleep(false)
+    , interrupt_cv(cpu.get_interrupt_cv())
 {
 }
 
 H8300H::~H8300H()
 {
-    delete(this->dram);
-    for (int i = 0; i < 3; i++) {
-        delete this->sci[i];
-    }
-    delete this->timer8;
-    delete this->ioport;
-    delete this->nic;
-    delete this->interrupt_controller;
+//     delete(this->dram);
+//     for (int i = 0; i < 3; i++) {
+//         delete this->sci[i];
+//     }
+//     delete this->timer8;
+//     delete this->ioport;
+//     delete this->nic;
+//     delete this->interrupt_controller;
 }
 
 void H8300H::init()
 {
-    for (int i = 0; i < 3; i++) {
-        this->sci[i]->run();
-    }
-
-    this->nic->run();
+    this->mcu.init();
 }
 
 uint32_t H8300H::load_elf(std::string filepath)
@@ -180,17 +179,17 @@ bool H8300H::handle_interrupt()
 
     // 割込み可能な状態の場合、割り込みがあれば処理
     if (!this->cpu.ccr().i()) {
-        type = interrupt_controller->getInterruptType();
+        type = interrupt_controller.getInterruptType();
     }
 
     // 割込み可能かどうかに関係なく、優先度の高い割込みがない場合はトラップされたかを確認
     if (type == interrupt_t::NONE) {
-        type = interrupt_controller->getTrap();
+        type = interrupt_controller.getTrap();
     }
 
     if (type != interrupt_t::NONE) {
         // 割込み要求フラグをクリア
-        interrupt_controller->clear(type);
+        interrupt_controller.clear(type);
 
         // todo: CPU 内に隠蔽できないか
         // CCR と PC を退避
@@ -218,6 +217,7 @@ int H8300H::step()
         fprintf(stderr, "Abort.\n");
     }
 
+    // todo: スリープ、割込みによる復帰は CPU でやるべき
     if (is_sleep) {
         // スリープ状態の場合は wait する
         // 復帰するときは別スレッドから notify する必要がある
@@ -229,7 +229,7 @@ int H8300H::step()
         interrupt_cv.wait(lock, [this]{
             // スリープ中にトラップ命令がくることはないため、トラップは考慮不要
             // スリープ中に CCR.I が更新されることはないので、CCR.I が解除されたときに notify する必要はない
-            interrupt_t type = this->interrupt_controller->getInterruptType();
+            interrupt_t type = this->interrupt_controller.getInterruptType();
 
             if (type == interrupt_t::NONE) {
                 // 割込みがなければ待つ
@@ -251,6 +251,7 @@ int H8300H::step()
     return result;
 }
 
+// todo: CPU に持たせるべき
 void H8300H::print_registers()
 {
     for (int i = 0; i < 8; i++) {

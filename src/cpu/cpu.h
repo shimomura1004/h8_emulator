@@ -1,6 +1,7 @@
 #ifndef _CPU_INCLUDED_
 #define _CPU_INCLUDED_
 
+#include <condition_variable>
 #include "cpu/h8register.h"
 #include "cpu/ccr.h"
 
@@ -13,6 +14,7 @@ public:
     virtual Register32& sp() = 0;
     virtual uint32_t& pc() = 0;
 
+    virtual std::condition_variable& get_interrupt_cv() = 0;
 };
 
 #endif

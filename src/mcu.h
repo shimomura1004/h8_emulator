@@ -70,19 +70,19 @@ class MCU {
     uint8_t ram[ram_end - ram_start + 1];
 
     // 外部 DRAM
-    IDRAM *dram;
+    IDRAM &dram;
 
     // H8/3069F には3つの SCI が内蔵されている
     ISCI** sci;
 
     // 8ビットタイマ
-    ITimer8 *timer8;
+    ITimer8& timer8;
 
     // IO ポート
-    IOPort *ioport;
+    IOPort& ioport;
 
     // ネットワークインタフェース(RTL8019AS)
-    INIC *nic;
+    INIC& nic;
 
     // バスコントローラ
     BusController bus_controller;
@@ -91,7 +91,10 @@ class MCU {
     std::mutex mutex;
 
 public:
-    MCU(IDRAM *dram, ISCI** sci, ITimer8 *timer8, IOPort *ioport, INIC *nic);
+    // todo: sci も参照にしたい
+    MCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport, INIC& nic);
+
+    void init();
 
     uint8_t read8(uint32_t address);
     uint16_t read16(uint32_t address);

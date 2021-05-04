@@ -13,6 +13,8 @@ class H8300H_CPU : public ICPU {
     CCR _ccr;
     uint32_t _pc;
 
+    std::condition_variable interrupt_cv;
+
 public:
     H8300H_CPU();
 
@@ -22,6 +24,8 @@ public:
     virtual CCR& ccr() override;
     virtual Register32& sp() override;
     virtual uint32_t& pc() override;
+
+    virtual std::condition_variable& get_interrupt_cv() override;
 
 };
 

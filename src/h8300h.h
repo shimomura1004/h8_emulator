@@ -3,7 +3,6 @@
 
 #include <string>
 #include <mutex>
-#include <condition_variable>
 #include "cpu/cpu.h"
 #include "mcu.h"
 #include "sci/sci.h"
@@ -13,26 +12,29 @@
 #include "net/nic.h"
 
 // todo: H8300H は CPU の名前、ボードの名前に変える
+// H8/3069Fネット対応マイコンLANボード (K-01271)
 class H8300H {
 public:
     ICPU& cpu;
 
     // todo: ペリフェラル類の依存関係を整理
-    // mcu が他のペリフェラルをコントローラする感じにできないか？
-    IDRAM* dram;
-    ISCI* sci[3];
-    ITimer8 *timer8;
-    IOPort *ioport;
-    INIC *nic;
-    MCU mcu;
-    IInterruptController* interrupt_controller;
+    // mcu にしか注入しないオブジェクトが多いはず
+    // IDRAM& dram;
+    // todo: 参照にしたい
+    // todo: interrupt_controller を注入するようにすればここで sci は扱わなくていい
+    // ISCI* sci[3];
+    // ITimer8& timer8;
+    // IOPort& ioport;
+    // INIC& nic;
+    MCU& mcu;
+    IInterruptController& interrupt_controller;
 
     std::mutex mutex;
     // todo: terminate は不要？
     bool terminate;
     bool is_sleep;
-    // スリープ状態から復帰するため、SCI に渡して割込み発生時に通知してもらう
-    std::condition_variable interrupt_cv;
+    // スリープ状態から復帰するため、各ペリフェラルに渡して割込み発生時に通知してもらう
+    std::condition_variable& interrupt_cv;
 
 public:
     uint8_t fetch_instruction_byte(uint8_t offset);
@@ -49,7 +51,7 @@ public:
     void restore_pc_and_ccr_from_stack();
 
 public:
-    H8300H(ICPU& cpu, bool use_stdio=false);
+    H8300H(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller);
     ~H8300H();
 
     void init();

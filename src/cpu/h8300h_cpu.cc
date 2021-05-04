@@ -42,3 +42,8 @@ uint32_t& H8300H_CPU::pc()
 {
     return this->_pc;
 }
+
+std::condition_variable& H8300H_CPU::get_interrupt_cv()
+{
+    return this->interrupt_cv;
+}

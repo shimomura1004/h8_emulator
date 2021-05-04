@@ -3,6 +3,12 @@
 #include "runner.h"
 
 #include "cpu/h8300h_cpu.h"
+#include "dram/h8300h_dram.h"
+#include "sci/h8300h_sci.h"
+#include "timer/h8300h_timer8.h"
+#include "net/rtl8019as.h"
+#include "interrupt/general_interrupt_controller.h"
+#include "mcu.h"
 
 int main (int argc, char* argv[])
 {
@@ -11,9 +17,23 @@ int main (int argc, char* argv[])
         exit(1);
     }
 
+    // todo: H8300H で必要なオブジェクトは H8300H クラス内で初期化するほうがいい
     // stdio を使うときは screen コマンドを使うこと
     H8300H_CPU cpu;
-    H8300H h8(cpu);
+    std::condition_variable& interrupt_cv = cpu.get_interrupt_cv();
+    H8300H_DRAM dram;
+    // todo: H8300H の固有のもの、H8300H クラス内で用意するのであれば配列にする必要もない
+    ISCI *sci[3] = {
+        new H8300H_SCI(0, interrupt_cv),
+        new H8300H_SCI(1, interrupt_cv, false),
+        new H8300H_SCI(2, interrupt_cv)
+    };
+    H8300H_Timer8 timer8(interrupt_cv);
+    IOPort ioport;
+    RTL8019AS rtl8019as(interrupt_cv);
+    GeneralInterruptController interrupt_controller(sci, &timer8, &rtl8019as);
+    MCU mcu(dram, sci, timer8, ioport, rtl8019as);
+    H8300H h8(cpu, mcu, interrupt_controller);
     h8.init();
 
     uint32_t start_addr = h8.load_elf(argv[1]);
