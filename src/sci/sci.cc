@@ -6,7 +6,7 @@
 #include <sys/un.h>
 
 #include "sci.h"
-#include "sci_register.h"
+#include "sci_registers.h"
 
 // todo: たまに入力を取りこぼす
 // todo: 最初に割込みを有効にした瞬間にゴミが出力されるが、正しい挙動か？
@@ -88,13 +88,13 @@ void SCI::run_recv_from_h8() {
     while (!terminate_flag) {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
-        sci_register.wait_tdre_to_be(false);
+        sci_registers.wait_tdre_to_be(false);
 
         // データは TDR に入っている
-        uint8_t data = sci_register.get(SCIRegister::SCI::TDR);
+        uint8_t data = sci_registers.get(H8300H_SCI_Registers::SCI::TDR);
 
         // データを TDR から取得したら SSR_TDRE を 1 にして送信可能を通知
-        sci_register.set_bit(SCIRegister::SCI::SSR, SCIRegister::SCI_SSR::TDRE, true);
+        sci_registers.set_bit(H8300H_SCI_Registers::SCI::SSR, H8300H_SCI_Registers::SCI_SSR::TDRE, true);
 
         // 送信
         if (!this->use_stdio) {
@@ -104,7 +104,7 @@ void SCI::run_recv_from_h8() {
         }
 
         // H8 に送信準備完了の割り込みを発生させる
-        if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::TIE)) {
+        if (sci_registers.get_bit(H8300H_SCI_Registers::SCI::SCR, H8300H_SCI_Registers::SCI_SCR::TIE)) {
             this->hasTxiInterruption = true;
 
             // 割込みを通知する
@@ -140,16 +140,16 @@ void SCI::run_send_to_h8() {
         }
 
         // H8 が受信するまで待つ
-        sci_register.wait_rdrf_to_be(false);
+        sci_registers.wait_rdrf_to_be(false);
 
         // H8 に渡すデータは RDR に書き込んでおく
-        sci_register.set(SCIRegister::RDR, (uint8_t)c);
+        sci_registers.set(H8300H_SCI_Registers::RDR, (uint8_t)c);
 
         // RDRF を 1 にして H8 に通知
-        sci_register.set_bit(SCIRegister::SSR, SCIRegister::SCI_SSR::RDRF, true);
+        sci_registers.set_bit(H8300H_SCI_Registers::SSR, H8300H_SCI_Registers::SCI_SSR::RDRF, true);
 
         // シリアル受信割り込みが有効な場合は割り込みを発生させる
-        if (sci_register.get_bit(SCIRegister::SCI::SCR, SCIRegister::SCI_SCR::RIE)) {
+        if (sci_registers.get_bit(H8300H_SCI_Registers::SCI::SCR, H8300H_SCI_Registers::SCI_SCR::RIE)) {
             this->hasRxiInterruption = true;
 
             // 割込みを通知する
@@ -231,16 +231,16 @@ void SCI::clearInterrupt(interrupt_t type)
 
 void SCI::dump(FILE* fp)
 {
-    sci_register.dump(fp);
+    sci_registers.dump(fp);
 }
 
 // H8 上で動くアプリからはこちらの API で SCI にアクセスされる
 uint8_t SCI::read(uint32_t address)
 {
-    return sci_register.read(address);
+    return sci_registers.read(address);
 }
 
 void SCI::write(uint32_t address, uint8_t value)
 {
-    sci_register.write(address, value);
+    sci_registers.write(address, value);
 }

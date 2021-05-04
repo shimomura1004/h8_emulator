@@ -5,7 +5,7 @@
 #include <thread>
 #include <queue>
 #include "interrupt/interrupt_type.h"
-#include "sci_register.h"
+#include "sci_registers.h"
 
 class SCI {
     static const interrupt_t TXI_TABLE[3];
@@ -27,7 +27,7 @@ private:
 
     uint8_t index;
     bool terminate_flag;
-    SCIRegister sci_register;
+    H8300H_SCI_Registers sci_registers;
 
     std::condition_variable& interrupt_cv;
 

@@ -4,7 +4,7 @@
 #include <mutex>
 #include <condition_variable>
 
-class SCIRegister {
+class H8300H_SCI_Registers {
 public:
     // todo: enum は別ヘッダに移す
     typedef enum {
@@ -41,7 +41,7 @@ public:
     } SCI_SSR;
 
 private:
-    uint8_t regs[SCIRegister::SCI::SIZE];
+    uint8_t regs[H8300H_SCI_Registers::SCI::SIZE];
     // エミュレータと OS の両方から SCI のレジスタにアクセスするので、排他が必要
     std::mutex sci_mutex;
     std::condition_variable sci_cv;
@@ -54,7 +54,7 @@ private:
     void set_bit_nolock(uint8_t register_index, uint8_t bit_index, bool b);
 
 public:
-    SCIRegister();
+    H8300H_SCI_Registers();
 
     uint8_t get(uint8_t register_index);
     void set(uint8_t register_index, uint8_t byte);
