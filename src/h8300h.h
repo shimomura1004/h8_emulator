@@ -5,27 +5,13 @@
 #include <mutex>
 #include "cpu/cpu.h"
 #include "mcu.h"
-#include "sci/sci.h"
 #include "interrupt/interrupt_controller.h"
-#include "timer/timer8.h"
-#include "ioport/ioport.h"
-#include "net/nic.h"
 
 // todo: H8300H は CPU の名前、ボードの名前に変える
 // H8/3069Fネット対応マイコンLANボード (K-01271)
 class H8300H {
 public:
     ICPU& cpu;
-
-    // todo: ペリフェラル類の依存関係を整理
-    // mcu にしか注入しないオブジェクトが多いはず
-    // IDRAM& dram;
-    // todo: 参照にしたい
-    // todo: interrupt_controller を注入するようにすればここで sci は扱わなくていい
-    // ISCI* sci[3];
-    // ITimer8& timer8;
-    // IOPort& ioport;
-    // INIC& nic;
     MCU& mcu;
     IInterruptController& interrupt_controller;
 
@@ -52,7 +38,6 @@ public:
 
 public:
     H8300H(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller);
-    ~H8300H();
 
     void init();
     uint32_t load_elf(std::string filepath);

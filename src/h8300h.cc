@@ -1,13 +1,6 @@
 #include "h8300h.h"
 #include "operation_map/operation_map.h"
 
-// todo: H8300H_DRAM/H8300H_SCI/H8300H_Timer8/RTL8019AS を外部から注入すれば不要
-// #include "dram/h8300h_dram.h"
-// #include "sci/h8300h_sci.h"
-// #include "timer/h8300h_timer8.h"
-// #include "net/rtl8019as.h"
-// #include "interrupt/general_interrupt_controller.h"
-
 // todo: デバッグ用
 #include <set>
 
@@ -135,32 +128,12 @@ void H8300H::restore_pc_and_ccr_from_stack()
 
 H8300H::H8300H(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller)
     : cpu(cpu)
-    // // todo: 外部から注入する
-    // , dram(new H8300H_DRAM())
-    // , sci{ new H8300H_SCI(0, interrupt_cv), new H8300H_SCI(1, interrupt_cv, use_stdio), new H8300H_SCI(2, interrupt_cv) }
-    // , timer8(new H8300H_Timer8(interrupt_cv))
-    // , ioport(new IOPort())
-    // , nic(new RTL8019AS(interrupt_cv))
-    // , mcu(dram, sci, timer8, ioport, nic)
     , mcu(mcu)
-    // , interrupt_controller(new GeneralInterruptController(this->sci, this->timer8, this->nic))
     , interrupt_controller(interrupt_controller)
     , terminate(false)
     , is_sleep(false)
     , interrupt_cv(cpu.get_interrupt_cv())
 {
-}
-
-H8300H::~H8300H()
-{
-//     delete(this->dram);
-//     for (int i = 0; i < 3; i++) {
-//         delete this->sci[i];
-//     }
-//     delete this->timer8;
-//     delete this->ioport;
-//     delete this->nic;
-//     delete this->interrupt_controller;
 }
 
 void H8300H::init()
