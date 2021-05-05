@@ -1,28 +1,17 @@
 #ifndef _INTERRUPT_CONTROLLER_INCLUDED_
 #define _INTERRUPT_CONTROLLER_INCLUDED_
 
-#include "sci/sci.h"
-#include "timer/timer8.h"
-#include "net/nic.h"
 #include "interrupt_type.h"
 
-class InterruptController {
-    ISCI** sci;
-    ITimer8* timer8;
-    INIC* nic;
-
-    // todo: mutex は不要？
-    std::mutex mutex;
-    uint64_t interrupt_flag;
-
+class IInterruptController {
 public:
-    InterruptController(ISCI** sci, ITimer8* timer8, INIC* nic);
+    virtual ~IInterruptController() {}
 
-    void set(interrupt_t type);
-    void clear(interrupt_t type);
+    virtual void set(interrupt_t type) = 0;
+    virtual void clear(interrupt_t type) = 0;
 
-    interrupt_t getInterruptType();
-    interrupt_t getTrap();
+    virtual interrupt_t getInterruptType() = 0;
+    virtual interrupt_t getTrap() = 0;
 
 };
 

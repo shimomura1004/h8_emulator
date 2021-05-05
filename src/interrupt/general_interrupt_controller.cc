@@ -1,5 +1,4 @@
-#include "interrupt_controller.h"
-#include "interrupt_type.h"
+#include "general_interrupt_controller.h"
 
 // 例外処理 1. リセット(最優先)
 //         2. 割り込み(さらに外部割込みと内部割込み(内蔵周辺モジュール)にわかれる)
@@ -31,14 +30,14 @@ constexpr static uint8_t timer8_interrupt_num = sizeof(timer8_interrupts) / size
 constexpr static uint8_t sci_interrupt_num = sizeof(sci_interrupts) / sizeof(interrupt_t);
 constexpr static uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
 
-InterruptController::InterruptController(ISCI** sci, ITimer8* timer8, INIC* nic)
+GeneralInterruptController::GeneralInterruptController(ISCI** sci, ITimer8* timer8, INIC* nic)
     : sci(sci)
     , timer8(timer8)
     , nic(nic)
     , interrupt_flag(0)
 {}
 
-void InterruptController::set(interrupt_t type)
+void GeneralInterruptController::set(interrupt_t type)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
@@ -53,7 +52,7 @@ void InterruptController::set(interrupt_t type)
     }
 }
 
-void InterruptController::clear(interrupt_t type)
+void GeneralInterruptController::clear(interrupt_t type)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
@@ -95,7 +94,7 @@ void InterruptController::clear(interrupt_t type)
     }
 }
 
-interrupt_t InterruptController::getInterruptType()
+interrupt_t GeneralInterruptController::getInterruptType()
 {
     std::lock_guard<std::mutex> lock(mutex);
 
@@ -133,7 +132,7 @@ interrupt_t InterruptController::getInterruptType()
     return interrupt_t::NONE;
 }
 
-interrupt_t InterruptController::getTrap()
+interrupt_t GeneralInterruptController::getTrap()
 {
     std::lock_guard<std::mutex> lock(mutex);
 

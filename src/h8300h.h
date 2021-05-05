@@ -25,7 +25,7 @@ public:
     IOPort *ioport;
     INIC *nic;
     MCU mcu;
-    InterruptController interrupt_controller;
+    IInterruptController* interrupt_controller;
 
     std::mutex mutex;
     // todo: terminate は不要？

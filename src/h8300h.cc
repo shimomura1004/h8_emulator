@@ -6,6 +6,7 @@
 #include "sci/h8300h_sci.h"
 #include "timer/h8300h_timer8.h"
 #include "net/rtl8019as.h"
+#include "interrupt/general_interrupt_controller.h"
 
 // todo: デバッグ用
 #include <set>
@@ -141,7 +142,7 @@ H8300H::H8300H(ICPU& cpu, bool use_stdio)
     , ioport(new IOPort())
     , nic(new RTL8019AS(interrupt_cv))
     , mcu(dram, sci, timer8, ioport, nic)
-    , interrupt_controller(this->sci, this->timer8, this->nic)
+    , interrupt_controller(new GeneralInterruptController(this->sci, this->timer8, this->nic))
     , terminate(false)
     , is_sleep(false)
 {
@@ -149,11 +150,14 @@ H8300H::H8300H(ICPU& cpu, bool use_stdio)
 
 H8300H::~H8300H()
 {
+    delete(this->dram);
     for (int i = 0; i < 3; i++) {
         delete this->sci[i];
     }
     delete this->timer8;
     delete this->ioport;
+    delete this->nic;
+    delete this->interrupt_controller;
 }
 
 void H8300H::init()
@@ -176,17 +180,17 @@ bool H8300H::handle_interrupt()
 
     // 割込み可能な状態の場合、割り込みがあれば処理
     if (!this->cpu.ccr().i()) {
-        type = interrupt_controller.getInterruptType();
+        type = interrupt_controller->getInterruptType();
     }
 
     // 割込み可能かどうかに関係なく、優先度の高い割込みがない場合はトラップされたかを確認
     if (type == interrupt_t::NONE) {
-        type = interrupt_controller.getTrap();
+        type = interrupt_controller->getTrap();
     }
 
     if (type != interrupt_t::NONE) {
         // 割込み要求フラグをクリア
-        interrupt_controller.clear(type);
+        interrupt_controller->clear(type);
 
         // todo: CPU 内に隠蔽できないか
         // CCR と PC を退避
@@ -225,7 +229,7 @@ int H8300H::step()
         interrupt_cv.wait(lock, [this]{
             // スリープ中にトラップ命令がくることはないため、トラップは考慮不要
             // スリープ中に CCR.I が更新されることはないので、CCR.I が解除されたときに notify する必要はない
-            interrupt_t type = this->interrupt_controller.getInterruptType();
+            interrupt_t type = this->interrupt_controller->getInterruptType();
 
             if (type == interrupt_t::NONE) {
                 // 割込みがなければ待つ

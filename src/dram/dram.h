@@ -6,6 +6,8 @@
 
 class IDRAM {
 public:
+    virtual ~IDRAM() {}
+
     virtual uint8_t read8(uint32_t address) = 0;
     virtual uint16_t read16(uint32_t address) = 0;
     virtual uint32_t read32(uint32_t address) = 0;
