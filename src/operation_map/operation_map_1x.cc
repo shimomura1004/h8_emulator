@@ -17,7 +17,7 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_10(H8300H* h8300h)
+instruction_handler_t lookup_10(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -33,7 +33,7 @@ instruction_handler_t lookup_10(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_11(H8300H* h8300h)
+instruction_handler_t lookup_11(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -49,7 +49,7 @@ instruction_handler_t lookup_11(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_12(H8300H* h8300h)
+instruction_handler_t lookup_12(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -65,7 +65,7 @@ instruction_handler_t lookup_12(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_13(H8300H* h8300h)
+instruction_handler_t lookup_13(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -81,7 +81,7 @@ instruction_handler_t lookup_13(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_17(H8300H* h8300h)
+instruction_handler_t lookup_17(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -101,7 +101,7 @@ instruction_handler_t lookup_17(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_1A(H8300H* h8300h)
+instruction_handler_t lookup_1A(H8Board* h8300h)
 {
     uint8_t b1 = h8300h->fetch_instruction_byte(1);
     uint8_t bh = (b1 & 0xf0) >> 4;
@@ -120,7 +120,7 @@ instruction_handler_t lookup_1A(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_1B(H8300H* h8300h)
+instruction_handler_t lookup_1B(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -137,7 +137,7 @@ instruction_handler_t lookup_1B(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_1F(H8300H* h8300h)
+instruction_handler_t lookup_1F(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -156,7 +156,7 @@ instruction_handler_t lookup_1F(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_1x(H8300H *h8300h)
+instruction_handler_t lookup_1x(H8Board *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
     unsigned char al = b0 & 0x0f;

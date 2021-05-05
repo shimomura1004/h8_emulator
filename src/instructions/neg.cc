@@ -1,7 +1,7 @@
 #include "neg.h"
 
 template<int n, class T>
-static void update_ccr(H8300H* h8, T dst_value, T result_value)
+static void update_ccr(H8Board* h8, T dst_value, T result_value)
 {
     bool dst_value_nth_bit = dst_value & (1 << (n - 4 - 1));
     bool result_value_nth_bit = result_value & (1 << (n - 4 - 1));
@@ -22,7 +22,7 @@ static void update_ccr(H8300H* h8, T dst_value, T result_value)
     c ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_v();
 }
 
-int h8instructions::neg::neg_w(H8300H* h8)
+int h8instructions::neg::neg_w(H8Board* h8)
 {
     int8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t dst_register_index = b1 & 0x0f;

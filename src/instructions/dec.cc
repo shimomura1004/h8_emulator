@@ -1,7 +1,7 @@
 #include "dec.h"
 
 template<int n, class T>
-static void update_ccr(H8300H* h8, T dst_value, T result_value)
+static void update_ccr(H8Board* h8, T dst_value, T result_value)
 {
     bool dst_value_nth_bit = dst_value & (1 << (n - 1));
     bool result_value_nth_bit = result_value & (1 << (n - 1));
@@ -13,12 +13,12 @@ static void update_ccr(H8300H* h8, T dst_value, T result_value)
     v ? h8->cpu.ccr().set_v() : h8->cpu.ccr().clear_v();
 }
 
-int h8instructions::dec::dec_b(H8300H *h8)
+int h8instructions::dec::dec_b(H8Board *h8)
 {
     return -1;
 }
 
-int h8instructions::dec::dec_w(H8300H *h8)
+int h8instructions::dec::dec_w(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b1h = (b1 & 0xf0) >> 4;
@@ -44,7 +44,7 @@ int h8instructions::dec::dec_w(H8300H *h8)
     return 0;
 }
 
-int h8instructions::dec::dec_l(H8300H *h8)
+int h8instructions::dec::dec_l(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b1h = (b1 & 0xf0) >> 4;

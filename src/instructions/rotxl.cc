@@ -1,6 +1,6 @@
 #include "rotxl.h"
 
-int h8instructions::rotxl::rotxl_l(H8300H* h8)
+int h8instructions::rotxl::rotxl_l(H8Board* h8)
 {
     unsigned char b1 = h8->fetch_instruction_byte(1);
     unsigned char reg_index = (b1 & 0x07);

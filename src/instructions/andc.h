@@ -1,12 +1,12 @@
 #ifndef _INSTRUCTIONS_ANDC_INCLUDED_
 #define _INSTRUCTIONS_ANDC_INCLUDED_
 
-#include "h8300h.h"
+#include "h8board.h"
 
 namespace h8instructions {
 namespace andc {
 
-int andc(H8300H* h8);
+int andc(H8Board* h8);
 
 }
 }

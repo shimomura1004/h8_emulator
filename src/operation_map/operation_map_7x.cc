@@ -19,7 +19,7 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_7x(H8300H *h8300h)
+instruction_handler_t lookup_7x(H8Board *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
     unsigned char al = b0 & 0x0f;
@@ -45,7 +45,7 @@ instruction_handler_t lookup_7x(H8300H *h8300h)
     }
 }
 
-instruction_handler_t lookup_74(H8300H* h8300h)
+instruction_handler_t lookup_74(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -54,7 +54,7 @@ instruction_handler_t lookup_74(H8300H* h8300h)
                   : nullptr; // BIOR
 }
 
-instruction_handler_t lookup_75(H8300H* h8300h)
+instruction_handler_t lookup_75(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -63,7 +63,7 @@ instruction_handler_t lookup_75(H8300H* h8300h)
                   : nullptr; // BIXOR
 }
 
-instruction_handler_t lookup_76(H8300H* h8300h)
+instruction_handler_t lookup_76(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -72,7 +72,7 @@ instruction_handler_t lookup_76(H8300H* h8300h)
                   : nullptr; // BIAND
 }
 
-instruction_handler_t lookup_77(H8300H* h8300h)
+instruction_handler_t lookup_77(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -81,7 +81,7 @@ instruction_handler_t lookup_77(H8300H* h8300h)
                   : nullptr; // BILD
 }
 
-instruction_handler_t lookup_79(H8300H* h8300h)
+instruction_handler_t lookup_79(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -98,7 +98,7 @@ instruction_handler_t lookup_79(H8300H* h8300h)
     }
 }
 
-instruction_handler_t lookup_7A(H8300H* h8300h)
+instruction_handler_t lookup_7A(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -121,7 +121,7 @@ instruction_handler_t lookup_7A(H8300H* h8300h)
 
 namespace operation_map2 {
 
-instruction_parser_t lookup_7x(H8300H *h8300h)
+instruction_parser_t lookup_7x(H8Board *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
     unsigned char al = b0 & 0x0f;
@@ -147,7 +147,7 @@ instruction_parser_t lookup_7x(H8300H *h8300h)
     }
 }
 
-instruction_parser_t lookup_74(H8300H* h8300h)
+instruction_parser_t lookup_74(H8Board* h8300h)
 {
     // unsigned char b1 = h8300h->fetch_instruction_byte(1);
     // unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -157,7 +157,7 @@ instruction_parser_t lookup_74(H8300H* h8300h)
     //               : nullptr; // BIOR
 }
 
-instruction_parser_t lookup_75(H8300H* h8300h)
+instruction_parser_t lookup_75(H8Board* h8300h)
 {
     // unsigned char b1 = h8300h->fetch_instruction_byte(1);
     // unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -167,7 +167,7 @@ instruction_parser_t lookup_75(H8300H* h8300h)
     //               : nullptr; // BIXOR
 }
 
-instruction_parser_t lookup_76(H8300H* h8300h)
+instruction_parser_t lookup_76(H8Board* h8300h)
 {
     // unsigned char b1 = h8300h->fetch_instruction_byte(1);
     // unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -177,7 +177,7 @@ instruction_parser_t lookup_76(H8300H* h8300h)
     //               : nullptr; // BIAND
 }
 
-instruction_parser_t lookup_77(H8300H* h8300h)
+instruction_parser_t lookup_77(H8Board* h8300h)
 {
     // unsigned char b1 = h8300h->fetch_instruction_byte(1);
     // unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -187,7 +187,7 @@ instruction_parser_t lookup_77(H8300H* h8300h)
     //               : nullptr; // BILD
 }
 
-instruction_parser_t lookup_79(H8300H* h8300h)
+instruction_parser_t lookup_79(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -204,7 +204,7 @@ instruction_parser_t lookup_79(H8300H* h8300h)
     }
 }
 
-instruction_parser_t lookup_7A(H8300H* h8300h)
+instruction_parser_t lookup_7A(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;

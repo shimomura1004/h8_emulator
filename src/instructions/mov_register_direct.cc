@@ -1,7 +1,7 @@
 #include "mov_register_direct.h"
 #include "mov.h"
 
-void h8instructions::mov::register_direct_b_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::mov::register_direct_b_parse(H8Board* h8, Instruction* instruction)
 {
     const uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -13,7 +13,7 @@ void h8instructions::mov::register_direct_b_parse(H8300H* h8, Instruction* instr
     instruction->runner = h8instructions::mov::register_direct_b_run;
 }
 
-int h8instructions::mov::register_direct_b_run(H8300H* h8, Instruction* instruction)
+int h8instructions::mov::register_direct_b_run(H8Board* h8, Instruction* instruction)
 {
     const Register8& src = h8->cpu.reg8(instruction->op1.get_register_direct8());
     Register8& dst = h8->cpu.reg8(instruction->op2.get_register_direct8());
@@ -27,7 +27,7 @@ int h8instructions::mov::register_direct_b_run(H8300H* h8, Instruction* instruct
     return 0;
 }
 
-void h8instructions::mov::register_direct_w_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::mov::register_direct_w_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -39,7 +39,7 @@ void h8instructions::mov::register_direct_w_parse(H8300H* h8, Instruction* instr
     instruction->runner = h8instructions::mov::register_direct_w_run;
 }
 
-int h8instructions::mov::register_direct_w_run(H8300H* h8, Instruction* instruction)
+int h8instructions::mov::register_direct_w_run(H8Board* h8, Instruction* instruction)
 {
     const Register16& src = h8->cpu.reg16(instruction->op1.get_register_direct16());
     Register16& dst = h8->cpu.reg16(instruction->op2.get_register_direct16());
@@ -53,7 +53,7 @@ int h8instructions::mov::register_direct_w_run(H8300H* h8, Instruction* instruct
     return 0;
 }
 
-void h8instructions::mov::register_direct_l_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::mov::register_direct_l_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -65,7 +65,7 @@ void h8instructions::mov::register_direct_l_parse(H8300H* h8, Instruction* instr
     instruction->runner = h8instructions::mov::register_direct_l_run;
 }
 
-int h8instructions::mov::register_direct_l_run(H8300H* h8, Instruction* instruction)
+int h8instructions::mov::register_direct_l_run(H8Board* h8, Instruction* instruction)
 {
     const Register32& src = h8->cpu.reg32(instruction->op1.get_register_direct32());
     Register32& dst = h8->cpu.reg32(instruction->op2.get_register_direct32());

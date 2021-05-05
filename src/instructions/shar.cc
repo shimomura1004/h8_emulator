@@ -1,7 +1,7 @@
 #include "shar.h"
 
 template<class T>
-static void update_ccr(H8300H* h8, T value, bool lsb)
+static void update_ccr(H8Board* h8, T value, bool lsb)
 {
     (value < 0) ? h8->cpu.ccr().set_n() : h8->cpu.ccr().clear_n();
     (value == 0) ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
@@ -9,7 +9,7 @@ static void update_ccr(H8300H* h8, T value, bool lsb)
     lsb ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c();
 }
 
-int h8instructions::shar::shar_w(H8300H* h8)
+int h8instructions::shar::shar_w(H8Board* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t register_index = b1 & 0x0f;
@@ -30,7 +30,7 @@ int h8instructions::shar::shar_w(H8300H* h8)
     return 0;
 }
 
-int h8instructions::shar::shar_l(H8300H *h8)
+int h8instructions::shar::shar_l(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t register_index = b1 & 0x07;

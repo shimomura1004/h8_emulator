@@ -2,7 +2,7 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_7Cr074x(H8300H* h8300h)
+instruction_handler_t lookup_7Cr074x(H8Board* h8300h)
 {
     unsigned char b3 = h8300h->fetch_instruction_byte(3);
     unsigned char dh_msb = (b3 & 0x80) == 0;
@@ -11,7 +11,7 @@ instruction_handler_t lookup_7Cr074x(H8300H* h8300h)
                   : nullptr; // BIOR
 }
 
-instruction_handler_t lookup_7Cr075x(H8300H* h8300h)
+instruction_handler_t lookup_7Cr075x(H8Board* h8300h)
 {
     unsigned char b3 = h8300h->fetch_instruction_byte(3);
     unsigned char dh_msb = (b3 & 0x80) == 0;
@@ -20,7 +20,7 @@ instruction_handler_t lookup_7Cr075x(H8300H* h8300h)
                   : nullptr; // BIXOR
 }
 
-instruction_handler_t lookup_7Cr076x(H8300H* h8300h)
+instruction_handler_t lookup_7Cr076x(H8Board* h8300h)
 {
     unsigned char b3 = h8300h->fetch_instruction_byte(3);
     unsigned char dh_msb = (b3 & 0x80) == 0;
@@ -29,7 +29,7 @@ instruction_handler_t lookup_7Cr076x(H8300H* h8300h)
                   : nullptr; // BIAND
 }
 
-instruction_handler_t lookup_7Cr077x(H8300H* h8300h)
+instruction_handler_t lookup_7Cr077x(H8Board* h8300h)
 {
     unsigned char b3 = h8300h->fetch_instruction_byte(3);
     unsigned char dh_msb = (b3 & 0x80) == 0;
@@ -38,7 +38,7 @@ instruction_handler_t lookup_7Cr077x(H8300H* h8300h)
                   : nullptr; // BILD
 }
 
-instruction_handler_t lookup_7Cr0xx(H8300H* h8300h)
+instruction_handler_t lookup_7Cr0xx(H8Board* h8300h)
 {
     unsigned char b2 = h8300h->fetch_instruction_byte(2);
     unsigned char ch = (b2 & 0xf0) >> 4;

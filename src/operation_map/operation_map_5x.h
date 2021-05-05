@@ -4,8 +4,8 @@
 #include "operation_map.h"
 
 namespace operation_map {
-instruction_handler_t lookup_5x(H8300H* h8300h);
-instruction_handler_t lookup_58(H8300H* h8300h);
+instruction_handler_t lookup_5x(H8Board* h8300h);
+instruction_handler_t lookup_58(H8Board* h8300h);
 }
 
 #endif

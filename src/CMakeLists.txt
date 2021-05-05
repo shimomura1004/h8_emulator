@@ -17,16 +17,16 @@ add_subdirectory(bus)
 add_subdirectory(interrupt)
 add_subdirectory(net)
 
-add_executable(h8300h
+add_executable(h8emu
     elf_loader.cc
     mcu.cc
-    h8300h.cc
+    h8board.cc
     runner.cc
     main.cc
 )
 
 target_link_libraries(
-    h8300h
+    h8emu
     cpu
     sci
     operation_map

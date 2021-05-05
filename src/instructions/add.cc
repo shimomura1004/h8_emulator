@@ -1,7 +1,7 @@
 #include "add.h"
 
 template<int n, class T>
-static void update_ccr(H8300H* h8, T src_value, T dst_value, T result_value)
+static void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
 {
     bool src_value_nth_bit = src_value & (1 << (n - 4 - 1));
     bool dst_value_nth_bit = dst_value & (1 << (n - 4 - 1));
@@ -29,7 +29,7 @@ static void update_ccr(H8300H* h8, T src_value, T dst_value, T result_value)
     c ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_v();
 }
 
-void h8instructions::add::add_immediate_b_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::add::add_immediate_b_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b0 = h8->fetch_instruction_byte(0);
 
@@ -41,7 +41,7 @@ void h8instructions::add::add_immediate_b_parse(H8300H* h8, Instruction* instruc
     instruction->runner = h8instructions::add::add_immediate_b_run;
 }
 
-int h8instructions::add::add_immediate_b_run(H8300H* h8, Instruction* instruction)
+int h8instructions::add::add_immediate_b_run(H8Board* h8, Instruction* instruction)
 {
     Register8& dst = h8->cpu.reg8(instruction->op2.get_register_direct8());
     int8_t src_value = instruction->op1.get_immediate8();
@@ -55,7 +55,7 @@ int h8instructions::add::add_immediate_b_run(H8300H* h8, Instruction* instructio
     return 0;
 }
 
-void h8instructions::add::add_register_direct_b_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::add::add_register_direct_b_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -67,7 +67,7 @@ void h8instructions::add::add_register_direct_b_parse(H8300H* h8, Instruction* i
     instruction->runner = h8instructions::add::add_register_direct_b_run;
 }
 
-int h8instructions::add::add_register_direct_b_run(H8300H* h8, Instruction* instruction)
+int h8instructions::add::add_register_direct_b_run(H8Board* h8, Instruction* instruction)
 {
     const Register8& src = h8->cpu.reg8(instruction->op1.get_register_direct8());
     Register8& dst = h8->cpu.reg8(instruction->op2.get_register_direct8());
@@ -83,7 +83,7 @@ int h8instructions::add::add_register_direct_b_run(H8300H* h8, Instruction* inst
     return 0;
 }
 
-void h8instructions::add::add_immediate_w_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::add::add_immediate_w_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t imm[2];
@@ -99,7 +99,7 @@ void h8instructions::add::add_immediate_w_parse(H8300H* h8, Instruction* instruc
     instruction->runner = h8instructions::add::add_immediate_w_run;
 }
 
-int h8instructions::add::add_immediate_w_run(H8300H* h8, Instruction* instruction)
+int h8instructions::add::add_immediate_w_run(H8Board* h8, Instruction* instruction)
 {
     Register16& dst = h8->cpu.reg16(instruction->op2.get_register_direct16());
 
@@ -114,7 +114,7 @@ int h8instructions::add::add_immediate_w_run(H8300H* h8, Instruction* instructio
     return 0;
 }
 
-void h8instructions::add::add_register_direct_w_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::add::add_register_direct_w_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -126,7 +126,7 @@ void h8instructions::add::add_register_direct_w_parse(H8300H* h8, Instruction* i
     instruction->runner = h8instructions::add::add_register_direct_w_run;
 }
 
-int h8instructions::add::add_register_direct_w_run(H8300H* h8, Instruction* instruction)
+int h8instructions::add::add_register_direct_w_run(H8Board* h8, Instruction* instruction)
 {
     const Register16& src = h8->cpu.reg16(instruction->op1.get_register_direct16());
     Register16& dst = h8->cpu.reg16(instruction->op2.get_register_direct16());
@@ -142,7 +142,7 @@ int h8instructions::add::add_register_direct_w_run(H8300H* h8, Instruction* inst
     return 0;
 }
 
-void h8instructions::add::add_immediate_l_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::add::add_immediate_l_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -161,7 +161,7 @@ void h8instructions::add::add_immediate_l_parse(H8300H* h8, Instruction* instruc
     instruction->runner = h8instructions::add::add_immediate_l_run;
 }
 
-int h8instructions::add::add_immediate_l_run(H8300H* h8, Instruction* instruction)
+int h8instructions::add::add_immediate_l_run(H8Board* h8, Instruction* instruction)
 {
     Register32& dst = h8->cpu.reg32(instruction->op2.get_register_direct32());
 
@@ -176,7 +176,7 @@ int h8instructions::add::add_immediate_l_run(H8300H* h8, Instruction* instructio
     return 0;
 }
 
-void h8instructions::add::add_register_direct_l_parse(H8300H* h8, Instruction* instruction)
+void h8instructions::add::add_register_direct_l_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -188,7 +188,7 @@ void h8instructions::add::add_register_direct_l_parse(H8300H* h8, Instruction* i
     instruction->runner = h8instructions::add::add_register_direct_l_run;
 }
 
-int h8instructions::add::add_register_direct_l_run(H8300H* h8, Instruction* instruction)
+int h8instructions::add::add_register_direct_l_run(H8Board* h8, Instruction* instruction)
 {
     const Register32& src = h8->cpu.reg32(instruction->op1.get_register_direct32());
     Register32& dst = h8->cpu.reg32(instruction->op2.get_register_direct32());

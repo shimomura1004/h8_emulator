@@ -5,23 +5,23 @@
 #include "instructions/instruction.h"
 
 namespace operation_map {
-instruction_handler_t lookup_7x(H8300H* h8300h);
-instruction_handler_t lookup_74(H8300H* h8300h);
-instruction_handler_t lookup_75(H8300H* h8300h);
-instruction_handler_t lookup_76(H8300H* h8300h);
-instruction_handler_t lookup_77(H8300H* h8300h);
-instruction_handler_t lookup_79(H8300H* h8300h);
-instruction_handler_t lookup_7A(H8300H* h8300h);
+instruction_handler_t lookup_7x(H8Board* h8300h);
+instruction_handler_t lookup_74(H8Board* h8300h);
+instruction_handler_t lookup_75(H8Board* h8300h);
+instruction_handler_t lookup_76(H8Board* h8300h);
+instruction_handler_t lookup_77(H8Board* h8300h);
+instruction_handler_t lookup_79(H8Board* h8300h);
+instruction_handler_t lookup_7A(H8Board* h8300h);
 }
 
 namespace operation_map2 {
-instruction_parser_t lookup_7x(H8300H* h8300h);
-instruction_parser_t lookup_74(H8300H* h8300h);
-instruction_parser_t lookup_75(H8300H* h8300h);
-instruction_parser_t lookup_76(H8300H* h8300h);
-instruction_parser_t lookup_77(H8300H* h8300h);
-instruction_parser_t lookup_79(H8300H* h8300h);
-instruction_parser_t lookup_7A(H8300H* h8300h);
+instruction_parser_t lookup_7x(H8Board* h8300h);
+instruction_parser_t lookup_74(H8Board* h8300h);
+instruction_parser_t lookup_75(H8Board* h8300h);
+instruction_parser_t lookup_76(H8Board* h8300h);
+instruction_parser_t lookup_77(H8Board* h8300h);
+instruction_parser_t lookup_79(H8Board* h8300h);
+instruction_parser_t lookup_7A(H8Board* h8300h);
 }
 
 #endif

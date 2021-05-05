@@ -1,6 +1,6 @@
 #include "subs.h"
 
-int h8instructions::subs::subs(H8300H* h8)
+int h8instructions::subs::subs(H8Board* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t register_index = b1 & 0x0f;

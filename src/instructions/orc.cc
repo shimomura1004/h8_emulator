@@ -1,7 +1,7 @@
 #include "orc.h"
 
 // todo: ccr.raw と ccr.set で書き換える
-int h8instructions::orc::orc(H8300H* h8)
+int h8instructions::orc::orc(H8Board* h8)
 {
     uint8_t imm = h8->fetch_instruction_byte(1);
 

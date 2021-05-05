@@ -1,18 +1,18 @@
 #ifndef _INSTRUCTIONS_SUB_INCLUDED_
 #define _INSTRUCTIONS_SUB_INCLUDED_
 
-#include "h8300h.h"
+#include "h8board.h"
 
 namespace h8instructions {
 namespace sub {
 
-int sub_b(H8300H *h8);
-int sub_w(H8300H *h8);
-int sub_l(H8300H *h8);
-int sub_immediate_l(H8300H *h8);
+int sub_b(H8Board *h8);
+int sub_w(H8Board *h8);
+int sub_l(H8Board *h8);
+int sub_immediate_l(H8Board *h8);
 
 template<int n, class T>
-void update_ccr(H8300H* h8, T src_value, T dst_value, T result_value)
+void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
 {
     bool src_value_nth_bit = src_value & (1 << (n - 4 - 1));
     bool dst_value_nth_bit = dst_value & (1 << (n - 4 - 1));

@@ -4,7 +4,7 @@
 namespace h8instructions {
 namespace mov {
 
-int register_indirect_with_displacement24_b(H8300H* h8)
+int register_indirect_with_displacement24_b(H8Board* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b3 = h8->fetch_instruction_byte(3);
@@ -52,7 +52,7 @@ int register_indirect_with_displacement24_b(H8300H* h8)
 }
 
 
-int register_indirect_with_displacement24_l(H8300H* h8)
+int register_indirect_with_displacement24_l(H8Board* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t b5 = h8->fetch_instruction_byte(5);
@@ -94,7 +94,7 @@ int register_indirect_with_displacement24_l(H8300H* h8)
     return 0;
 }
 
-int register_indirect_with_increment_decrement_b(H8300H* h8)
+int register_indirect_with_increment_decrement_b(H8Board* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -115,12 +115,12 @@ int register_indirect_with_increment_decrement_b(H8300H* h8)
     return 0;
 }
 
-int register_indirect_with_displacement24_w(H8300H* h8)
+int register_indirect_with_displacement24_w(H8Board* h8)
 {
     return -1;
 }
 
-int register_indirect_with_increment_decrement_l(H8300H* h8)
+int register_indirect_with_increment_decrement_l(H8Board* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     if ((b3 & 0x80) == 0) {

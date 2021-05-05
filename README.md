@@ -11,7 +11,7 @@ h8_emulator emulates [H8/3069F board](https://akizukidenshi.com/catalog/g/gK-012
     $ make
 
 ## Usage
-    $ h8300h kzload.elf
+    $ h8emu kzload.elf
 
     # on another terminal
     $ sender ser1
@@ -19,7 +19,7 @@ h8_emulator emulates [H8/3069F board](https://akizukidenshi.com/catalog/g/gK-012
 ## Demo
 Start bootloader.
 
-    $ ./h8300h kzload.elf
+    $ ./h8emu kzload.elf
     Loading segment 0
     Loading segment 1
     Loading segment 2
@@ -46,11 +46,11 @@ Start serial console.
     unknown.
     command> 
 
-sender is a helper program to interact with h8300h's serial port. Press ':' to enter command mode.
+sender is a helper program to interact with h8emu's serial port. Press ':' to enter command mode.
 - send (file)
-    - read the file and send to h8300h
+    - read the file and send to h8emu process
 - exec (executable file)
-    - execute the file and send the output to h8300h
+    - execute the file and send the output to h8emu process
 
 ## Enable networking
     # Prepare tap device
@@ -63,4 +63,4 @@ sender is a helper program to interact with h8300h's serial port. Press ':' to e
     $ sudo ip link set tun0 up
 
     # Run your binary
-    $ h8300h kzload.elf
+    $ ./h8emu kzload.elf

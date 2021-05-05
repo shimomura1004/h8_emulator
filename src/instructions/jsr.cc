@@ -1,6 +1,6 @@
 #include "jsr.h"
 
-int h8instructions::jsr::jsr_register_indirect(H8300H* h8)
+int h8instructions::jsr::jsr_register_indirect(H8Board* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t register_index = (b1 & 0x70) >> 4;
@@ -14,7 +14,7 @@ int h8instructions::jsr::jsr_register_indirect(H8300H* h8)
     return 0;
 }
 
-int h8instructions::jsr::jsr_absolute_address(H8300H* h8)
+int h8instructions::jsr::jsr_absolute_address(H8Board* h8)
 {
     unsigned char abs_[4];
     abs_[3] = 0;

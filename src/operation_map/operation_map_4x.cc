@@ -3,7 +3,7 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_4x(H8300H *h8300h)
+instruction_handler_t lookup_4x(H8Board *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
     unsigned char al = b0 & 0x0f;

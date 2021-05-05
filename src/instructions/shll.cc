@@ -2,7 +2,7 @@
 
 // todo: shll は1つにまとめられそう
 
-int h8instructions::shll::shll_b(H8300H *h8)
+int h8instructions::shll::shll_b(H8Board *h8)
 {
     unsigned char b1 = h8->fetch_instruction_byte(1);
     unsigned char register_index = (b1 & 0x0f);
@@ -24,7 +24,7 @@ int h8instructions::shll::shll_b(H8300H *h8)
     return 0;
 }
 
-int h8instructions::shll::shll_w(H8300H *h8)
+int h8instructions::shll::shll_w(H8Board *h8)
 {
     unsigned char b1 = h8->fetch_instruction_byte(1);
     unsigned char register_index = (b1 & 0x0f);
@@ -46,7 +46,7 @@ int h8instructions::shll::shll_w(H8300H *h8)
     return 0;
 }
 
-int h8instructions::shll::shll_l(H8300H *h8)
+int h8instructions::shll::shll_l(H8Board *h8)
 {
     unsigned char instruction_byte_1 = h8->fetch_instruction_byte(1);
     unsigned char register_index = (instruction_byte_1 & 0x0f);

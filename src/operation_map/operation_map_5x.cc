@@ -8,7 +8,7 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_58(H8300H *h8)
+instruction_handler_t lookup_58(H8Board *h8)
 {
     unsigned char b1 = h8->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
@@ -34,7 +34,7 @@ instruction_handler_t lookup_58(H8300H *h8)
     }
 }
 
-instruction_handler_t lookup_5x(H8300H *h8)
+instruction_handler_t lookup_5x(H8Board *h8)
 {
     unsigned char b0 = h8->fetch_instruction_byte(0);
     unsigned char al = b0 & 0x0f;

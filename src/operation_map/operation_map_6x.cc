@@ -8,7 +8,7 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_67(H8300H* h8300h)
+instruction_handler_t lookup_67(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -17,7 +17,7 @@ instruction_handler_t lookup_67(H8300H* h8300h)
                   : nullptr; // BIST
 }
 
-instruction_handler_t lookup_6x(H8300H *h8300h)
+instruction_handler_t lookup_6x(H8Board *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
     unsigned char al = b0 & 0x0f;
@@ -48,7 +48,7 @@ instruction_handler_t lookup_6x(H8300H *h8300h)
 
 namespace operation_map2 {
 
-instruction_parser_t lookup_67(H8300H* h8300h)
+instruction_parser_t lookup_67(H8Board* h8300h)
 {
     // unsigned char b1 = h8300h->fetch_instruction_byte(1);
     // unsigned char bh_msb = (b1 & 0x80) == 0;
@@ -58,7 +58,7 @@ instruction_parser_t lookup_67(H8300H* h8300h)
                 //   : nullptr; // BIST
 }
 
-instruction_parser_t lookup_6x(H8300H *h8300h)
+instruction_parser_t lookup_6x(H8Board *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
     unsigned char al = b0 & 0x0f;

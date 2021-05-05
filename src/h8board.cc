@@ -1,15 +1,15 @@
-#include "h8300h.h"
+#include "h8board.h"
 #include "operation_map/operation_map.h"
 
 // todo: デバッグ用
 #include <set>
 
-uint8_t H8300H::fetch_instruction_byte(uint8_t offset)
+uint8_t H8Board::fetch_instruction_byte(uint8_t offset)
 {
     return mcu.read8(this->cpu.pc() + offset);
 }
 
-int H8300H::execute_next_instruction()
+int H8Board::execute_next_instruction()
 {
     instruction_parser_t parser = operation_map2::lookup(this);
 
@@ -68,14 +68,14 @@ int H8300H::execute_next_instruction()
 }
 
 // todo: スタック操作関係は別クラスに移動
-void H8300H::push_to_stack_b(uint8_t value, uint8_t register_index)
+void H8Board::push_to_stack_b(uint8_t value, uint8_t register_index)
 {
     Register32& r = this->cpu.reg32(register_index);
     r.set(r.get() - 1);
     mcu.write8(r.get(), value);
 }
 
-uint8_t H8300H::pop_from_stack_b(uint8_t register_index)
+uint8_t H8Board::pop_from_stack_b(uint8_t register_index)
 {
     Register32& r = this->cpu.reg32(register_index);
     uint8_t value = mcu.read8(r.get());
@@ -83,14 +83,14 @@ uint8_t H8300H::pop_from_stack_b(uint8_t register_index)
     return value;
 }
 
-void H8300H::push_to_stack_w(uint16_t value, uint8_t register_index)
+void H8Board::push_to_stack_w(uint16_t value, uint8_t register_index)
 {
     Register32& r = this->cpu.reg32(register_index);
     r.set(r.get() - 2);
     mcu.write16(r.get(), value);
 }
 
-uint16_t H8300H::pop_from_stack_w(uint8_t register_index)
+uint16_t H8Board::pop_from_stack_w(uint8_t register_index)
 {
     Register32& r = this->cpu.reg32(register_index);
     uint16_t value = mcu.read16(r.get());
@@ -98,14 +98,14 @@ uint16_t H8300H::pop_from_stack_w(uint8_t register_index)
     return value;
 }
 
-void H8300H::push_to_stack_l(uint32_t value, uint8_t register_index)
+void H8Board::push_to_stack_l(uint32_t value, uint8_t register_index)
 {
     Register32& r = this->cpu.reg32(register_index);
     r.set(r.get() - 4);
     mcu.write32(r.get(), value);
 }
 
-uint32_t H8300H::pop_from_stack_l(uint8_t register_index)
+uint32_t H8Board::pop_from_stack_l(uint8_t register_index)
 {
     Register32& r = this->cpu.reg32(register_index);
     uint32_t value = mcu.read32(r.get());
@@ -113,20 +113,20 @@ uint32_t H8300H::pop_from_stack_l(uint8_t register_index)
     return value;
 }
 
-void H8300H::save_pc_and_ccr_to_stack()
+void H8Board::save_pc_and_ccr_to_stack()
 {
     uint32_t ccr_pc = this->cpu.pc() | (this->cpu.ccr().raw() << 24);
     push_to_stack_l(ccr_pc);
 }
 
-void H8300H::restore_pc_and_ccr_from_stack()
+void H8Board::restore_pc_and_ccr_from_stack()
 {
     uint32_t ccr_pc = pop_from_stack_l();
     this->cpu.ccr().set(ccr_pc >> 24);
     this->cpu.pc() = ccr_pc & 0x00ffffff;
 }
 
-H8300H::H8300H(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller)
+H8Board::H8Board(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller)
     : cpu(cpu)
     , mcu(mcu)
     , interrupt_controller(interrupt_controller)
@@ -136,17 +136,17 @@ H8300H::H8300H(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller)
 {
 }
 
-void H8300H::init()
+void H8Board::init()
 {
     this->mcu.init();
 }
 
-uint32_t H8300H::load_elf(std::string filepath)
+uint32_t H8Board::load_elf(std::string filepath)
 {
     return mcu.load_elf(filepath);
 }
 
-bool H8300H::handle_interrupt()
+bool H8Board::handle_interrupt()
 {
     interrupt_t type = interrupt_t::NONE;
 
@@ -181,7 +181,7 @@ bool H8300H::handle_interrupt()
     }
 }
 
-int H8300H::step()
+int H8Board::step()
 {
     // PC が指す命令を実行
     int result = execute_next_instruction();
@@ -225,7 +225,7 @@ int H8300H::step()
 }
 
 // todo: CPU に持たせるべき
-void H8300H::print_registers()
+void H8Board::print_registers()
 {
     for (int i = 0; i < 8; i++) {
         fprintf(stderr, "ER%d: 0x%08x", i, this->cpu.reg32(i).get());

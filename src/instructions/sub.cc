@@ -1,7 +1,7 @@
 #include "sub.h"
 
 // おそらく index 0~7 が RnH、8~f が RnL
-int h8instructions::sub::sub_b(H8300H *h8)
+int h8instructions::sub::sub_b(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t src_register_index = (b1 & 0xf0) >> 4;
@@ -24,7 +24,7 @@ int h8instructions::sub::sub_b(H8300H *h8)
     return 0;
 }
 
-int h8instructions::sub::sub_w(H8300H *h8)
+int h8instructions::sub::sub_w(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t src_register_index = (b1 & 0xf0) >> 4;
@@ -45,7 +45,7 @@ int h8instructions::sub::sub_w(H8300H *h8)
     return 0;
 }
 
-int h8instructions::sub::sub_l(H8300H *h8)
+int h8instructions::sub::sub_l(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t src_register_index = (b1 & 0x70) >> 4;
@@ -65,7 +65,7 @@ int h8instructions::sub::sub_l(H8300H *h8)
     return 0;
 }
 
-int h8instructions::sub::sub_immediate_l(H8300H *h8)
+int h8instructions::sub::sub_immediate_l(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t dst_register_index = (b1 & 0x07);

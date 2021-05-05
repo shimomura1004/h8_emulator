@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "h8300h.h"
+#include "h8board.h"
 #include "runner.h"
 
 #include "cpu/h8300h_cpu.h"
@@ -33,7 +33,7 @@ int main (int argc, char* argv[])
     RTL8019AS rtl8019as(interrupt_cv);
     GeneralInterruptController interrupt_controller(sci, &timer8, &rtl8019as);
     MCU mcu(dram, sci, timer8, ioport, rtl8019as);
-    H8300H h8(cpu, mcu, interrupt_controller);
+    H8Board h8(cpu, mcu, interrupt_controller);
     h8.init();
 
     uint32_t start_addr = h8.load_elf(argv[1]);

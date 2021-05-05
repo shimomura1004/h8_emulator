@@ -1,12 +1,12 @@
 #ifndef _INSTRUCTIONS_ORC_INCLUDED_
 #define _INSTRUCTIONS_ORC_INCLUDED_
 
-#include "h8300h.h"
+#include "h8board.h"
 
 namespace h8instructions {
 namespace orc {
 
-int orc(H8300H* h8);
+int orc(H8Board* h8);
 
 }
 }

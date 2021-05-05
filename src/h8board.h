@@ -7,9 +7,13 @@
 #include "mcu.h"
 #include "interrupt/interrupt_controller.h"
 
+// todo: 今ボードが持っている役割は CPU に移すべき
+// CPU が MCU 経由でデバイスを操作すればいい…？
+// ボードというのは、CPU と各デバイスをひとつにまとめたもの
+
 // todo: H8300H は CPU の名前、ボードの名前に変える
 // H8/3069Fネット対応マイコンLANボード (K-01271)
-class H8300H {
+class H8Board {
 public:
     ICPU& cpu;
     MCU& mcu;
@@ -37,7 +41,7 @@ public:
     void restore_pc_and_ccr_from_stack();
 
 public:
-    H8300H(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller);
+    H8Board(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller);
 
     void init();
     uint32_t load_elf(std::string filepath);

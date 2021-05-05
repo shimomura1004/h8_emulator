@@ -4,7 +4,7 @@
 namespace h8instructions {
 namespace mov {
 
-void absolute_address_24_b_parse(H8300H* h8, Instruction* instruction)
+void absolute_address_24_b_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b1h = (b1 & 0xf0) >> 4;
@@ -44,7 +44,7 @@ void absolute_address_24_b_parse(H8300H* h8, Instruction* instruction)
     }
 }
 
-int absolute_address_24_b_run(H8300H* h8, Instruction* instruction)
+int absolute_address_24_b_run(H8Board* h8, Instruction* instruction)
 {
     addressing_mode_t mode = instruction->op1.get_mode();
 
@@ -69,7 +69,7 @@ int absolute_address_24_b_run(H8300H* h8, Instruction* instruction)
     }
 }
 
-void absolute_address_24_w_parse(H8300H* h8, Instruction* instruction)
+void absolute_address_24_w_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b1h = (b1 & 0xf0) >> 4;
@@ -109,7 +109,7 @@ void absolute_address_24_w_parse(H8300H* h8, Instruction* instruction)
     }
 }
 
-int absolute_address_24_w_run(H8300H* h8, Instruction* instruction)
+int absolute_address_24_w_run(H8Board* h8, Instruction* instruction)
 {
     addressing_mode_t mode = instruction->op1.get_mode();
 
@@ -144,7 +144,7 @@ int absolute_address_24_w_run(H8300H* h8, Instruction* instruction)
     }
 }
 
-void absolute_address_24_l_parse(H8300H* h8, Instruction* instruction)
+void absolute_address_24_l_parse(H8Board* h8, Instruction* instruction)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t b3h = (b3 & 0xf0) >> 4;
@@ -176,7 +176,7 @@ void absolute_address_24_l_parse(H8300H* h8, Instruction* instruction)
     }
 }
 
-int absolute_address_24_l_run(H8300H* h8, Instruction* instruction)
+int absolute_address_24_l_run(H8Board* h8, Instruction* instruction)
 {
     addressing_mode_t mode = instruction->op1.get_mode();
 

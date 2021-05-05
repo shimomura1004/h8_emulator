@@ -2,7 +2,7 @@
 
 // todo: ccr の更新部分を共通化
 
-int h8instructions::extu::extu_w(H8300H* h8)
+int h8instructions::extu::extu_w(H8Board* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t register_index = (b1 & 0x0f);
@@ -28,7 +28,7 @@ int h8instructions::extu::extu_w(H8300H* h8)
     return 0;
 }
 
-int h8instructions::extu::extu_l(H8300H* h8)
+int h8instructions::extu::extu_l(H8Board* h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t register_index = (b1 & 0x07);

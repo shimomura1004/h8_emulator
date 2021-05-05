@@ -1,11 +1,11 @@
 #include "mulxs.h"
 
-int h8instructions::mulxs::mulxs_b(H8300H* h8)
+int h8instructions::mulxs::mulxs_b(H8Board* h8)
 {
     return -1;
 }
 
-int h8instructions::mulxs::mulxs_w(H8300H* h8)
+int h8instructions::mulxs::mulxs_w(H8Board* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t src_reg_index = (b3 & 0xf0) >> 4;

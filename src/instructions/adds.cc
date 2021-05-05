@@ -1,6 +1,6 @@
 #include "adds.h"
 
-int h8instructions::adds::adds(H8300H* h8)
+int h8instructions::adds::adds(H8Board* h8)
 {
     unsigned char b1 = h8->fetch_instruction_byte(1);
     unsigned char register_index = b1 & 0x0f;

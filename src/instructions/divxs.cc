@@ -1,6 +1,6 @@
 #include "divxs.h"
 
-int h8instructions::divxs::divxs_w(H8300H* h8)
+int h8instructions::divxs::divxs_w(H8Board* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t src_register_index = (b3 & 0xf0) >> 4;
