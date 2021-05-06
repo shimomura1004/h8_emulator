@@ -1,4 +1,4 @@
-#include "h8300h_dram.h"
+#include "generic_dram.h"
 
 // todo: ヘルパ関数としてどこかに定義
 #ifdef __BYTE_ORDER__

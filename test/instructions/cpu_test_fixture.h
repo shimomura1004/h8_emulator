@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include "h8board.h"
 #include "cpu/h8300h_cpu.h"
-#include "dram/h8300h_dram.h"
+#include "dram/generic_dram.h"
 #include "dummy_mcu.h"
 #include "interrupt/dummy_interrupt_controller.h"
 

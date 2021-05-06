@@ -3,11 +3,11 @@
 #include "runner.h"
 
 #include "cpu/h8300h_cpu.h"
-#include "dram/h8300h_dram.h"
+#include "dram/generic_dram.h"
 #include "sci/adm3202.h"
 #include "timer/h8_timer8.h"
 #include "net/rtl8019as.h"
-#include "interrupt/general_interrupt_controller.h"
+#include "interrupt/generic_interrupt_controller.h"
 #include "h8300h_mcu.h"
 
 int main (int argc, char* argv[])

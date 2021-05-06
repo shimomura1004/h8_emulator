@@ -1,4 +1,4 @@
-#include "general_interrupt_controller.h"
+#include "generic_interrupt_controller.h"
 
 // 例外処理 1. リセット(最優先)
 //         2. 割り込み(さらに外部割込みと内部割込み(内蔵周辺モジュール)にわかれる)
