@@ -39,15 +39,18 @@ int main (int argc, char* argv[])
     H8Board h8(cpu, mcu, interrupt_controller);
     h8.init();
 
+    // OS の ELF もここでロードしたいが、kozos の場合は付属のブートローダで
+    // ELF ファイルをロードしないとブートできない(start address がわからないため)
+    // 現状のエミュレータの実装では ELFLoader は内蔵 ROM/RAM にしか write できないためクラッシュする
     uint32_t start_addr = h8.load_elf(argv[1]);
     if (start_addr == 0) {
         exit(1);
     }
     
-    printf("Start execution from 0x%x\n", start_addr);
-
     // 本当はリセット割り込みを発生させて開始するべき
     h8.cpu.pc() = start_addr;
+
+    printf("Start execution from 0x%x\n", start_addr);
 
     Runner runner(h8);
     runner.run(argc > 2);
