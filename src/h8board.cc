@@ -204,6 +204,18 @@ int H8Board::step()
             // スリープ中に CCR.I が更新されることはないので、CCR.I が解除されたときに notify する必要はない
             interrupt_t type = this->interrupt_controller.getInterruptType();
 
+            if (this->wake_for_debugger_flag) {
+                // CPU のスリープ中にデバッガを扱いたいため、一時的に復帰させる場合
+
+                // フラグを戻す
+                this->wake_for_debugger_flag = false;
+
+                // PC を sleep 命令のバイト数だけ戻し、次の実行で再び sleep させる
+                this->cpu.pc() -= 2;
+
+                return true;
+            } 
+
             if (type == interrupt_t::NONE) {
                 // 割込みがなければ待つ
                 return false;
@@ -212,14 +224,6 @@ int H8Board::step()
                 return true;
             } else if (!this->cpu.ccr().i()) {
                 // それ以外の割込みの場合、割込み禁止状態でなければ処理
-                return true;
-            } else if (this->wake_for_debugger_flag) {
-                // todo: ロックが必要かもしれない
-                this->wake_for_debugger_flag = false;
-                // CPU のスリープ中にデバッガを扱いたいため、一時的に復帰させる
-                // PC を sleep 命令のバイト数だけ戻し、次の実行で再び sleep させる
-                this->cpu.pc() -= 2;
-
                 return true;
             } else {
                 // 割込み禁止状態の場合は待つ

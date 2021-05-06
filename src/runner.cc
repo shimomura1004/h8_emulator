@@ -339,21 +339,28 @@ void Runner::run(bool debug)
                 if (!this->debug_mode) {
                     // デバッグモードでなければすぐに終了
                     terminate = true;
+                    h8.wake_for_debugger();
                 } else if (this->continue_mode) {
                     // デバッグモードで、一時的に連続実行している場合は止める
                     this->continue_mode = false;
+                    h8.wake_for_debugger();
                 } else {
                     // デバッグモード中で、停止中にさらに Ctrl-C されたら終了
                     terminate = true;
+                    h8.wake_for_debugger();
                 }
                 break;
+#ifdef __APPLE__
             case SIGINFO:
                 if (!this->debug_mode) {
                     terminate = true;
+                    h8.wake_for_debugger();
                 } else if (this->continue_mode) {
                     this->continue_mode = false;
+                    h8.wake_for_debugger();
                 }
                 break;
+#endif
             default:
                 printf("Unhandled signal (%d)\n", sig);
                 break;
