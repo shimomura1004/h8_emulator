@@ -1,4 +1,4 @@
-project(h8300h CXX)
+project(h8emu CXX)
 
 cmake_minimum_required(VERSION 3.14)
 

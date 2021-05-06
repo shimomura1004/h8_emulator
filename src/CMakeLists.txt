@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 find_package(Threads)
-include_directories(${h8300h_SOURCE_DIR}/src)
+include_directories(${h8emu_SOURCE_DIR}/src)
 
 add_definitions("-Wall -I. -std=c++11 -pthread -g")
 # add_definitions("-Wconversion")
