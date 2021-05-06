@@ -1,6 +1,6 @@
-#include "h8300h_timer8.h"
+#include "h8_timer8.h"
 
-H8300H_Timer8::H8300H_Timer8(std::condition_variable& interrupt_cv)
+H8_Timer8::H8_Timer8(std::condition_variable& interrupt_cv)
     : tmr8 { TMR8(0, tmr8[1], interrupt_cv)
            , TMR8(1, tmr8[0], interrupt_cv)
            , TMR8(2, tmr8[3], interrupt_cv)
@@ -9,7 +9,7 @@ H8300H_Timer8::H8300H_Timer8(std::condition_variable& interrupt_cv)
 {
 }
 
-interrupt_t H8300H_Timer8::getInterrupt()
+interrupt_t H8_Timer8::getInterrupt()
 {
     interrupt_t type = interrupt_t::NONE;
 
@@ -23,7 +23,7 @@ interrupt_t H8300H_Timer8::getInterrupt()
     return type;
 }
 
-void H8300H_Timer8::clearInterrupt(interrupt_t type)
+void H8_Timer8::clearInterrupt(interrupt_t type)
 {
     // 複数のタイマから同じ割込みが発生した場合、
     // getInterrupt/clearInterrupt も割込みハンドラも
@@ -39,7 +39,7 @@ void H8300H_Timer8::clearInterrupt(interrupt_t type)
     }
 }
 
-uint8_t H8300H_Timer8::read8(uint32_t address, uint8_t channel)
+uint8_t H8_Timer8::read8(uint32_t address, uint8_t channel)
 {
     switch (address) {
     case 0: return tmr8[2 * channel + 0].get_tcr();
@@ -58,7 +58,7 @@ uint8_t H8300H_Timer8::read8(uint32_t address, uint8_t channel)
     }
 }
 
-uint16_t H8300H_Timer8::read16(uint32_t address, uint8_t channel)
+uint16_t H8_Timer8::read16(uint32_t address, uint8_t channel)
 {
 #ifdef __BYTE_ORDER__
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -73,7 +73,7 @@ uint16_t H8300H_Timer8::read16(uint32_t address, uint8_t channel)
     return (high_value << 8) | low_value;
 }
 
-void H8300H_Timer8::write8(uint32_t address, uint8_t value, uint8_t channel)
+void H8_Timer8::write8(uint32_t address, uint8_t value, uint8_t channel)
 {
     switch (address) {
     case 0: tmr8[2 * channel + 0].set_tcr(value);   break;
@@ -92,7 +92,7 @@ void H8300H_Timer8::write8(uint32_t address, uint8_t value, uint8_t channel)
     }
 }
 
-void H8300H_Timer8::write16(uint32_t address, uint16_t value, uint8_t channel)
+void H8_Timer8::write16(uint32_t address, uint16_t value, uint8_t channel)
 {
     uint8_t high_value = value >> 8;
     uint8_t low_value = value & 0xff;

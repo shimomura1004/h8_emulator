@@ -8,11 +8,11 @@
 
 // todo: H8300H に特有の機能はなく、generic な実装としてよい
 // 8ビットタイマ4つ分
-class H8300H_Timer8 : public ITimer8 {
+class H8_Timer8 : public ITimer8 {
     TMR8 tmr8[4];
 
 public:
-    H8300H_Timer8(std::condition_variable& interrupt_cv);
+    H8_Timer8(std::condition_variable& interrupt_cv);
 
     interrupt_t getInterrupt() override;
     void clearInterrupt(interrupt_t type) override;

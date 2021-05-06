@@ -5,7 +5,7 @@
 #include "cpu/h8300h_cpu.h"
 #include "dram/h8300h_dram.h"
 #include "sci/adm3202.h"
-#include "timer/h8300h_timer8.h"
+#include "timer/h8_timer8.h"
 #include "net/rtl8019as.h"
 #include "interrupt/general_interrupt_controller.h"
 #include "h8300h_mcu.h"
@@ -31,7 +31,7 @@ int main (int argc, char* argv[])
         new ADM3202(1, interrupt_cv, false),
         new ADM3202(2, interrupt_cv)
     };
-    H8300H_Timer8 timer8(interrupt_cv);
+    H8_Timer8 timer8(interrupt_cv);
     IOPort ioport;
     RTL8019AS rtl8019as(interrupt_cv);
     GeneralInterruptController interrupt_controller(sci, &timer8, &rtl8019as);
