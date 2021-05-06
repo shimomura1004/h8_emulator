@@ -7,6 +7,8 @@
 
 class ICPU {
 public:
+    virtual ~ICPU() {}
+
     virtual Register8& reg8(uint8_t index) = 0;
     virtual Register16& reg16(uint8_t index) = 0;
     virtual Register32& reg32(uint8_t index) = 0;

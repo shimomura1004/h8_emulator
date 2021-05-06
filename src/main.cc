@@ -17,6 +17,9 @@ int main (int argc, char* argv[])
         exit(1);
     }
 
+    // todo: ペリフェラルは全部同じようなインタフェースを持つ(read/write(8,16,32), get/clear interrupt)
+    // 共通のインタフェースを作ったほうが扱いやすいかも
+
     // todo: H8300H で必要なオブジェクトは H8300H クラス内で初期化するほうがいい
     // stdio を使うときは screen コマンドを使うこと
     H8300H_CPU cpu;

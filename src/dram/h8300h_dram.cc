@@ -44,7 +44,6 @@ void H8300H_DRAM::write8(uint32_t address, uint8_t value)
 void H8300H_DRAM::write16(uint32_t address, uint16_t value)
 {
     *(uint16_t*)&this->ram[address] = bswap16_if_little_endian(value);
-
 }
 
 void H8300H_DRAM::write32(uint32_t address, uint32_t value)

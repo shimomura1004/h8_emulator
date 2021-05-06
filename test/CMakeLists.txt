@@ -15,9 +15,18 @@ add_executable(example
     example.cc
     instructions/mov_immediate_test.cc
     cpu/h8300h_cpu_test.cc
+    # todo: これらはライブラリにして、src のファイルを直接参照するのをやめる
+    ../src/h8300h_mcu.cc
+    ../src/h8board.cc
+    ../src/elf_loader.cc
 )
 target_link_libraries(example
     cpu
+    dram
+    ioport
+    bus
+    operation_map
+    instructions
     gtest_main
     gmock)
 add_test(NAME example_test COMMAND example)
