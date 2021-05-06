@@ -156,6 +156,7 @@ bool H8Board::handle_interrupt()
     }
 
     // 割込み可能かどうかに関係なく、優先度の高い割込みがない場合はトラップされたかを確認
+    // (割込み禁止中でもトラップ命令は処理されるため)
     if (type == interrupt_t::NONE) {
         type = interrupt_controller.getTrap();
     }

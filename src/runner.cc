@@ -10,11 +10,7 @@
 // Runner のモード
 //   debug モードはデバッガによりコールスタックなどが監視されている状態
 //   continue モードは debug モードのサブモードで、ステップ実行せず連続で命令実行する
-
-// bug: Ctrl-t してもすぐに止まらない(sender でなにか入力すると止まる？)
-//      割込みが発生するまでどこかで止まっている？
-//      -> sleep で返ってこなくなってた
-// Ctrl-c or Ctrl-t でデバッグモードに入る
+// continue モード中は、Ctrl-c or Ctrl-t で連続実行を停止する
 
 bool Runner::load_file_to_memory(uint32_t address, char *filename)
 {
@@ -224,6 +220,7 @@ int Runner::proccess_debugger_command()
         int i = 0;
         while (!terminate) {
             // bug: ブロッキングで動作しているため、終了を指示してもすぐに終了しない
+            //      デバッガのコマンド処理中は Ctrl-C で終了できない
             int c = getchar();
 
             // EOF がきたら、単にデータがないということ
@@ -368,9 +365,12 @@ void Runner::run(bool debug)
         }
     }
 
-    // スレッドを止めてから終了
-    if (loop->joinable()) {
-        loop->join();
-    }
-    delete loop;
+    // 強制終了する
+    exit(1);
+
+    // // スレッドを止めてから終了
+    // if (loop->joinable()) {
+    //     loop->join();
+    // }
+    // delete loop;
 }
