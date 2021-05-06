@@ -11,8 +11,6 @@
 // CPU が MCU 経由でデバイスを操作すればいい…？
 // ボードというのは、CPU と各デバイスをひとつにまとめたもの
 
-// todo: H8300H は CPU の名前、ボードの名前に変える
-// H8/3069Fネット対応マイコンLANボード (K-01271)
 class H8Board {
 public:
     ICPU& cpu;
@@ -20,9 +18,8 @@ public:
     IInterruptController& interrupt_controller;
 
     std::mutex mutex;
-    // todo: terminate は不要？
-    bool terminate;
     bool is_sleep;
+    bool wake_for_debugger_flag;
     // スリープ状態から復帰するため、各ペリフェラルに渡して割込み発生時に通知してもらう
     std::condition_variable& interrupt_cv;
 
@@ -50,6 +47,7 @@ public:
     int step();
 
     void print_registers();
+    void wake_for_debugger();
 
     std::mutex& get_mutex() { return mutex; }
 };

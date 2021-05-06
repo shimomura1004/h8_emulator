@@ -128,33 +128,39 @@ void Runner::loop()
         // bool interrupted = h8.handle_interrupt();
         h8.handle_interrupt();
 
-        // todo: これ、debug モード中以外で push したらダメでは
-        // スタックトレースのために PC を保存
-        // if (interrupted) {
-            // call_stack.push_back(h8.pc);
-        // }
-
         if (this->debug_mode) {
+            // // 割込みが発生したら PC を保存
+            // if (interrupted) {
+            //     printf("PUSHED 0x%x\n", h8.cpu.pc());
+            //     call_stack.push_back(h8.cpu.pc());
+            // }
+
             int r = proccess_debugger_command();
             if (r != 0) {
                 break;
             }
 
-            // todo: instruction のパース結果を使ってもう少し情報を出力したい
-            // スタックトレースのために PC を保存
-            instruction_handler_t handler = operation_map::lookup(&h8);
-            if ((handler == h8instructions::jsr::jsr_absolute_address) ||
-                (handler == h8instructions::jsr::jsr_register_indirect))
-            {
-                // 関数呼び出し時には今の PC を記録しておく
-                // call_stack.push_back(h8.pc);
-            }
+            // // todo: instruction のパース結果を使ってもう少し情報を出力したい
+            // instruction_handler_t handler = operation_map::lookup(&h8);
+            // if ((handler == h8instructions::jsr::jsr_absolute_address) ||
+            //     (handler == h8instructions::jsr::jsr_register_indirect))
+            // {
+            //     // 関数呼出し時に PC を記録しておく
+            //     printf("PUSHED 0x%x\n", h8.cpu.pc());
+            //     call_stack.push_back(h8.cpu.pc());
+            // }
 
-            if ((handler == h8instructions::rts::rts) ||
-                (handler == h8instructions::rte::rte))
-            {
-                // call_stack.pop_back();
-            }
+            // if ((handler == h8instructions::rts::rts) ||
+            //     (handler == h8instructions::rte::rte))
+            // {
+            //     // 関数・割込みからの復帰時はスタックから取り出し
+            //     if (!call_stack.empty()) {
+            //         printf("POPED 0x%x\n", call_stack.back());
+            //         call_stack.pop_back();
+            //     } else {
+            //         fprintf(stderr, "Warning: return when call stack is empty.\n");
+            //     }
+            // }
         }
 
         if (this->print_pc_mode) {
@@ -354,9 +360,6 @@ void Runner::run(bool debug)
             }
         }
     }
-
-    // ボードの動作を止める
-    h8.terminate = true;
 
     // スレッドを止めてから終了
     if (loop->joinable()) {

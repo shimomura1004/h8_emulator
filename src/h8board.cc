@@ -130,8 +130,8 @@ H8Board::H8Board(ICPU& cpu, IMCU& mcu, IInterruptController& interrupt_controlle
     : cpu(cpu)
     , mcu(mcu)
     , interrupt_controller(interrupt_controller)
-    , terminate(false)
     , is_sleep(false)
+    , wake_for_debugger_flag(false)
     , interrupt_cv(cpu.get_interrupt_cv())
 {
 }
@@ -213,6 +213,14 @@ int H8Board::step()
             } else if (!this->cpu.ccr().i()) {
                 // それ以外の割込みの場合、割込み禁止状態でなければ処理
                 return true;
+            } else if (this->wake_for_debugger_flag) {
+                // todo: ロックが必要かもしれない
+                this->wake_for_debugger_flag = false;
+                // CPU のスリープ中にデバッガを扱いたいため、一時的に復帰させる
+                // PC を sleep 命令のバイト数だけ戻し、次の実行で再び sleep させる
+                this->cpu.pc() -= 2;
+
+                return true;
             } else {
                 // 割込み禁止状態の場合は待つ
                 return false;
@@ -250,4 +258,10 @@ void H8Board::print_registers()
            this->cpu.ccr().z(),
            this->cpu.ccr().v(),
            this->cpu.ccr().c());
+}
+
+void H8Board::wake_for_debugger()
+{
+    this->wake_for_debugger_flag = true;
+    this->interrupt_cv.notify_all();
 }
