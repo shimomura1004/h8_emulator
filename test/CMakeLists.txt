@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 
 include_directories(
-    ${h8300h_SOURCE_DIR}/src
+    ${h8emu_SOURCE_DIR}/src
+    ${h8emu_SOURCE_DIR}/test
     ${GTEST_INCLUDE_PATH}
     ${GMOCK_INCLUDE_PATH}
 )
