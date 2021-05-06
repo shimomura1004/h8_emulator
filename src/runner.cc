@@ -133,6 +133,7 @@ void Runner::loop()
 
             int r = proccess_debugger_command();
             if (r != 0) {
+                // bug: こちらのスレッドだけ終了しても sigwait してるスレッドが止まらない
                 break;
             }
 
@@ -320,6 +321,7 @@ void Runner::run(bool debug)
     std::thread* loop = new std::thread(&Runner::loop, this);
 
     // 以降、このスレッドはシグナル処理だけを行う
+    // シグナルハンドラ内では conditonal_variable::notify できないので signal では対応不可
     int sig;
     sigset_t block_mask;
     sigemptyset(&block_mask);
