@@ -15,7 +15,7 @@ add_definitions("-Wall -I. -std=c++11 -pthread -g")
 add_executable(example
     example.cc
     instructions/mov_immediate_test.cc
-    cpu/h8300h_cpu_test.cc
+    cpu/h83069f_test.cc
     # todo: これらはライブラリにして、src のファイルを直接参照するのをやめる
     ../src/h8300h_mcu.cc
     ../src/h8board.cc

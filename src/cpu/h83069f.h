@@ -5,7 +5,7 @@
 #include "h8register.h"
 #include "ccr.h"
 
-class H8300H_CPU : public ICPU {
+class H83069F : public ICPU {
     Register32 _reg[8];
     Register32& _sp;
     Register16 _reg16[16];
@@ -16,7 +16,7 @@ class H8300H_CPU : public ICPU {
     std::condition_variable interrupt_cv;
 
 public:
-    H8300H_CPU();
+    H83069F();
 
     virtual Register8& reg8(uint8_t index) override;
     virtual Register16& reg16(uint8_t index) override;

@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 #include "h8board.h"
-#include "cpu/h8300h_cpu.h"
+#include "cpu/h83069f.h"
 #include "dram/generic_dram.h"
 #include "dummy_mcu.h"
 #include "interrupt/dummy_interrupt_controller.h"
@@ -19,7 +19,7 @@ protected:
 
     void SetUp() override
     {
-        this->cpu = new H8300H_CPU();
+        this->cpu = new H83069F();
         this->dram = new H8300H_DRAM();
         this->interrupt_controller = new DummyInterruptController;
         this->mcu = new DummyMCU(*dram);

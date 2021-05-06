@@ -1,6 +1,6 @@
-#include "h8300h_cpu.h"
+#include "h83069f.h"
 
-H8300H_CPU::H8300H_CPU()
+H83069F::H83069F()
     : _sp(_reg[7])
     , _reg16{ Register16(_reg[0],  0), Register16(_reg[1],  1), Register16(_reg[2],  2), Register16(_reg[3],  3),
               Register16(_reg[4],  4), Register16(_reg[5],  5), Register16(_reg[6],  6), Register16(_reg[7],  7),
@@ -13,37 +13,37 @@ H8300H_CPU::H8300H_CPU()
     , _pc(0)
 {}
 
-Register8& H8300H_CPU::reg8(uint8_t index)
+Register8& H83069F::reg8(uint8_t index)
 {
     return this->_reg8[index];
 }
 
-Register16& H8300H_CPU::reg16(uint8_t index)
+Register16& H83069F::reg16(uint8_t index)
 {
     return this->_reg16[index];
 }
 
-Register32& H8300H_CPU::reg32(uint8_t index)
+Register32& H83069F::reg32(uint8_t index)
 {
     return this->_reg[index];
 }
 
-CCR& H8300H_CPU::ccr()
+CCR& H83069F::ccr()
 {
     return this->_ccr;
 }
 
-Register32& H8300H_CPU::sp()
+Register32& H83069F::sp()
 {
     return this->_sp;
 }
 
-uint32_t& H8300H_CPU::pc()
+uint32_t& H83069F::pc()
 {
     return this->_pc;
 }
 
-std::condition_variable& H8300H_CPU::get_interrupt_cv()
+std::condition_variable& H83069F::get_interrupt_cv()
 {
     return this->interrupt_cv;
 }

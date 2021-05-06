@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "cpu/h8300h_cpu.h"
+#include "cpu/h83069f.h"
 
 /*
 H8/300H マイコンのレジスタ構成
@@ -19,9 +19,9 @@ ER7(SP) |       E7       |  R7H   |   R7L  |
 */
 
 // ER レジスタに値を書き込むと E/R/RH/RL に値が反映される
-TEST(H8300H_CPU, reg32)
+TEST(H83069F, reg32)
 {
-     H8300H_CPU cpu;
+     H83069F cpu;
 
      Register32& er0 = cpu.reg32(0);
      Register16& e0  = cpu.reg16(8);
@@ -39,9 +39,9 @@ TEST(H8300H_CPU, reg32)
 }
 
 // R レジスタに値を書き込むと RH/RL に値が反映される
-TEST(H8300H_CPU, reg16)
+TEST(H83069F, reg16)
 {
-     H8300H_CPU cpu;
+     H83069F cpu;
 
      Register16& r0  = cpu.reg16(0);
      Register8&  r0h = cpu.reg8(0);
@@ -54,9 +54,9 @@ TEST(H8300H_CPU, reg16)
 }
 
 // ER7 と SP は同じレジスタ
-TEST(H8300H_CPU, sp)
+TEST(H83069F, sp)
 {
-     H8300H_CPU cpu;
+     H83069F cpu;
 
      Register32& er7 = cpu.reg32(7);
      Register32& sp  = cpu.sp();

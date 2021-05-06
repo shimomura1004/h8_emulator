@@ -2,7 +2,7 @@
 #include "h8board.h"
 #include "runner.h"
 
-#include "cpu/h8300h_cpu.h"
+#include "cpu/h83069f.h"
 #include "dram/generic_dram.h"
 #include "sci/adm3202.h"
 #include "timer/h8_timer8.h"
@@ -22,7 +22,7 @@ int main (int argc, char* argv[])
 
     // todo: H8300H で必要なオブジェクトは H8300H クラス内で初期化するほうがいい
     // stdio を使うときは screen コマンドを使うこと
-    H8300H_CPU cpu;
+    H83069F cpu;
     std::condition_variable& interrupt_cv = cpu.get_interrupt_cv();
     H8300H_DRAM dram;
     // todo: H8300H の固有のもの、H8300H クラス内で用意するのであれば配列にする必要もない
