@@ -6,10 +6,9 @@
 #include <queue>
 #include "interrupt/interrupt_type.h"
 #include "sci.h"
-#include "h8300h_sci_registers.h"
+#include "adm3202_registers.h"
 
-// todo: H8300H に特有の機能はなく、generic な実装としてよい
-class H8300H_SCI : public ISCI {
+class ADM3202 : public ISCI {
     static const interrupt_t TXI_TABLE[3];
     static const interrupt_t RXI_TABLE[3];
 
@@ -29,7 +28,7 @@ private:
 
     uint8_t index;
     bool terminate_flag;
-    H8300H_SCI_Registers sci_registers;
+    ADM3202_Registers sci_registers;
 
     std::condition_variable& interrupt_cv;
 
@@ -43,8 +42,8 @@ private:
     void run_send_to_h8();
 
 public:
-    H8300H_SCI(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio = false);
-    ~H8300H_SCI() override;
+    ADM3202(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio = false);
+    ~ADM3202() override;
 
     void run() override;
     void terminate() override;

@@ -5,7 +5,7 @@
 #include <condition_variable>
 
 // todo: H8300H に特有の機能はなく、generic な実装としてよい
-class H8300H_SCI_Registers {
+class ADM3202_Registers {
 public:
     // todo: enum は別ヘッダに移す
     typedef enum {
@@ -42,7 +42,7 @@ public:
     } SCI_SSR;
 
 private:
-    uint8_t regs[H8300H_SCI_Registers::SCI::SIZE];
+    uint8_t regs[ADM3202_Registers::SCI::SIZE];
     // エミュレータと OS の両方から SCI のレジスタにアクセスするので、排他が必要
     std::mutex sci_mutex;
     std::condition_variable sci_cv;
@@ -55,7 +55,7 @@ private:
     void set_bit_nolock(uint8_t register_index, uint8_t bit_index, bool b);
 
 public:
-    H8300H_SCI_Registers();
+    ADM3202_Registers();
 
     uint8_t get(uint8_t register_index);
     void set(uint8_t register_index, uint8_t byte);

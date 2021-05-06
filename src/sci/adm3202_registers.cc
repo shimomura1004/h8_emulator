@@ -1,57 +1,57 @@
-#include "h8300h_sci_registers.h"
+#include "adm3202_registers.h"
 
-bool H8300H_SCI_Registers::get_bit_from_nolock(uint8_t value, uint8_t bit_index)
+bool ADM3202_Registers::get_bit_from_nolock(uint8_t value, uint8_t bit_index)
 {
     return value & (1 << bit_index);
 }
 
-uint8_t H8300H_SCI_Registers::get_nolock(uint8_t register_index)
+uint8_t ADM3202_Registers::get_nolock(uint8_t register_index)
 {
     return regs[register_index];
 }
 
-void H8300H_SCI_Registers::set_nolock(uint8_t register_index, uint8_t byte)
+void ADM3202_Registers::set_nolock(uint8_t register_index, uint8_t byte)
 {
     regs[register_index] = byte;
 }
 
-bool H8300H_SCI_Registers::get_bit_nolock(uint8_t register_index, uint8_t bit_index)
+bool ADM3202_Registers::get_bit_nolock(uint8_t register_index, uint8_t bit_index)
 {
     return regs[register_index] & (1 << bit_index);
 }
 
-void H8300H_SCI_Registers::set_bit_nolock(uint8_t register_index, uint8_t bit_index, bool b)
+void ADM3202_Registers::set_bit_nolock(uint8_t register_index, uint8_t bit_index, bool b)
 {
     uint8_t byte = regs[register_index];
     byte = b ? (byte | (1 << bit_index)) : (byte & ~(1 << bit_index));
     regs[register_index] = byte;
 }
 
-uint8_t H8300H_SCI_Registers::get(uint8_t register_index)
+uint8_t ADM3202_Registers::get(uint8_t register_index)
 {
     std::lock_guard<std::mutex> lock(sci_mutex);
     return get_nolock(register_index);
 }
 
-void H8300H_SCI_Registers::set(uint8_t register_index, uint8_t byte)
+void ADM3202_Registers::set(uint8_t register_index, uint8_t byte)
 {
     std::lock_guard<std::mutex> lock(sci_mutex);
     set_nolock(register_index, byte);
 }
 
-bool H8300H_SCI_Registers::get_bit(uint8_t register_index, uint8_t bit_index)
+bool ADM3202_Registers::get_bit(uint8_t register_index, uint8_t bit_index)
 {
     std::lock_guard<std::mutex> lock(sci_mutex);
     return get_bit_nolock(register_index, bit_index);
 }
 
-void H8300H_SCI_Registers::set_bit(uint8_t register_index, uint8_t bit_index, bool b)
+void ADM3202_Registers::set_bit(uint8_t register_index, uint8_t bit_index, bool b)
 {
     std::lock_guard<std::mutex> lock(sci_mutex);
     set_bit_nolock(register_index, bit_index, b);
 }
 
-H8300H_SCI_Registers::H8300H_SCI_Registers() {
+ADM3202_Registers::ADM3202_Registers() {
     // H8 仕様書より
     regs[SCI::SMR] = 0x00;
     regs[SCI::BRR] = 0xff;
@@ -62,14 +62,14 @@ H8300H_SCI_Registers::H8300H_SCI_Registers() {
     regs[SCI::SCMR] = 0xf2;
 }
 
-uint8_t H8300H_SCI_Registers::read(uint32_t register_index)
+uint8_t ADM3202_Registers::read(uint32_t register_index)
 {
     std::lock_guard<std::mutex> lock(sci_mutex);
     return regs[register_index];
 }
 
 // todo: CPU 側の関数を使って設定するほうがいい
-void H8300H_SCI_Registers::write(uint32_t register_index, uint8_t byte)
+void ADM3202_Registers::write(uint32_t register_index, uint8_t byte)
 {
     std::lock_guard<std::mutex> lock(sci_mutex);
 
@@ -128,7 +128,7 @@ void H8300H_SCI_Registers::write(uint32_t register_index, uint8_t byte)
     }
 }
 
-void H8300H_SCI_Registers::wait_rdrf_to_be(bool b)
+void ADM3202_Registers::wait_rdrf_to_be(bool b)
 {   
     std::unique_lock<std::mutex> rdrf_lock(sci_mutex);
     sci_cv.wait(rdrf_lock, [&]{
@@ -136,7 +136,7 @@ void H8300H_SCI_Registers::wait_rdrf_to_be(bool b)
     });
 }
 
-void H8300H_SCI_Registers::wait_tdre_to_be(bool b)
+void ADM3202_Registers::wait_tdre_to_be(bool b)
 {
     std::unique_lock<std::mutex> tdre_lock(sci_mutex);
     sci_cv.wait(tdre_lock, [&]{
@@ -144,9 +144,9 @@ void H8300H_SCI_Registers::wait_tdre_to_be(bool b)
     });
 }
 
-void H8300H_SCI_Registers::dump(FILE* fp)
+void ADM3202_Registers::dump(FILE* fp)
 {
-    for (int i = 0; i < H8300H_SCI_Registers::SCI::SIZE; i++) {
+    for (int i = 0; i < ADM3202_Registers::SCI::SIZE; i++) {
         fputc(regs[i], fp);
     }
     fputc(0, fp);

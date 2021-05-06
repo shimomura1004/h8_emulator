@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#include "h8300h_sci.h"
+#include "adm3202.h"
 
 // todo: たまに入力を取りこぼす
 // todo: 最初に割込みを有効にした瞬間にゴミが出力されるが、正しい挙動か？
@@ -13,15 +13,15 @@
 // つまり起動直後(TDRE=1)のゴミ値は TSR にコピーされず、送信されないということ
 // その後は？
 
-const interrupt_t H8300H_SCI::TXI_TABLE[3] = {
+const interrupt_t ADM3202::TXI_TABLE[3] = {
     interrupt_t::TXI0, interrupt_t::TXI1, interrupt_t::TXI2
 };
 
-const interrupt_t H8300H_SCI::RXI_TABLE[3] = {
+const interrupt_t ADM3202::RXI_TABLE[3] = {
     interrupt_t::RXI0, interrupt_t::RXI1, interrupt_t::RXI2
 };
 
-bool H8300H_SCI::open_sci_socket()
+bool ADM3202::open_sci_socket()
 {
     if (this->use_stdio) {
         this->sci_sock_fd = 0;
@@ -70,30 +70,30 @@ bool H8300H_SCI::open_sci_socket()
     return true;
 }
 
-void H8300H_SCI::prepare()
+void ADM3202::prepare()
 {
     if (!this->open_sci_socket()) {
         return;
     }
 
-    this->sci_thread[0] = new std::thread(&H8300H_SCI::run_recv_from_h8, this);
-    this->sci_thread[1] = new std::thread(&H8300H_SCI::run_send_to_h8, this);
+    this->sci_thread[0] = new std::thread(&ADM3202::run_recv_from_h8, this);
+    this->sci_thread[1] = new std::thread(&ADM3202::run_send_to_h8, this);
     if (this->sci_thread[0] && this->sci_thread[1]) {
         printf("SCI(%d) started\n", this->index);
     }
 }
 
-void H8300H_SCI::run_recv_from_h8() {
+void ADM3202::run_recv_from_h8() {
     while (!terminate_flag) {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
         sci_registers.wait_tdre_to_be(false);
 
         // データは TDR に入っている
-        uint8_t data = sci_registers.get(H8300H_SCI_Registers::SCI::TDR);
+        uint8_t data = sci_registers.get(ADM3202_Registers::SCI::TDR);
 
         // データを TDR から取得したら SSR_TDRE を 1 にして送信可能を通知
-        sci_registers.set_bit(H8300H_SCI_Registers::SCI::SSR, H8300H_SCI_Registers::SCI_SSR::TDRE, true);
+        sci_registers.set_bit(ADM3202_Registers::SCI::SSR, ADM3202_Registers::SCI_SSR::TDRE, true);
 
         // 送信
         if (!this->use_stdio) {
@@ -103,7 +103,7 @@ void H8300H_SCI::run_recv_from_h8() {
         }
 
         // H8 に送信準備完了の割り込みを発生させる
-        if (sci_registers.get_bit(H8300H_SCI_Registers::SCI::SCR, H8300H_SCI_Registers::SCI_SCR::TIE)) {
+        if (sci_registers.get_bit(ADM3202_Registers::SCI::SCR, ADM3202_Registers::SCI_SCR::TIE)) {
             this->hasTxiInterruption = true;
 
             // 割込みを通知する
@@ -112,7 +112,7 @@ void H8300H_SCI::run_recv_from_h8() {
     }
 }
 
-void H8300H_SCI::run_send_to_h8() {
+void ADM3202::run_send_to_h8() {
     while (!terminate_flag) {
         char c;
         ssize_t size;
@@ -142,13 +142,13 @@ void H8300H_SCI::run_send_to_h8() {
         sci_registers.wait_rdrf_to_be(false);
 
         // H8 に渡すデータは RDR に書き込んでおく
-        sci_registers.set(H8300H_SCI_Registers::RDR, (uint8_t)c);
+        sci_registers.set(ADM3202_Registers::RDR, (uint8_t)c);
 
         // RDRF を 1 にして H8 に通知
-        sci_registers.set_bit(H8300H_SCI_Registers::SSR, H8300H_SCI_Registers::SCI_SSR::RDRF, true);
+        sci_registers.set_bit(ADM3202_Registers::SSR, ADM3202_Registers::SCI_SSR::RDRF, true);
 
         // シリアル受信割り込みが有効な場合は割り込みを発生させる
-        if (sci_registers.get_bit(H8300H_SCI_Registers::SCI::SCR, H8300H_SCI_Registers::SCI_SCR::RIE)) {
+        if (sci_registers.get_bit(ADM3202_Registers::SCI::SCR, ADM3202_Registers::SCI_SCR::RIE)) {
             this->hasRxiInterruption = true;
 
             // 割込みを通知する
@@ -157,7 +157,7 @@ void H8300H_SCI::run_send_to_h8() {
     }
 }
 
-H8300H_SCI::H8300H_SCI(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio)
+ADM3202::ADM3202(uint8_t index, std::condition_variable& interrupt_cv, bool use_stdio)
     : use_stdio(use_stdio)
     , index(index)
     , terminate_flag(false)
@@ -166,7 +166,7 @@ H8300H_SCI::H8300H_SCI(uint8_t index, std::condition_variable& interrupt_cv, boo
     , hasRxiInterruption(false)
 {}
 
-H8300H_SCI::~H8300H_SCI()
+ADM3202::~ADM3202()
 {
     terminate();
     close(this->sci_socket);
@@ -174,11 +174,11 @@ H8300H_SCI::~H8300H_SCI()
     printf("SCI(%d) stopped\n", index);
 }
 
-void H8300H_SCI::run() {
-    this->prepare_thread = new std::thread(&H8300H_SCI::prepare, this);
+void ADM3202::run() {
+    this->prepare_thread = new std::thread(&ADM3202::prepare, this);
 }
 
-void H8300H_SCI::terminate() {
+void ADM3202::terminate() {
     terminate_flag = true;
 
     if (this->prepare_thread) {
@@ -198,26 +198,26 @@ void H8300H_SCI::terminate() {
     }
 }
 
-interrupt_t H8300H_SCI::getInterrupt()
+interrupt_t ADM3202::getInterrupt()
 {
     if (this->hasTxiInterruption) {
-        return H8300H_SCI::TXI_TABLE[this->index];
+        return ADM3202::TXI_TABLE[this->index];
     } else if (this->hasRxiInterruption) {
-        return H8300H_SCI::RXI_TABLE[this->index];
+        return ADM3202::RXI_TABLE[this->index];
     } else {
         return interrupt_t::NONE;
     }
 }
 
-void H8300H_SCI::clearInterrupt(interrupt_t type)
+void ADM3202::clearInterrupt(interrupt_t type)
 {
-    if (type == H8300H_SCI::TXI_TABLE[this->index]) {
+    if (type == ADM3202::TXI_TABLE[this->index]) {
         if (this->hasTxiInterruption) {
             this->hasTxiInterruption = false;
         } else {
             fprintf(stderr, "Error: SCI(%d) does not generate TXI%d\n", this->index, this->index);
         }
-    } else if (type == H8300H_SCI::RXI_TABLE[this->index]) {
+    } else if (type == ADM3202::RXI_TABLE[this->index]) {
         if (this->hasRxiInterruption) {
             this->hasRxiInterruption = false;
         } else {
@@ -228,18 +228,18 @@ void H8300H_SCI::clearInterrupt(interrupt_t type)
     }
 }
 
-void H8300H_SCI::dump(FILE* fp)
+void ADM3202::dump(FILE* fp)
 {
     sci_registers.dump(fp);
 }
 
 // H8 上で動くアプリからはこちらの API で SCI にアクセスされる
-uint8_t H8300H_SCI::read(uint32_t address)
+uint8_t ADM3202::read(uint32_t address)
 {
     return sci_registers.read(address);
 }
 
-void H8300H_SCI::write(uint32_t address, uint8_t value)
+void ADM3202::write(uint32_t address, uint8_t value)
 {
     sci_registers.write(address, value);
 }

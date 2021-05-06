@@ -4,7 +4,7 @@
 
 #include "cpu/h8300h_cpu.h"
 #include "dram/h8300h_dram.h"
-#include "sci/h8300h_sci.h"
+#include "sci/adm3202.h"
 #include "timer/h8300h_timer8.h"
 #include "net/rtl8019as.h"
 #include "interrupt/general_interrupt_controller.h"
@@ -27,9 +27,9 @@ int main (int argc, char* argv[])
     H8300H_DRAM dram;
     // todo: H8300H の固有のもの、H8300H クラス内で用意するのであれば配列にする必要もない
     ISCI *sci[3] = {
-        new H8300H_SCI(0, interrupt_cv),
-        new H8300H_SCI(1, interrupt_cv, false),
-        new H8300H_SCI(2, interrupt_cv)
+        new ADM3202(0, interrupt_cv),
+        new ADM3202(1, interrupt_cv, false),
+        new ADM3202(2, interrupt_cv)
     };
     H8300H_Timer8 timer8(interrupt_cv);
     IOPort ioport;
