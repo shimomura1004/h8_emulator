@@ -1,4 +1,4 @@
-#include "mcu.h"
+#include "h8300h_mcu.h"
 #include "elf_loader.h"
 
 // todo: ヘルパ関数としてどこかに定義
@@ -17,7 +17,7 @@
 #endif
 #endif
 
-MCU::MCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport, INIC& nic)
+H8300H_MCU::H8300H_MCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport, INIC& nic)
     : dram(dram)
     , sci(sci)
     , timer8(timer8)
@@ -25,7 +25,7 @@ MCU::MCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport, INIC& nic)
     , nic(nic)
 {}
 
-void MCU::init()
+void H8300H_MCU::init()
 {
     for (int i = 0; i < 3; i++) {
         this->sci[i]->run();
@@ -34,7 +34,7 @@ void MCU::init()
     this->nic.run();
 }
 
-uint8_t MCU::read8(uint32_t address)
+uint8_t H8300H_MCU::read8(uint32_t address)
 {
     if (vec_start <= address && address <= rom_end) {
         // ROM は更新されないのでロック不要
@@ -68,7 +68,7 @@ uint8_t MCU::read8(uint32_t address)
     }
 }
 
-uint16_t MCU::read16(uint32_t address)
+uint16_t H8300H_MCU::read16(uint32_t address)
 {
     if (vec_start <= address && address <= rom_end) {
         return bswap16_if_little_endian(*(uint16_t*)&rom[address]);
@@ -87,7 +87,7 @@ uint16_t MCU::read16(uint32_t address)
     }
 }
 
-uint32_t MCU::read32(uint32_t address)
+uint32_t H8300H_MCU::read32(uint32_t address)
 {
     if (vec_start <= address && address <= rom_end) {
         return bswap32_if_little_endian(*(uint32_t*)&rom[address]);
@@ -102,7 +102,7 @@ uint32_t MCU::read32(uint32_t address)
     }
 }
 
-void MCU::write8(uint32_t address, uint8_t value)
+void H8300H_MCU::write8(uint32_t address, uint8_t value)
 {
     if (ram_start <= address && address <= ram_end) {
         std::lock_guard<std::mutex> lock(mutex);
@@ -131,7 +131,7 @@ void MCU::write8(uint32_t address, uint8_t value)
     }
 }
 
-void MCU::write16(uint32_t address, uint16_t value)
+void H8300H_MCU::write16(uint32_t address, uint16_t value)
 {
     if (ram_start <= address && address <= ram_end) {
         *(uint16_t*)&ram[address - ram_start] = bswap16_if_little_endian(value);
@@ -146,7 +146,7 @@ void MCU::write16(uint32_t address, uint16_t value)
     }
 }
 
-void MCU::write32(uint32_t address, uint32_t value)
+void H8300H_MCU::write32(uint32_t address, uint32_t value)
 {
     if (ram_start <= address && address <= ram_end) {
         *(uint32_t*)&ram[address - ram_start] = bswap32_if_little_endian(value);
@@ -157,17 +157,17 @@ void MCU::write32(uint32_t address, uint32_t value)
     }
 }
 
-uint32_t MCU::load_elf(std::string filepath)
+uint32_t H8300H_MCU::load_elf(std::string filepath)
 {
     return ElfLoader::load(rom, filepath);
 }
 
-uint32_t MCU::get_vector(uint8_t index)
+uint32_t H8300H_MCU::get_vector(uint8_t index)
 {
     return read32(index * 4);
 }
 
-void MCU::dump(std::string filepath)
+void H8300H_MCU::dump(std::string filepath)
 {
     std::lock_guard<std::mutex> lock(mutex);
 

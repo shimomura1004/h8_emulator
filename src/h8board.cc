@@ -126,7 +126,7 @@ void H8Board::restore_pc_and_ccr_from_stack()
     this->cpu.pc() = ccr_pc & 0x00ffffff;
 }
 
-H8Board::H8Board(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller)
+H8Board::H8Board(ICPU& cpu, IMCU& mcu, IInterruptController& interrupt_controller)
     : cpu(cpu)
     , mcu(mcu)
     , interrupt_controller(interrupt_controller)

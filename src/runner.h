@@ -1,7 +1,9 @@
 #ifndef _RUNNER_INCLUDED_
 #define _RUNNER_INCLUDED_
 
+#include <cstdint>
 #include <string>
+#include <vector>
 #include <set>
 #include "h8board.h"
 

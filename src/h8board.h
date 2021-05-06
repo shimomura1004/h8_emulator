@@ -16,7 +16,7 @@
 class H8Board {
 public:
     ICPU& cpu;
-    MCU& mcu;
+    IMCU& mcu;
     IInterruptController& interrupt_controller;
 
     std::mutex mutex;
@@ -41,7 +41,7 @@ public:
     void restore_pc_and_ccr_from_stack();
 
 public:
-    H8Board(ICPU& cpu, MCU& mcu, IInterruptController& interrupt_controller);
+    H8Board(ICPU& cpu, IMCU& mcu, IInterruptController& interrupt_controller);
 
     void init();
     uint32_t load_elf(std::string filepath);

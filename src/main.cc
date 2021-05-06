@@ -8,7 +8,7 @@
 #include "timer/h8300h_timer8.h"
 #include "net/rtl8019as.h"
 #include "interrupt/general_interrupt_controller.h"
-#include "mcu.h"
+#include "h8300h_mcu.h"
 
 int main (int argc, char* argv[])
 {
@@ -32,7 +32,7 @@ int main (int argc, char* argv[])
     IOPort ioport;
     RTL8019AS rtl8019as(interrupt_cv);
     GeneralInterruptController interrupt_controller(sci, &timer8, &rtl8019as);
-    MCU mcu(dram, sci, timer8, ioport, rtl8019as);
+    H8300H_MCU mcu(dram, sci, timer8, ioport, rtl8019as);
     H8Board h8(cpu, mcu, interrupt_controller);
     h8.init();
 
