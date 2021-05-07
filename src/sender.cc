@@ -30,7 +30,7 @@ void handle_send_command(int h8_serial_sock, char* buf)
 {
     // ロードする OS は 8KB 以下を想定、それ以上のものを読むとスタックを壊す
 
-    for (int i=0; i < strlen(buf); i++) {
+    for (unsigned int i=0; i < strlen(buf); i++) {
         if (buf[i] == '\n') {
             buf[i] = '\0';
         }

@@ -27,6 +27,7 @@ add_executable(h8emu
 
 target_link_libraries(
     h8emu
+    debugger
     cpu
     sci
     operation_map
@@ -37,7 +38,6 @@ target_link_libraries(
     bus
     interrupt
     net
-    debugger
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
