@@ -6,16 +6,18 @@
 #include <vector>
 #include <set>
 #include "h8board.h"
+#include "debugger_parser.h"
 
 class Debugger {
     H8Board& h8;
     std::set<uint32_t> breakpoints;
     std::vector<uint32_t> call_stack;
+    DebuggerParser debugger_parser;
 
     bool load_file_to_memory(uint32_t address, char *filename);
 
     void print_help_command();
-    void set_breakpoint_command(char *buf);
+    void set_breakpoint_command(uint32_t address);
     void write_value_command(char *buf);
 
 public:

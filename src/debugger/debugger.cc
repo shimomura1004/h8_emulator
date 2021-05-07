@@ -67,6 +67,7 @@ bool Debugger::load_file_to_memory(uint32_t address, char *filename)
     return true;
 }
 
+// todo: parser へ移動
 void Debugger::print_help_command()
 {
     fprintf(stderr, "  help: print help\n");
@@ -82,16 +83,10 @@ void Debugger::print_help_command()
     fprintf(stderr, "  quit: quit\n");
 }
 
-void Debugger::set_breakpoint_command(char *buf)
+void Debugger::set_breakpoint_command(uint32_t address)
 {
-    uint32_t address = 0;
-    int ret = sscanf(buf + 1, "%x\n", &address);
-    if (ret == 1) {
-        fprintf(stderr, "Set breakpoint at 0x%08x\n", address);
-        breakpoints.insert(address);
-    } else {
-        fprintf(stderr, "Syntax error\n");
-    }
+    printf("Set breakpoint at 0x%08x\n", address);
+    breakpoints.insert(address);
 }
 
 void Debugger::write_value_command(char *buf)
@@ -122,29 +117,6 @@ void Debugger::write_value_command(char *buf)
         fprintf(stderr, "Syntax error.\n");
     }
 }
-
-// todo: 先頭の文字がぶつかると意図しないコマンドが実行されてしまう
-// todo: 別ファイルへ
-#define MATCH(buf, command) (strncmp(buf, command, sizeof(command) - 1) == 0)
-#define HELP1       "h"
-#define HELP2       "help"
-#define REG1        "r"
-#define REG2        "reg"
-#define DUMP        "dump"
-#define STEP1       "s"
-#define STEP2       "step"
-#define CONTINUE1   "c"
-#define CONTINUE2   "continue"
-#define BREAK1      "b "
-#define BREAK2      "break"
-#define LOOKUP      "lookup"
-#define STEP_OUT    "so"
-#define PRINT_PC_MODE   "printpc"
-#define WRITE_REG   "writereg"
-#define CALL_STACK  "bt"
-#define QUIT1       "q"
-#define QUIT2       "quit"
-#define PRINT       "p"
 
 // todo: メモリの内容を一部確認するコマンドがほしい
 // todo: レジスタを書き換えるコマンドがほしい
@@ -191,7 +163,25 @@ int Debugger::proccess_debugger_command()
             exit(1);
         }
 
-        if (buf[0] == '\0') {
+        if (!this->debugger_parser.parse(buf)) {
+            fprintf(stderr, "Unknown debugger command: %s\n", buf);
+            continue;
+        }
+
+        switch (this->debugger_parser.get_command()) {
+        case DebuggerParser::Command::HELP: {
+            print_help_command();
+            break;
+        }
+        case DebuggerParser::Command::QUIT: {
+            // デバッガ側から終了させる場合、フラグを立てて sem_wait しているスレッドを終了させる
+            runner_mode = EXITING_MODE;
+            if (sem_post(sem) == -1) {
+                fprintf(stderr, "Error: sem_post() failed.\n");
+            }
+            return -1;
+        }
+        case DebuggerParser::Command::STEP: {
             // ステップ実行して sleep が実行されると Runner に処理が戻らなくなる
             // その状態で Ctrl-c されると即座に終了してしまうため
             // continue モードにすることでデバッガに戻れるようにする
@@ -200,43 +190,42 @@ int Debugger::proccess_debugger_command()
                 runner_mode = CONTINUE_MODE;
             }
             return 0;
-        } else if (MATCH(buf, HELP1) || MATCH(buf, HELP2)) {
-            print_help_command();
-        } else if (MATCH(buf, REG1) || MATCH(buf, REG2)) {
-            h8.print_registers();
-        } else if (MATCH(buf, DUMP)) {
-            h8.mcu.dump("core");
-            fprintf(stderr, "Memory dumped to 'core' file\n");
-        } else if (MATCH(buf, STEP1) || MATCH(buf, STEP2)) {
-            instruction_handler_t handler = operation_map::lookup(&h8);
-            if (handler == h8instructions::sleep::sleep) {
-                runner_mode = CONTINUE_MODE;
-            }
-            return 0;
-        } else if (MATCH(buf, CONTINUE1) || MATCH(buf, CONTINUE2)) {
+        }
+        case DebuggerParser::Command::CONTINUE: {
             runner_mode = CONTINUE_MODE;
             return 0;
-        } else if (MATCH(buf, BREAK1) || MATCH(buf, BREAK2)) {
-            set_breakpoint_command(buf);
-        } else if (MATCH(buf, LOOKUP)) {
-            instruction_handler_t handler = operation_map::lookup(&h8);
-            fprintf(stderr, "%s\n", lookup_instruction_name(handler));
-        } else if (MATCH(buf, STEP_OUT)) {
+        }
+        case DebuggerParser::Command::STEP_OUT: {
+            // todo: 動かない
             runner_mode = CONTINUE_MODE;
             step_out_mode = true;
-        } else if (MATCH(buf, PRINT_PC_MODE)) {
-            print_pc_mode = !print_pc_mode;
-            fprintf(stderr, "Print PC mode: %s\n", print_pc_mode ? "on" : "off");
-        } else if (MATCH(buf, WRITE_REG)) {
-            write_value_command(buf);
-        } else if (MATCH(buf, CALL_STACK)) {
-            for (int i = call_stack.size() - 1; i >= 0; --i) {
-                printf("%02d 0x%06x\n", i, call_stack[i]);
-            }
-        } else if (MATCH(buf, PRINT)) {
+            return 0;
+        }
+        case DebuggerParser::Command::BREAK_AT_ADDRESS: {
+            uint32_t address = this->debugger_parser.get_address();
+            set_breakpoint_command(address);
+            break;
+        }
+        case DebuggerParser::Command::PRINT_REGISTERS: {
+            h8.print_registers();
+            break;
+        }
+        case DebuggerParser::Command::DUMP_MEMORY: {
+            // todo: ファイル名を可変にする
+            h8.mcu.dump("core");
+            fprintf(stderr, "Memory dumped to 'core' file\n");
+            break;
+        }
+        case DebuggerParser::Command::LOOKUP_INSTRUCTION: {
+            instruction_handler_t handler = operation_map::lookup(&h8);
+            fprintf(stderr, "%s\n", lookup_instruction_name(handler));
+            break;
+        }
+        case DebuggerParser::Command::PRINT_INSTRUCTION: {
             instruction_parser_t parser = operation_map2::lookup(&h8);
 
             if (parser) {
+                // todo: instruction の print 関数を用意する
                 Instruction instruction;
                 parser(&h8, &instruction);
                 
@@ -251,15 +240,26 @@ int Debugger::proccess_debugger_command()
             } else {
                 fprintf(stderr, "Error: unknown instruction\n");
             }
-        } else if (MATCH(buf, QUIT1) || MATCH(buf, QUIT2)) {
-            // デバッガ側から終了させる場合、フラグを立てて sem_wait しているスレッドを終了させる
-            runner_mode = EXITING_MODE;
-            if (sem_post(sem) == -1) {
-                fprintf(stderr, "Error: sem_post() failed.\n");
+            break;
+        }
+        case DebuggerParser::Command::PRINT_CALL_STACK: {
+            for (int i = call_stack.size() - 1; i >= 0; --i) {
+                printf("%02d 0x%06x\n", i, call_stack[i]);
             }
-            return -1;
-        } else {
-            fprintf(stderr, "Unknown debugger command: %s\n", buf);
+            break;
+        }
+        case DebuggerParser::Command::WRITE_TO_REGISTER: {
+            // todo: 実装する
+            write_value_command(buf);
+            break;
+        }
+        case DebuggerParser::Command::TOGGLE_PRINT_PC: {
+            print_pc_mode = !print_pc_mode;
+            fprintf(stderr, "Print PC mode: %s\n", print_pc_mode ? "on" : "off");
+            break;
+        }
+        default:
+            break;
         }
     }
 }
