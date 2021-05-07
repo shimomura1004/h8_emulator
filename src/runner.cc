@@ -8,11 +8,6 @@
 #include "operation_map/operation_map.h"
 #include "instructions/instruction_table.h"
 
-#include "instructions/cmp.h"
-
-// todo: ステップ実行して sleep に入ったら、モードを切り替える
-// デバッグモード中の判定となり、再度 Ctrl-C を押すと終了してしまうため
-
 // continue モード中は、Ctrl-c (mac は Ctrl-t) で連続実行を停止する
 #define EXITING_MODE  (-1)  // 終了準備中状態
 #define NORMAL_MODE   0     // 通常の実行状態
@@ -160,6 +155,7 @@ void Runner::write_value_command(char *buf)
 #include "instructions/jsr.h"
 #include "instructions/rts.h"
 #include "instructions/rte.h"
+#include "instructions/sleep.h"
 static bool step_out_mode = false;
 static bool print_pc_mode = false;
 int Runner::proccess_debugger_command()
@@ -197,6 +193,13 @@ int Runner::proccess_debugger_command()
         }
 
         if (buf[0] == '\0') {
+            // ステップ実行して sleep が実行されると Runner に処理が戻らなくなる
+            // その状態で Ctrl-c されると即座に終了してしまうため
+            // continue モードにすることでデバッガに戻れるようにする
+            instruction_handler_t handler = operation_map::lookup(&h8);
+            if (handler == h8instructions::sleep::sleep) {
+                runner_mode = CONTINUE_MODE;
+            }
             return 0;
         } else if (MATCH(buf, HELP1) || MATCH(buf, HELP2)) {
             print_help_command();
@@ -206,6 +209,10 @@ int Runner::proccess_debugger_command()
             h8.mcu.dump("core");
             fprintf(stderr, "Memory dumped to 'core' file\n");
         } else if (MATCH(buf, STEP1) || MATCH(buf, STEP2)) {
+            instruction_handler_t handler = operation_map::lookup(&h8);
+            if (handler == h8instructions::sleep::sleep) {
+                runner_mode = CONTINUE_MODE;
+            }
             return 0;
         } else if (MATCH(buf, CONTINUE1) || MATCH(buf, CONTINUE2)) {
             runner_mode = CONTINUE_MODE;
@@ -263,10 +270,12 @@ void Runner::run(bool debug)
     sem = sem_open("h8emu_sem", O_CREAT, "0600", 1);
 
     pthread_t self_thread = pthread_self();
+    // スリープ中の CPU を起こしにいくスレッド
     std::thread* sem_thread = new std::thread([&]{
-        // シグナルハンドラで停止するとき、 sem_post で通常のコンテキストに処理が戻ってくる
+        // シグナルハンドラで停止するとき sem_post で通常のコンテキストに処理が戻ってくる
         while (runner_mode != EXITING_MODE) {
             sem_wait(sem);
+            // CPU がスリープ中でなければ単に無視される
             this->h8.wake_for_debugger();
         }
         // 通常のコンテキストで必要な処理を行ったあと
