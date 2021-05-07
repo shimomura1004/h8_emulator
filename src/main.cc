@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "h8board.h"
-#include "runner.h"
+#include "debugger/debugger.h"
 
 #include "cpu/h83069f.h"
 #include "dram/generic_dram.h"
@@ -52,7 +52,7 @@ int main (int argc, char* argv[])
 
     printf("Start execution from 0x%x\n", start_addr);
 
-    Runner runner(h8);
+    Debugger runner(h8);
     runner.run(argc > 2);
 
     return 0;

@@ -1,8 +1,7 @@
-#include "runner.h"
+#include "debugger.h"
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 #include <thread>
 #include <semaphore.h>
 #include "operation_map/operation_map.h"
@@ -52,7 +51,7 @@ static void sig_handler(int signo)
     }
 }
 
-bool Runner::load_file_to_memory(uint32_t address, char *filename)
+bool Debugger::load_file_to_memory(uint32_t address, char *filename)
 {
     FILE* fp = fopen(filename, "rb");
     if (!fp) {
@@ -68,7 +67,7 @@ bool Runner::load_file_to_memory(uint32_t address, char *filename)
     return true;
 }
 
-void Runner::print_help_command()
+void Debugger::print_help_command()
 {
     fprintf(stderr, "  help: print help\n");
     fprintf(stderr, "  r: print register status\n");
@@ -83,7 +82,7 @@ void Runner::print_help_command()
     fprintf(stderr, "  quit: quit\n");
 }
 
-void Runner::set_breakpoint_command(char *buf)
+void Debugger::set_breakpoint_command(char *buf)
 {
     uint32_t address = 0;
     int ret = sscanf(buf + 1, "%x\n", &address);
@@ -95,7 +94,7 @@ void Runner::set_breakpoint_command(char *buf)
     }
 }
 
-void Runner::write_value_command(char *buf)
+void Debugger::write_value_command(char *buf)
 {
     uint32_t address = 0;
     uint32_t length = 0;
@@ -158,7 +157,7 @@ void Runner::write_value_command(char *buf)
 #include "instructions/sleep.h"
 static bool step_out_mode = false;
 static bool print_pc_mode = false;
-int Runner::proccess_debugger_command()
+int Debugger::proccess_debugger_command()
 {
     if (runner_mode == CONTINUE_MODE) {
         if (breakpoints.find(h8.cpu.pc()) == breakpoints.end()) {
@@ -265,7 +264,7 @@ int Runner::proccess_debugger_command()
     }
 }
 
-void Runner::run(bool debug)
+void Debugger::run(bool debug)
 {
     sem = sem_open("h8emu_sem", O_CREAT, "0600", 1);
 
@@ -297,26 +296,27 @@ void Runner::run(bool debug)
     int result = 0;
 
     while (1) {
-        bool interrupted = h8.handle_interrupt();
+        // bool interrupted = h8.handle_interrupt();
+        h8.handle_interrupt();
 
         if (runner_mode == DEBUG_MODE || runner_mode == CONTINUE_MODE) {
-            // 割込みが発生したら PC を保存
-            if (interrupted) {
-                // call_stack.push_back(h8.pc);
-            }
+            // // 割込みが発生したら PC を保存
+            // if (interrupted) {
+            //     call_stack.push_back(h8.cpu.pc());
+            // }
 
             int r = proccess_debugger_command();
             if (r != 0) {
                 break;
             }
 
-            // todo: instruction のパース結果を使ってもう少し情報を出力したい
+            // // todo: instruction のパース結果を使ってもう少し情報を出力したい
             // instruction_handler_t handler = operation_map::lookup(&h8);
             // if ((handler == h8instructions::jsr::jsr_absolute_address) ||
             //     (handler == h8instructions::jsr::jsr_register_indirect))
             // {
             //     // 関数呼び出し時には今の PC を記録しておく
-            //     call_stack.push_back(h8.pc);
+            //     call_stack.push_back(h8.cpu.pc());
             // }
 
             // if ((handler == h8instructions::rts::rts) ||
@@ -324,7 +324,6 @@ void Runner::run(bool debug)
             // {
             //     // 関数・割込みからの復帰時はスタックから取り出し
             //     if (!call_stack.empty()) {
-            //         printf("POPED 0x%x\n", call_stack.back());
             //         call_stack.pop_back();
             //     } else {
             //         fprintf(stderr, "Warning: return when call stack is empty.\n");

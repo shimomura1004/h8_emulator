@@ -7,7 +7,7 @@
 #include <set>
 #include "h8board.h"
 
-class Runner {
+class Debugger {
     H8Board& h8;
     std::set<uint32_t> breakpoints;
     std::vector<uint32_t> call_stack;
@@ -19,7 +19,7 @@ class Runner {
     void write_value_command(char *buf);
 
 public:
-    Runner(H8Board& h8) : h8(h8) {}
+    Debugger(H8Board& h8) : h8(h8) {}
 
     int proccess_debugger_command();
     void run(bool debug = false);
