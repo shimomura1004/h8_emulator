@@ -35,14 +35,17 @@ static void sig_handler(int signo)
 #endif
     case SIGINT:
         if (!debug_mode) {
+            // デバッグモードでなければすぐに終了
             exit(1);
         } else if (continue_mode) {
+            // デバッグモードで、一時的に連続実行している場合は止める
             continue_mode = false;
             if (sem_post(sem) == -1) {
                 write(2, "sem_post() failed\n", 18);
                 _exit(EXIT_FAILURE);
             }
-        } else if (!continue_mode) {
+        } else {
+            // デバッグモード中で、停止中にさらに Ctrl-C されたら終了
             exit(1);
         }
         break;
@@ -183,7 +186,8 @@ int Runner::proccess_debugger_command()
 
         int i = 0;
         while (1) {
-            // 標準入力はノンブロッキングで動作するため getchar はすぐに戻る
+            // todo: ブロッキングで動作している
+            // 意味がないので ::read などを使うほうがいい
             int c = getchar();
 
             // EOF がきたら、単にデータがないということ
@@ -261,6 +265,8 @@ int Runner::proccess_debugger_command()
             
             continue;
         } else if (MATCH(buf, QUIT1) || MATCH(buf, QUIT2)) {
+            // bug: こちらのスレッドだけ終了しても sem_wait してるスレッドが止まらない
+            this->h8.wake_for_debugger();
             return -1;
         } else {
             fprintf(stderr, "Unknown debugger command: %s\n", buf);
@@ -274,7 +280,7 @@ int Runner::proccess_debugger_command()
 void Runner::run(bool debug)
 {
     sem = sem_open("h8emu_sem", O_CREAT, "0600", 1);
-    new std::thread([this]{
+    std::thread* sem_thread = new std::thread([this]{
         while (1) {
             sem_wait(sem);
             this->h8.wake_for_debugger();
@@ -342,8 +348,11 @@ void Runner::run(bool debug)
         }
     }
 
-    h8.terminate = true;
-
-    // sem_destroy(&sem);
     sem_close(sem);
+
+    if (sem_thread->joinable()) {
+        sem_thread->join();
+    }
+
+    delete sem_thread;
 }

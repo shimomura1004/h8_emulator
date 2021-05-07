@@ -8,11 +8,8 @@
 #include "interrupt/interrupt_controller.h"
 
 // todo: 今ボードが持っている役割は CPU に移すべき
-// CPU が MCU 経由でデバイスを操作すればいい…？
-// ボードというのは、CPU と各デバイスをひとつにまとめたもの
+// CPU が MCU 経由でデバイスを操作すればいい
 
-// todo: H8300H は CPU の名前、ボードの名前に変える
-// H8/3069Fネット対応マイコンLANボード (K-01271)
 class H8Board {
 public:
     ICPU& cpu;
@@ -20,8 +17,6 @@ public:
     IInterruptController& interrupt_controller;
 
     std::mutex mutex;
-    // todo: terminate は不要？
-    bool terminate;
     bool is_sleep;
     // スリープ状態から復帰するため、各ペリフェラルに渡して割込み発生時に通知してもらう
     std::condition_variable& interrupt_cv;
