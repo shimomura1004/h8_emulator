@@ -1,6 +1,7 @@
 #include "runner.h"
 #include <signal.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <string.h>
 #include <thread>
 #include <semaphore.h>
@@ -8,6 +9,9 @@
 #include "instructions/instruction_table.h"
 
 #include "instructions/cmp.h"
+
+// todo: ステップ実行して sleep に入ったら、モードを切り替える
+// デバッグモード中の判定となり、再度 Ctrl-C を押すと終了してしまうため
 
 // Ctrl-c or Ctrl-t でデバッグモードに入る
 static volatile sig_atomic_t debug_mode = 0;
@@ -22,7 +26,6 @@ static void sig_handler(int signo)
             break;
         } else if (continue_mode) {
             continue_mode = false;
-            // tmp->wake_for_debugger();
             if (sem_post(sem) == -1) {
                 write(2, "sem_post() failed\n", 18);
                 _exit(EXIT_FAILURE);
@@ -35,7 +38,6 @@ static void sig_handler(int signo)
             exit(1);
         } else if (continue_mode) {
             continue_mode = false;
-            // tmp->wake_for_debugger();
             if (sem_post(sem) == -1) {
                 write(2, "sem_post() failed\n", 18);
                 _exit(EXIT_FAILURE);
@@ -271,8 +273,7 @@ int Runner::proccess_debugger_command()
 
 void Runner::run(bool debug)
 {
-    // sem_init(&sem, 0, 0);
-    sem = sem_open("/tmp/h8emu_sem", O_CREAT, "0600", 1);
+    sem = sem_open("h8emu_sem", O_CREAT, "0600", 1);
     new std::thread([this]{
         while (1) {
             sem_wait(sem);
