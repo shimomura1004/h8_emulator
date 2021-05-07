@@ -22,14 +22,9 @@ int H8Board::execute_next_instruction()
             static std::set<instruction_parser_t> tmp;
             if (tmp.find(parser) == tmp.end()) {
                 tmp.insert(parser);
-                
-                char name[8];
-                char op1[32];
-                char op2[32];
-                instruction.stringify_name(name);
-                instruction.op1.stringify(op1);
-                instruction.op2.stringify(op2);
-                printf("[0x%06x] %s %s,%s\n", this->cpu.pc(), name, op1, op2);
+
+                printf("[0x%06x] ", this->cpu.pc());
+                instruction.print();
             }
         }
 

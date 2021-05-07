@@ -28,6 +28,8 @@ public:
     int run(H8Board* h8);
     void stringify_name(char *buf);
 
+    void print();
+
 };
 
 #endif

@@ -225,18 +225,9 @@ int Debugger::proccess_debugger_command()
             instruction_parser_t parser = operation_map2::lookup(&h8);
 
             if (parser) {
-                // todo: instruction の print 関数を用意する
                 Instruction instruction;
                 parser(&h8, &instruction);
-                
-                char name[8];
-                char op1[32];
-                char op2[32];
-                instruction.stringify_name(name);
-                instruction.op1.stringify(op1);
-                instruction.op2.stringify(op2);
-
-                printf("%s %s,%s\n", name, op1, op2);
+                instruction.print();
             } else {
                 fprintf(stderr, "Error: unknown instruction\n");
             }
