@@ -13,7 +13,7 @@
 // todo: ステップ実行して sleep に入ったら、モードを切り替える
 // デバッグモード中の判定となり、再度 Ctrl-C を押すと終了してしまうため
 
-// continue モード中は、Ctrl-c or Ctrl-t で連続実行を停止する
+// continue モード中は、Ctrl-c (mac は Ctrl-t) で連続実行を停止する
 #define EXITING_MODE  (-1)  // 終了準備中状態
 #define NORMAL_MODE   0     // 通常の実行状態
 #define DEBUG_MODE    1     // デバッガによりコールスタックなどが監視されている状態
@@ -26,28 +26,19 @@ static void sig_handler(int signo)
     switch (signo) {
 #ifdef __APPLE__
     case SIGINFO:
-        switch (runner_mode) {
-        case NORMAL_MODE:
-        case DEBUG_MODE:
-            break;
-        case CONTINUE_MODE:
-            runner_mode = DEBUG_MODE;
-            if (sem_post(sem) == -1) {
-                write(2, "sem_post() failed\n", 18);
-                _exit(EXIT_FAILURE);
-            }
-            break;
-        default:
-            break;
-        }
-        break;
-#endif
+#else
     case SIGINT:
+#endif
         switch (runner_mode) {
         case NORMAL_MODE: // デバッグモードでなければすぐに終了
         case DEBUG_MODE:  // デバッグモード中にさらに Ctrl-C されたら終了
-            // todo: exit は必要か？
-            exit(1);
+            // todo: sigwait を使うほうが素直かも
+            // すぐに終了させず、一旦 sem_post で通常のコンテキストに処理を戻す
+            // その後、sem_wait しているスレッドから再度 SIGINT がくる
+            runner_mode = EXITING_MODE;
+            if (sem_post(sem) == -1) {
+                write(2, "sem_post() failed\n", 18);
+            }
             break;
         case CONTINUE_MODE:
             // デバッグモードで、一時的に連続実行している場合は止める
@@ -57,6 +48,8 @@ static void sig_handler(int signo)
                 _exit(EXIT_FAILURE);
             }
             break;
+        case EXITING_MODE:
+            exit(1);
         default:
             break;
         }
@@ -196,38 +189,22 @@ int Runner::proccess_debugger_command()
         fprintf(stderr, "(h for help) > ");
         fflush(stdout);
 
-        int i = 0;
-        while (1) {
-            // todo: ブロッキングで動作している
-            // 意味がないので ::read などを使うほうがいい
-            int c = getchar();
-
-            // EOF がきたら、単にデータがないということ
-            if (c == EOF) {
-                continue;
-            }
-
-            buf[i++] = c;
-
-            // 改行コードがきたらコマンドを処理する
-            if (c == '\n') {
-                buf[i - 1] = '\0';
-                break;
-            }
+        // 改行コードは残さない
+        ssize_t size = ::read(0, buf, 255);
+        buf[size - 1] = '\0';
+        if (size == -1) {
+            exit(1);
         }
 
         if (buf[0] == '\0') {
             return 0;
         } else if (MATCH(buf, HELP1) || MATCH(buf, HELP2)) {
             print_help_command();
-            continue;
         } else if (MATCH(buf, REG1) || MATCH(buf, REG2)) {
             h8.print_registers();
-            continue;
         } else if (MATCH(buf, DUMP)) {
             h8.mcu.dump("core");
             fprintf(stderr, "Memory dumped to 'core' file\n");
-            continue;
         } else if (MATCH(buf, STEP1) || MATCH(buf, STEP2)) {
             return 0;
         } else if (MATCH(buf, CONTINUE1) || MATCH(buf, CONTINUE2)) {
@@ -235,27 +212,21 @@ int Runner::proccess_debugger_command()
             return 0;
         } else if (MATCH(buf, BREAK1) || MATCH(buf, BREAK2)) {
             set_breakpoint_command(buf);
-            continue;
         } else if (MATCH(buf, LOOKUP)) {
             instruction_handler_t handler = operation_map::lookup(&h8);
             fprintf(stderr, "%s\n", lookup_instruction_name(handler));
-            continue;
         } else if (MATCH(buf, STEP_OUT)) {
             runner_mode = CONTINUE_MODE;
             step_out_mode = true;
-            continue;
         } else if (MATCH(buf, PRINT_PC_MODE)) {
             print_pc_mode = !print_pc_mode;
             fprintf(stderr, "Print PC mode: %s\n", print_pc_mode ? "on" : "off");
-            continue;
         } else if (MATCH(buf, WRITE_REG)) {
             write_value_command(buf);
-            continue;
         } else if (MATCH(buf, CALL_STACK)) {
             for (int i = call_stack.size() - 1; i >= 0; --i) {
                 printf("%02d 0x%06x\n", i, call_stack[i]);
             }
-            continue;
         } else if (MATCH(buf, PRINT)) {
             instruction_parser_t parser = operation_map2::lookup(&h8);
 
@@ -274,8 +245,6 @@ int Runner::proccess_debugger_command()
             } else {
                 fprintf(stderr, "Error: unknown instruction\n");
             }
-            
-            continue;
         } else if (MATCH(buf, QUIT1) || MATCH(buf, QUIT2)) {
             // デバッガ側から終了させる場合、フラグを立てて sem_wait しているスレッドを終了させる
             runner_mode = EXITING_MODE;
@@ -285,27 +254,35 @@ int Runner::proccess_debugger_command()
             return -1;
         } else {
             fprintf(stderr, "Unknown debugger command: %s\n", buf);
-            continue;
         }
-
-        return 0;
     }
 }
 
 void Runner::run(bool debug)
 {
     sem = sem_open("h8emu_sem", O_CREAT, "0600", 1);
-    std::thread* sem_thread = new std::thread([this]{
+
+    pthread_t self_thread = pthread_self();
+    std::thread* sem_thread = new std::thread([&]{
+        // シグナルハンドラで停止するとき、 sem_post で通常のコンテキストに処理が戻ってくる
         while (runner_mode != EXITING_MODE) {
             sem_wait(sem);
             this->h8.wake_for_debugger();
         }
+        // 通常のコンテキストで必要な処理を行ったあと
+        // 再度 SIGINT を送ってシグナルハンドラに処理を戻す(終了させる)
+#ifdef __APPLE__
+        pthread_kill(self_thread, SIGINFO);
+#else
+        pthread_kill(self_thread, SIGINT);
+#endif
     });
 
     runner_mode = debug ? DEBUG_MODE : NORMAL_MODE;
-    signal(SIGINT, sig_handler);
 #ifdef __APPLE__
     signal(SIGINFO, sig_handler);
+#else
+    signal(SIGINT, sig_handler);
 #endif
 
     int result = 0;
@@ -313,33 +290,37 @@ void Runner::run(bool debug)
     while (1) {
         bool interrupted = h8.handle_interrupt();
 
-        // todo: これ、debug モード中以外で push したらダメでは
-        // スタックトレースのために PC を保存
-        if (interrupted) {
-            // call_stack.push_back(h8.pc);
-        }
-
         if (runner_mode == DEBUG_MODE || runner_mode == CONTINUE_MODE) {
+            // 割込みが発生したら PC を保存
+            if (interrupted) {
+                // call_stack.push_back(h8.pc);
+            }
+
             int r = proccess_debugger_command();
             if (r != 0) {
                 break;
             }
 
             // todo: instruction のパース結果を使ってもう少し情報を出力したい
-            // スタックトレースのために PC を保存
-            instruction_handler_t handler = operation_map::lookup(&h8);
-            if ((handler == h8instructions::jsr::jsr_absolute_address) ||
-                (handler == h8instructions::jsr::jsr_register_indirect))
-            {
-                // 関数呼び出し時には今の PC を記録しておく
-                // call_stack.push_back(h8.pc);
-            }
+            // instruction_handler_t handler = operation_map::lookup(&h8);
+            // if ((handler == h8instructions::jsr::jsr_absolute_address) ||
+            //     (handler == h8instructions::jsr::jsr_register_indirect))
+            // {
+            //     // 関数呼び出し時には今の PC を記録しておく
+            //     call_stack.push_back(h8.pc);
+            // }
 
-            if ((handler == h8instructions::rts::rts) ||
-                (handler == h8instructions::rte::rte))
-            {
-                // call_stack.pop_back();
-            }
+            // if ((handler == h8instructions::rts::rts) ||
+            //     (handler == h8instructions::rte::rte))
+            // {
+            //     // 関数・割込みからの復帰時はスタックから取り出し
+            //     if (!call_stack.empty()) {
+            //         printf("POPED 0x%x\n", call_stack.back());
+            //         call_stack.pop_back();
+            //     } else {
+            //         fprintf(stderr, "Warning: return when call stack is empty.\n");
+            //     }
+            // }
         }
 
         if (print_pc_mode) {
