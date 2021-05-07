@@ -1,16 +1,37 @@
 #include "runner.h"
 #include <signal.h>
 #include <string.h>
-#include <thread>
 #include "operation_map/operation_map.h"
 #include "instructions/instruction_table.h"
 
 #include "instructions/cmp.h"
 
-// Runner のモード
-//   debug モードはデバッガによりコールスタックなどが監視されている状態
-//   continue モードは debug モードのサブモードで、ステップ実行せず連続で命令実行する
-// continue モード中は、Ctrl-c or Ctrl-t で連続実行を停止する
+// Ctrl-c or Ctrl-t でデバッグモードに入る
+static volatile sig_atomic_t debug_mode = 0;
+static volatile sig_atomic_t continue_mode = 0;
+static void sig_handler(int signo)
+{
+    switch (signo) {
+#ifdef __APPLE__
+    case SIGINFO:
+        if (!debug_mode) {
+            break;
+        } else if (continue_mode) {
+            continue_mode = false;
+        }
+        break;
+#endif
+    case SIGINT:
+        if (!debug_mode) {
+            exit(1);
+        } else if (continue_mode) {
+            continue_mode = false;
+        } else if (!continue_mode) {
+            exit(1);
+        }
+        break;
+    }
+}
 
 bool Runner::load_file_to_memory(uint32_t address, char *filename)
 {
@@ -115,97 +136,23 @@ void Runner::write_value_command(char *buf)
 #include "instructions/jsr.h"
 #include "instructions/rts.h"
 #include "instructions/rte.h"
-
-void Runner::loop()
-{
-    int result = 0;
-
-    while (!terminate) {
-        // bool interrupted = h8.handle_interrupt();
-        h8.handle_interrupt();
-
-        if (this->debug_mode) {
-            // // 割込みが発生したら PC を保存
-            // if (interrupted) {
-            //     printf("PUSHED 0x%x\n", h8.cpu.pc());
-            //     call_stack.push_back(h8.cpu.pc());
-            // }
-
-            int r = proccess_debugger_command();
-            if (r != 0) {
-                // bug: こちらのスレッドだけ終了しても sigwait してるスレッドが止まらない
-                break;
-            }
-
-            // // todo: instruction のパース結果を使ってもう少し情報を出力したい
-            // instruction_handler_t handler = operation_map::lookup(&h8);
-            // if ((handler == h8instructions::jsr::jsr_absolute_address) ||
-            //     (handler == h8instructions::jsr::jsr_register_indirect))
-            // {
-            //     // 関数呼出し時に PC を記録しておく
-            //     printf("PUSHED 0x%x\n", h8.cpu.pc());
-            //     call_stack.push_back(h8.cpu.pc());
-            // }
-
-            // if ((handler == h8instructions::rts::rts) ||
-            //     (handler == h8instructions::rte::rte))
-            // {
-            //     // 関数・割込みからの復帰時はスタックから取り出し
-            //     if (!call_stack.empty()) {
-            //         printf("POPED 0x%x\n", call_stack.back());
-            //         call_stack.pop_back();
-            //     } else {
-            //         fprintf(stderr, "Warning: return when call stack is empty.\n");
-            //     }
-            // }
-        }
-
-        if (this->print_pc_mode) {
-            printf("PC: 0x%08x\n", h8.cpu.pc());
-        }
-
-        // 次の命令を実行
-        result = h8.step();
-
-        if (result != 0) {
-            fprintf(stderr, "Core dumped.\n");
-            h8.mcu.dump("core");
-
-            // クラッシュ時にデバッガに入る
-            int r = proccess_debugger_command();
-            if (r != 0) {
-                break;
-            }
-
-            break;
-        }
-    }
-}
-
-Runner::Runner(H8Board& h8)
-    : h8(h8)
-    , debug_mode(false)
-    , continue_mode(false)
-    , terminate(false)
-    , step_out_mode(false)
-    , print_pc_mode(false)
-{}
-
+static bool step_out_mode = false;
+static bool print_pc_mode = false;
 int Runner::proccess_debugger_command()
 {
-    if (this->continue_mode) {
+    if (continue_mode) {
         if (breakpoints.find(h8.cpu.pc()) == breakpoints.end()) {
             return 0;
         } else {
-            this->continue_mode = false;
+            continue_mode = false;
         }
 
         // // todo: バグがある
-        // if (this->step_out_mode) {
+        // if (step_out_mode) {
         //     instruction_handler_t handler = OperationMap::lookup(&h8);
         //     if (handler == h8instructions::rts::rts)  {
-        //         this->continue_mode = false;
-        //         this->step_out_mode = false;
+        //         continue_mode = false;
+        //         step_out_mode = false;
         //         return 0;
         //     }
         // }
@@ -219,9 +166,8 @@ int Runner::proccess_debugger_command()
         fflush(stdout);
 
         int i = 0;
-        while (!terminate) {
-            // bug: ブロッキングで動作しているため、終了を指示してもすぐに終了しない
-            //      デバッガのコマンド処理中は Ctrl-C で終了できない
+        while (1) {
+            // 標準入力はノンブロッキングで動作するため getchar はすぐに戻る
             int c = getchar();
 
             // EOF がきたら、単にデータがないということ
@@ -236,10 +182,6 @@ int Runner::proccess_debugger_command()
                 buf[i - 1] = '\0';
                 break;
             }
-        }
-
-        if (terminate) {
-            return 0;
         }
 
         if (buf[0] == '\0') {
@@ -257,7 +199,7 @@ int Runner::proccess_debugger_command()
         } else if (MATCH(buf, STEP1) || MATCH(buf, STEP2)) {
             return 0;
         } else if (MATCH(buf, CONTINUE1) || MATCH(buf, CONTINUE2)) {
-            this->continue_mode = true;
+            continue_mode = true;
             return 0;
         } else if (MATCH(buf, BREAK1) || MATCH(buf, BREAK2)) {
             set_breakpoint_command(buf);
@@ -267,12 +209,12 @@ int Runner::proccess_debugger_command()
             fprintf(stderr, "%s\n", lookup_instruction_name(handler));
             continue;
         } else if (MATCH(buf, STEP_OUT)) {
-            this->continue_mode = true;
-            this->step_out_mode = true;
+            continue_mode = true;
+            step_out_mode = true;
             continue;
         } else if (MATCH(buf, PRINT_PC_MODE)) {
-            this->print_pc_mode = !this->print_pc_mode;
-            fprintf(stderr, "Print PC mode: %s\n", this->print_pc_mode ? "on" : "off");
+            print_pc_mode = !print_pc_mode;
+            fprintf(stderr, "Print PC mode: %s\n", print_pc_mode ? "on" : "off");
             continue;
         } else if (MATCH(buf, WRITE_REG)) {
             write_value_command(buf);
@@ -315,64 +257,66 @@ int Runner::proccess_debugger_command()
 
 void Runner::run(bool debug)
 {
-    this->debug_mode = debug;
-
-    // メインの処理を行うスレッドを起動
-    std::thread* loop = new std::thread(&Runner::loop, this);
-
-    // 以降、このスレッドはシグナル処理だけを行う
-    // シグナルハンドラ内では conditonal_variable::notify できないので signal では対応不可
-    int sig;
-    sigset_t block_mask;
-    sigemptyset(&block_mask);
-    sigaddset(&block_mask, SIGINT);
+    debug_mode = debug;
+    signal(SIGINT, sig_handler);
 #ifdef __APPLE__
-    sigaddset(&block_mask, SIGINFO);
+    signal(SIGINFO, sig_handler);
 #endif
-    sigprocmask(SIG_SETMASK, &block_mask, NULL);
 
-    while (!terminate) {
-        if (sigwait(&block_mask, &sig) == 0) {
-            switch (sig) {
-            case SIGINT:
-                if (!this->debug_mode) {
-                    // デバッグモードでなければすぐに終了
-                    terminate = true;
-                    h8.wake_for_debugger();
-                } else if (this->continue_mode) {
-                    // デバッグモードで、一時的に連続実行している場合は止める
-                    this->continue_mode = false;
-                    h8.wake_for_debugger();
-                } else {
-                    // デバッグモード中で、停止中にさらに Ctrl-C されたら終了
-                    terminate = true;
-                    h8.wake_for_debugger();
-                }
-                break;
-#ifdef __APPLE__
-            case SIGINFO:
-                if (!this->debug_mode) {
-                    terminate = true;
-                    h8.wake_for_debugger();
-                } else if (this->continue_mode) {
-                    this->continue_mode = false;
-                    h8.wake_for_debugger();
-                }
-                break;
-#endif
-            default:
-                printf("Unhandled signal (%d)\n", sig);
+    int result = 0;
+
+    while (1) {
+        bool interrupted = h8.handle_interrupt();
+
+        // todo: これ、debug モード中以外で push したらダメでは
+        // スタックトレースのために PC を保存
+        if (interrupted) {
+            // call_stack.push_back(h8.pc);
+        }
+
+        if (debug_mode) {
+            int r = proccess_debugger_command();
+            if (r != 0) {
                 break;
             }
+
+            // todo: instruction のパース結果を使ってもう少し情報を出力したい
+            // スタックトレースのために PC を保存
+            instruction_handler_t handler = operation_map::lookup(&h8);
+            if ((handler == h8instructions::jsr::jsr_absolute_address) ||
+                (handler == h8instructions::jsr::jsr_register_indirect))
+            {
+                // 関数呼び出し時には今の PC を記録しておく
+                // call_stack.push_back(h8.pc);
+            }
+
+            if ((handler == h8instructions::rts::rts) ||
+                (handler == h8instructions::rte::rte))
+            {
+                // call_stack.pop_back();
+            }
+        }
+
+        if (print_pc_mode) {
+            printf("PC: 0x%08x\n", h8.cpu.pc());
+        }
+
+        // 次の命令を実行
+        result = h8.step();
+
+        if (result != 0) {
+            fprintf(stderr, "Core dumped.\n");
+            h8.mcu.dump("core");
+
+            // クラッシュ時にデバッガに入る
+            int r = proccess_debugger_command();
+            if (r != 0) {
+                break;
+            }
+
+            break;
         }
     }
 
-    // 強制終了する
-    exit(1);
-
-    // // スレッドを止めてから終了
-    // if (loop->joinable()) {
-    //     loop->join();
-    // }
-    // delete loop;
+    h8.terminate = true;
 }

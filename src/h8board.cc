@@ -130,8 +130,8 @@ H8Board::H8Board(ICPU& cpu, IMCU& mcu, IInterruptController& interrupt_controlle
     : cpu(cpu)
     , mcu(mcu)
     , interrupt_controller(interrupt_controller)
+    , terminate(false)
     , is_sleep(false)
-    , wake_for_debugger_flag(false)
     , interrupt_cv(cpu.get_interrupt_cv())
 {
 }
@@ -156,7 +156,6 @@ bool H8Board::handle_interrupt()
     }
 
     // 割込み可能かどうかに関係なく、優先度の高い割込みがない場合はトラップされたかを確認
-    // (割込み禁止中でもトラップ命令は処理されるため)
     if (type == interrupt_t::NONE) {
         type = interrupt_controller.getTrap();
     }
@@ -205,18 +204,6 @@ int H8Board::step()
             // スリープ中に CCR.I が更新されることはないので、CCR.I が解除されたときに notify する必要はない
             interrupt_t type = this->interrupt_controller.getInterruptType();
 
-            if (this->wake_for_debugger_flag) {
-                // CPU のスリープ中にデバッガを扱いたいため、一時的に復帰させる場合
-
-                // フラグを戻す
-                this->wake_for_debugger_flag = false;
-
-                // PC を sleep 命令のバイト数だけ戻し、次の実行で再び sleep させる
-                this->cpu.pc() -= 2;
-
-                return true;
-            } 
-
             if (type == interrupt_t::NONE) {
                 // 割込みがなければ待つ
                 return false;
@@ -263,10 +250,4 @@ void H8Board::print_registers()
            this->cpu.ccr().z(),
            this->cpu.ccr().v(),
            this->cpu.ccr().c());
-}
-
-void H8Board::wake_for_debugger()
-{
-    this->wake_for_debugger_flag = true;
-    this->interrupt_cv.notify_all();
 }
