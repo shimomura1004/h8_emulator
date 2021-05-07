@@ -26,6 +26,8 @@ public:
     // スリープ状態から復帰するため、各ペリフェラルに渡して割込み発生時に通知してもらう
     std::condition_variable& interrupt_cv;
 
+    bool wake_for_debugger_flag;
+
 public:
     uint8_t fetch_instruction_byte(uint8_t offset);
     int execute_next_instruction();
@@ -52,6 +54,9 @@ public:
     void print_registers();
 
     std::mutex& get_mutex() { return mutex; }
+
+    void wake_for_debugger();
+
 };
 
 #endif

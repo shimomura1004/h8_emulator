@@ -1,6 +1,9 @@
 #include "runner.h"
 #include <signal.h>
+#include <unistd.h>
 #include <string.h>
+#include <thread>
+#include <semaphore.h>
 #include "operation_map/operation_map.h"
 #include "instructions/instruction_table.h"
 
@@ -9,6 +12,7 @@
 // Ctrl-c or Ctrl-t でデバッグモードに入る
 static volatile sig_atomic_t debug_mode = 0;
 static volatile sig_atomic_t continue_mode = 0;
+static sem_t sem;
 static void sig_handler(int signo)
 {
     switch (signo) {
@@ -18,6 +22,11 @@ static void sig_handler(int signo)
             break;
         } else if (continue_mode) {
             continue_mode = false;
+            // tmp->wake_for_debugger();
+            if (sem_post(&sem) == -1) {
+                write(2, "sem_post() failed\n", 18);
+                _exit(EXIT_FAILURE);
+            }
         }
         break;
 #endif
@@ -26,6 +35,11 @@ static void sig_handler(int signo)
             exit(1);
         } else if (continue_mode) {
             continue_mode = false;
+            // tmp->wake_for_debugger();
+            if (sem_post(&sem) == -1) {
+                write(2, "sem_post() failed\n", 18);
+                _exit(EXIT_FAILURE);
+            }
         } else if (!continue_mode) {
             exit(1);
         }
@@ -257,6 +271,14 @@ int Runner::proccess_debugger_command()
 
 void Runner::run(bool debug)
 {
+    sem_init(&sem, 0, 0);
+    new std::thread([this]{
+        while (1) {
+            sem_wait(&sem);
+            this->h8.wake_for_debugger();
+        }
+    });
+
     debug_mode = debug;
     signal(SIGINT, sig_handler);
 #ifdef __APPLE__
@@ -319,4 +341,6 @@ void Runner::run(bool debug)
     }
 
     h8.terminate = true;
+
+    sem_destroy(&sem);
 }

@@ -12,6 +12,7 @@ class Runner {
     std::set<uint32_t> breakpoints;
     std::vector<uint32_t> call_stack;
 
+
     bool load_file_to_memory(uint32_t address, char *filename);
 
     void print_help_command();
