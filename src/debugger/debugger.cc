@@ -67,22 +67,6 @@ bool Debugger::load_file_to_memory(uint32_t address, char *filename)
     return true;
 }
 
-// todo: parser へ移動
-void Debugger::print_help_command()
-{
-    fprintf(stderr, "  help: print help\n");
-    fprintf(stderr, "  r: print register status\n");
-    fprintf(stderr, "  dump: dump memory\n");
-    fprintf(stderr, "  s: next step\n");
-    fprintf(stderr, "  continue: continue execution until breakpoint\n");
-    fprintf(stderr, "  b (address): set break point\n");
-    fprintf(stderr, "  lookup: display next instruction\n");
-    fprintf(stderr, "  stepout: step-out from current function\n");
-    fprintf(stderr, "  printpc: toggle printing pc\n");
-    fprintf(stderr, "  writereg (address) (length) (value): write value to memory\n");
-    fprintf(stderr, "  quit: quit\n");
-}
-
 void Debugger::set_breakpoint_command(uint32_t address)
 {
     printf("Set breakpoint at 0x%08x\n", address);
@@ -127,7 +111,7 @@ void Debugger::write_value_command(char *buf)
 #include "instructions/rts.h"
 #include "instructions/rte.h"
 #include "instructions/sleep.h"
-static bool step_out_mode = false;
+// static bool step_out_mode = false;
 static bool print_pc_mode = false;
 int Debugger::proccess_debugger_command()
 {
@@ -170,7 +154,7 @@ int Debugger::proccess_debugger_command()
 
         switch (this->debugger_parser.get_command()) {
         case DebuggerParser::Command::HELP: {
-            print_help_command();
+            this->debugger_parser.print_help();
             break;
         }
         case DebuggerParser::Command::QUIT: {
@@ -196,9 +180,9 @@ int Debugger::proccess_debugger_command()
             return 0;
         }
         case DebuggerParser::Command::STEP_OUT: {
-            // todo: 動かない
-            runner_mode = CONTINUE_MODE;
-            step_out_mode = true;
+            // // bug: 動かない
+            // runner_mode = CONTINUE_MODE;
+            // step_out_mode = true;
             return 0;
         }
         case DebuggerParser::Command::BREAK_AT_ADDRESS: {

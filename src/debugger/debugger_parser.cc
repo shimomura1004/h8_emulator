@@ -181,3 +181,18 @@ uint32_t DebuggerParser::get_address()
 
     return this->parse_result.address;
 }
+
+void DebuggerParser::print_help()
+{
+    fprintf(stderr, "  help: print help\n");
+    fprintf(stderr, "  r: print register status\n");
+    fprintf(stderr, "  dump: dump memory\n");
+    fprintf(stderr, "  s: next step\n");
+    fprintf(stderr, "  continue: continue execution until breakpoint\n");
+    fprintf(stderr, "  b (address): set break point\n");
+    fprintf(stderr, "  lookup: display next instruction\n");
+    fprintf(stderr, "  stepout: step-out from current function\n");
+    fprintf(stderr, "  printpc: toggle printing pc\n");
+    fprintf(stderr, "  writereg (address) (length) (value): write value to memory\n");
+    fprintf(stderr, "  quit: quit\n");
+}

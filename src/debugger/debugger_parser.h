@@ -61,6 +61,8 @@ public:
     Command get_command();
     uint32_t get_address();
 
+    void print_help();
+
 };
 
 #endif

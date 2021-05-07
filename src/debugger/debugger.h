@@ -16,7 +16,6 @@ class Debugger {
 
     bool load_file_to_memory(uint32_t address, char *filename);
 
-    void print_help_command();
     void set_breakpoint_command(uint32_t address);
     void write_value_command(char *buf);
 
