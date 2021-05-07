@@ -13,40 +13,52 @@
 // todo: ステップ実行して sleep に入ったら、モードを切り替える
 // デバッグモード中の判定となり、再度 Ctrl-C を押すと終了してしまうため
 
-// Ctrl-c or Ctrl-t でデバッグモードに入る
-static volatile sig_atomic_t debug_mode = 0;
-static volatile sig_atomic_t continue_mode = 0;
+// continue モード中は、Ctrl-c or Ctrl-t で連続実行を停止する
+#define EXITING_MODE  (-1)  // 終了準備中状態
+#define NORMAL_MODE   0     // 通常の実行状態
+#define DEBUG_MODE    1     // デバッガによりコールスタックなどが監視されている状態
+#define CONTINUE_MODE 2     // デバッグモードのサブモードで、連続で命令実行する状態
+static volatile sig_atomic_t runner_mode = NORMAL_MODE;
+
 static sem_t* sem;
 static void sig_handler(int signo)
 {
     switch (signo) {
 #ifdef __APPLE__
     case SIGINFO:
-        if (!debug_mode) {
+        switch (runner_mode) {
+        case NORMAL_MODE:
+        case DEBUG_MODE:
             break;
-        } else if (continue_mode) {
-            continue_mode = false;
+        case CONTINUE_MODE:
+            runner_mode = DEBUG_MODE;
             if (sem_post(sem) == -1) {
                 write(2, "sem_post() failed\n", 18);
                 _exit(EXIT_FAILURE);
             }
+            break;
+        default:
+            break;
         }
         break;
 #endif
     case SIGINT:
-        if (!debug_mode) {
-            // デバッグモードでなければすぐに終了
+        switch (runner_mode) {
+        case NORMAL_MODE: // デバッグモードでなければすぐに終了
+        case DEBUG_MODE:  // デバッグモード中にさらに Ctrl-C されたら終了
+            // todo: exit は必要か？
             exit(1);
-        } else if (continue_mode) {
+            break;
+        case CONTINUE_MODE:
             // デバッグモードで、一時的に連続実行している場合は止める
-            continue_mode = false;
+            runner_mode = DEBUG_MODE;
             if (sem_post(sem) == -1) {
                 write(2, "sem_post() failed\n", 18);
                 _exit(EXIT_FAILURE);
             }
-        } else {
-            // デバッグモード中で、停止中にさらに Ctrl-C されたら終了
-            exit(1);
+            break;
+        default:
+            break;
         }
         break;
     }
@@ -159,11 +171,11 @@ static bool step_out_mode = false;
 static bool print_pc_mode = false;
 int Runner::proccess_debugger_command()
 {
-    if (continue_mode) {
+    if (runner_mode == CONTINUE_MODE) {
         if (breakpoints.find(h8.cpu.pc()) == breakpoints.end()) {
             return 0;
         } else {
-            continue_mode = false;
+            runner_mode = DEBUG_MODE;
         }
 
         // // todo: バグがある
@@ -219,7 +231,7 @@ int Runner::proccess_debugger_command()
         } else if (MATCH(buf, STEP1) || MATCH(buf, STEP2)) {
             return 0;
         } else if (MATCH(buf, CONTINUE1) || MATCH(buf, CONTINUE2)) {
-            continue_mode = true;
+            runner_mode = CONTINUE_MODE;
             return 0;
         } else if (MATCH(buf, BREAK1) || MATCH(buf, BREAK2)) {
             set_breakpoint_command(buf);
@@ -229,7 +241,7 @@ int Runner::proccess_debugger_command()
             fprintf(stderr, "%s\n", lookup_instruction_name(handler));
             continue;
         } else if (MATCH(buf, STEP_OUT)) {
-            continue_mode = true;
+            runner_mode = CONTINUE_MODE;
             step_out_mode = true;
             continue;
         } else if (MATCH(buf, PRINT_PC_MODE)) {
@@ -265,8 +277,11 @@ int Runner::proccess_debugger_command()
             
             continue;
         } else if (MATCH(buf, QUIT1) || MATCH(buf, QUIT2)) {
-            // bug: こちらのスレッドだけ終了しても sem_wait してるスレッドが止まらない
-            this->h8.wake_for_debugger();
+            // デバッガ側から終了させる場合、フラグを立てて sem_wait しているスレッドを終了させる
+            runner_mode = EXITING_MODE;
+            if (sem_post(sem) == -1) {
+                fprintf(stderr, "Error: sem_post() failed.\n");
+            }
             return -1;
         } else {
             fprintf(stderr, "Unknown debugger command: %s\n", buf);
@@ -281,13 +296,13 @@ void Runner::run(bool debug)
 {
     sem = sem_open("h8emu_sem", O_CREAT, "0600", 1);
     std::thread* sem_thread = new std::thread([this]{
-        while (1) {
+        while (runner_mode != EXITING_MODE) {
             sem_wait(sem);
             this->h8.wake_for_debugger();
         }
     });
 
-    debug_mode = debug;
+    runner_mode = debug ? DEBUG_MODE : NORMAL_MODE;
     signal(SIGINT, sig_handler);
 #ifdef __APPLE__
     signal(SIGINFO, sig_handler);
@@ -304,7 +319,7 @@ void Runner::run(bool debug)
             // call_stack.push_back(h8.pc);
         }
 
-        if (debug_mode) {
+        if (runner_mode == DEBUG_MODE || runner_mode == CONTINUE_MODE) {
             int r = proccess_debugger_command();
             if (r != 0) {
                 break;
