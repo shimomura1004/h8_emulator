@@ -12,7 +12,7 @@
 // Ctrl-c or Ctrl-t でデバッグモードに入る
 static volatile sig_atomic_t debug_mode = 0;
 static volatile sig_atomic_t continue_mode = 0;
-static sem_t sem;
+static sem_t* sem;
 static void sig_handler(int signo)
 {
     switch (signo) {
@@ -23,7 +23,7 @@ static void sig_handler(int signo)
         } else if (continue_mode) {
             continue_mode = false;
             // tmp->wake_for_debugger();
-            if (sem_post(&sem) == -1) {
+            if (sem_post(sem) == -1) {
                 write(2, "sem_post() failed\n", 18);
                 _exit(EXIT_FAILURE);
             }
@@ -36,7 +36,7 @@ static void sig_handler(int signo)
         } else if (continue_mode) {
             continue_mode = false;
             // tmp->wake_for_debugger();
-            if (sem_post(&sem) == -1) {
+            if (sem_post(sem) == -1) {
                 write(2, "sem_post() failed\n", 18);
                 _exit(EXIT_FAILURE);
             }
@@ -271,10 +271,11 @@ int Runner::proccess_debugger_command()
 
 void Runner::run(bool debug)
 {
-    sem_init(&sem, 0, 0);
+    // sem_init(&sem, 0, 0);
+    sem = sem_open("/tmp/h8emu_sem", O_CREAT, "0600", 1);
     new std::thread([this]{
         while (1) {
-            sem_wait(&sem);
+            sem_wait(sem);
             this->h8.wake_for_debugger();
         }
     });
@@ -342,5 +343,6 @@ void Runner::run(bool debug)
 
     h8.terminate = true;
 
-    sem_destroy(&sem);
+    // sem_destroy(&sem);
+    sem_close(sem);
 }
