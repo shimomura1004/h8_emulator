@@ -87,13 +87,13 @@ void ADM3202::run_recv_from_h8() {
     while (!terminate_flag) {
         // H8 からデータがくるのを待つ
         // H8 はデータを詰めたあと SSR_TDRE を 0 にすることで通知してくる
-        sci_registers.wait_tdre_to_be(false);
+        this->adm3202_registers->wait_tdre_to_be(false);
 
         // データは TDR に入っている
-        uint8_t data = sci_registers.get(ADM3202_Registers::SCI::TDR);
+        uint8_t data = this->adm3202_registers->get(ADM3202_Registers::SCI::TDR);
 
         // データを TDR から取得したら SSR_TDRE を 1 にして送信可能を通知
-        sci_registers.set_bit(ADM3202_Registers::SCI::SSR, ADM3202_Registers::SCI_SSR::TDRE, true);
+        this->adm3202_registers->set_bit(ADM3202_Registers::SCI::SSR, ADM3202_Registers::SCI_SSR::TDRE, true);
 
         // 送信
         if (!this->use_stdio) {
@@ -103,7 +103,7 @@ void ADM3202::run_recv_from_h8() {
         }
 
         // H8 に送信準備完了の割り込みを発生させる
-        if (sci_registers.get_bit(ADM3202_Registers::SCI::SCR, ADM3202_Registers::SCI_SCR::TIE)) {
+        if (this->adm3202_registers->get_bit(ADM3202_Registers::SCI::SCR, ADM3202_Registers::SCI_SCR::TIE)) {
             this->hasTxiInterruption = true;
 
             // 割込みを通知する
@@ -139,16 +139,16 @@ void ADM3202::run_send_to_h8() {
         }
 
         // H8 が受信するまで待つ
-        sci_registers.wait_rdrf_to_be(false);
+        this->adm3202_registers->wait_rdrf_to_be(false);
 
         // H8 に渡すデータは RDR に書き込んでおく
-        sci_registers.set(ADM3202_Registers::RDR, (uint8_t)c);
+        this->adm3202_registers->set(ADM3202_Registers::RDR, (uint8_t)c);
 
         // RDRF を 1 にして H8 に通知
-        sci_registers.set_bit(ADM3202_Registers::SSR, ADM3202_Registers::SCI_SSR::RDRF, true);
+        this->adm3202_registers->set_bit(ADM3202_Registers::SSR, ADM3202_Registers::SCI_SSR::RDRF, true);
 
         // シリアル受信割り込みが有効な場合は割り込みを発生させる
-        if (sci_registers.get_bit(ADM3202_Registers::SCI::SCR, ADM3202_Registers::SCI_SCR::RIE)) {
+        if (this->adm3202_registers->get_bit(ADM3202_Registers::SCI::SCR, ADM3202_Registers::SCI_SCR::RIE)) {
             this->hasRxiInterruption = true;
 
             // 割込みを通知する
@@ -161,6 +161,7 @@ ADM3202::ADM3202(uint8_t index, std::condition_variable& interrupt_cv, bool use_
     : use_stdio(use_stdio)
     , index(index)
     , terminate_flag(false)
+    , adm3202_registers(new ADM3202_Registers)
     , interrupt_cv(interrupt_cv)
     , hasTxiInterruption(false)
     , hasRxiInterruption(false)
@@ -171,6 +172,7 @@ ADM3202::~ADM3202()
     terminate();
     close(this->sci_socket);
     close(this->sci_sock_fd);
+    delete this->adm3202_registers;
     printf("SCI(%d) stopped\n", index);
 }
 
@@ -230,16 +232,16 @@ void ADM3202::clearInterrupt(interrupt_t type)
 
 void ADM3202::dump(FILE* fp)
 {
-    sci_registers.dump(fp);
+    this->adm3202_registers->dump(fp);
 }
 
 // H8 上で動くアプリからはこちらの API で SCI にアクセスされる
 uint8_t ADM3202::read(uint32_t address)
 {
-    return sci_registers.read(address);
+    return this->adm3202_registers->read(address);
 }
 
 void ADM3202::write(uint32_t address, uint8_t value)
 {
-    sci_registers.write(address, value);
+    this->adm3202_registers->write(address, value);
 }

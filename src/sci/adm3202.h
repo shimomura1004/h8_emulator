@@ -28,7 +28,10 @@ private:
 
     uint8_t index;
     bool terminate_flag;
-    ADM3202_Registers sci_registers;
+
+    // ADM3202_Registers は mutex を持つため copy/move できない
+    // ポインタで保持し、move できるようにする
+    ADM3202_Registers* adm3202_registers;
 
     std::condition_variable& interrupt_cv;
 
