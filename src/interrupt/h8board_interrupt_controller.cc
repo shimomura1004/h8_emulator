@@ -15,9 +15,13 @@ static const interrupt_t timer8_interrupts[] = {
     CMIA2, CMIB2, CMIA3_CMIB3, TOVI2_TOVI3,
 };
 
-static const interrupt_t sci_interrupts[] = {
+static const interrupt_t sci0_interrupts[] = {
     ERI0, RXI0, TXI0, TEI0,
+};
+static const interrupt_t sci1_interrupts[] = {
     ERI1, RXI1, TXI1, TEI1,
+};
+static const interrupt_t sci2_interrupts[] = {
     ERI2, RXI2, TXI2, TEI2,
 };
 
@@ -27,11 +31,15 @@ static const interrupt_t traps[] = {
 
 constexpr static uint8_t external_interrupt_num = sizeof(external_interrupts) / sizeof(interrupt_t);
 constexpr static uint8_t timer8_interrupt_num = sizeof(timer8_interrupts) / sizeof(interrupt_t);
-constexpr static uint8_t sci_interrupt_num = sizeof(sci_interrupts) / sizeof(interrupt_t);
+constexpr static uint8_t sci0_interrupt_num = sizeof(sci0_interrupts) / sizeof(interrupt_t);
+constexpr static uint8_t sci1_interrupt_num = sizeof(sci1_interrupts) / sizeof(interrupt_t);
+constexpr static uint8_t sci2_interrupt_num = sizeof(sci2_interrupts) / sizeof(interrupt_t);
 constexpr static uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
 
-H8BoardInterruptController::H8BoardInterruptController(ISCI** sci, ITimer8& timer8, INIC& nic)
-    : sci(sci)
+H8BoardInterruptController::H8BoardInterruptController(ISCI& sci0, ISCI& sci1, ISCI& sci2, ITimer8& timer8, INIC& nic)
+    : sci0(sci0)
+    , sci1(sci1)
+    , sci2(sci2)
     , timer8(timer8)
     , nic(nic)
     , interrupt_flag(0)
@@ -78,9 +86,21 @@ void H8BoardInterruptController::clear(interrupt_t type)
     }
 
     // 内部割込み(SCI)のクリア
-    for (int i = 0; i < sci_interrupt_num; i++) {
-        if (type == sci_interrupts[i]) {
-            sci[i / 4]->clearInterrupt(type);
+    for (int i = 0; i < sci0_interrupt_num; i++) {
+        if (type == sci0_interrupts[i]) {
+            this->sci0.clearInterrupt(type);
+            return;
+        }
+    }
+    for (int i = 0; i < sci1_interrupt_num; i++) {
+        if (type == sci1_interrupts[i]) {
+            this->sci1.clearInterrupt(type);
+            return;
+        }
+    }
+    for (int i = 0; i < sci2_interrupt_num; i++) {
+        if (type == sci2_interrupts[i]) {
+            this->sci2.clearInterrupt(type);
             return;
         }
     }
@@ -122,11 +142,17 @@ interrupt_t H8BoardInterruptController::getInterruptType()
     }
 
     // SCI の確認
-    for (int i = 0; i < 3; i++) {
-        type = sci[i]->getInterrupt();
-        if (type != interrupt_t::NONE) {
-            return type;
-        }
+    type = sci0.getInterrupt();
+    if (type != interrupt_t::NONE) {
+        return type;
+    }
+    type = sci1.getInterrupt();
+    if (type != interrupt_t::NONE) {
+        return type;
+    }
+    type = sci2.getInterrupt();
+    if (type != interrupt_t::NONE) {
+        return type;
     }
 
     return interrupt_t::NONE;

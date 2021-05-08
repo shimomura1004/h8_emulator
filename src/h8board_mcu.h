@@ -74,7 +74,9 @@ class H8BoardMCU : public IMCU {
     IDRAM &dram;
 
     // H8/3069F には3つの SCI が内蔵されている
-    ISCI** sci;
+    ISCI& sci0;
+    ISCI& sci1;
+    ISCI& sci2;
 
     // 8ビットタイマ
     ITimer8& timer8;
@@ -92,8 +94,7 @@ class H8BoardMCU : public IMCU {
     std::mutex mutex;
 
 public:
-    // todo: sci も参照にしたい
-    H8BoardMCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport, INIC& nic);
+    H8BoardMCU(IDRAM& dram, ISCI& sci0, ISCI& sci1, ISCI& sci2, ITimer8& timer8, IOPort& ioport, INIC& nic);
 
     void init() override;
 

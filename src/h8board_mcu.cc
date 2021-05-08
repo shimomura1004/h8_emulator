@@ -17,9 +17,11 @@
 #endif
 #endif
 
-H8BoardMCU::H8BoardMCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport, INIC& nic)
+H8BoardMCU::H8BoardMCU(IDRAM& dram, ISCI& sci0, ISCI& sci1, ISCI& sci2, ITimer8& timer8, IOPort& ioport, INIC& nic)
     : dram(dram)
-    , sci(sci)
+    , sci0(sci0)
+    , sci1(sci1)
+    , sci2(sci2)
     , timer8(timer8)
     , ioport(ioport)
     , nic(nic)
@@ -27,9 +29,9 @@ H8BoardMCU::H8BoardMCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport,
 
 void H8BoardMCU::init()
 {
-    for (int i = 0; i < 3; i++) {
-        this->sci[i]->run();
-    }
+    this->sci0.run();
+    this->sci1.run();
+    this->sci2.run();
 
     this->nic.run();
 }
@@ -55,11 +57,11 @@ uint8_t H8BoardMCU::read8(uint32_t address)
         return dram.read8(address - area2_start);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
-        return sci[0]->read(address - sci0_start);
+        return sci0.read(address - sci0_start);
     } else if (sci1_start <= address && address <= sci1_end) {
-        return sci[1]->read(address - sci1_start);
+        return sci1.read(address - sci1_start);
     } else if (sci2_start <= address && address <= sci2_end) {
-        return sci[2]->read(address - sci2_start);
+        return sci2.read(address - sci2_start);
     } else if (BusController::brcr_address <= address && address <= BusController::rtcor_address) {
         return bus_controller.read(address);
     } else {
@@ -119,11 +121,11 @@ void H8BoardMCU::write8(uint32_t address, uint8_t value)
         dram.write8(address - area2_start, value);
     } else if (sci0_start <= address && address <= sci0_end) {
         // SCI のロックは SCI 側で実施
-        sci[0]->write(address - sci0_start, value);
+        sci0.write(address - sci0_start, value);
     } else if (sci1_start <= address && address <= sci1_end) {
-        sci[1]->write(address - sci1_start, value);
+        sci1.write(address - sci1_start, value);
     } else if (sci2_start <= address && address <= sci2_end) {
-        sci[2]->write(address - sci2_start, value);
+        sci2.write(address - sci2_start, value);
     } else if (BusController::brcr_address <= address && address <= BusController::rtcor_address) { 
         bus_controller.write(address, value);
     } else {
@@ -204,9 +206,9 @@ void H8BoardMCU::dump(std::string filepath)
     // todo: タイマのダンプに対応
     // todo: IO ポートのダンプに対応
 
-    sci[0]->dump(fp);
-    sci[1]->dump(fp);
-    sci[2]->dump(fp);
+    sci0.dump(fp);
+    sci1.dump(fp);
+    sci2.dump(fp);
 
     // 末尾まで0 埋めする
     for (uint32_t i=sci2_end + 1; i < all_end + 1; i++) {

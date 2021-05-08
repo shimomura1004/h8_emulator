@@ -25,21 +25,14 @@ int main (int argc, char* argv[])
     H83069F cpu;
     std::condition_variable& interrupt_cv = cpu.get_interrupt_cv();
     GenericDRAM dram;
-    // ADM3202 adm3202[3] = {
-    //     ADM3202(0, interrupt_cv),
-    //     ADM3202(1, interrupt_cv, false),
-    //     ADM3202(2, interrupt_cv)
-    // };
-    ISCI* adm3202[3] = {
-        new ADM3202(0, interrupt_cv),
-        new ADM3202(1, interrupt_cv, false),
-        new ADM3202(2, interrupt_cv)
-    };
+    ADM3202 adm3202_0(0, interrupt_cv);
+    ADM3202 adm3202_1(1, interrupt_cv, false);
+    ADM3202 adm3202_2(2, interrupt_cv);
     H8_Timer8 timer8(interrupt_cv);
     IOPort ioport;
     RTL8019AS rtl8019as(interrupt_cv);
-    H8BoardInterruptController interrupt_controller(adm3202, timer8, rtl8019as);
-    H8BoardMCU mcu(dram, adm3202, timer8, ioport, rtl8019as);
+    H8BoardInterruptController interrupt_controller(adm3202_0, adm3202_1, adm3202_2, timer8, rtl8019as);
+    H8BoardMCU mcu(dram, adm3202_0, adm3202_1, adm3202_2, timer8, ioport, rtl8019as);
     H8Board h8(cpu, mcu, interrupt_controller);
     h8.init();
 

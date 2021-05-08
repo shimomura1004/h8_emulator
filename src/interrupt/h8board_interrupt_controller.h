@@ -10,8 +10,9 @@
 //       現状は、各ペリフェラルが直接 interrupt_cv 経由で CPU に通知してしまっている
 // H8 ボードのハード構成に依存するため、H8 ボード専用のクラスとなる
 class H8BoardInterruptController : public IInterruptController {
-    // todo: 参照で受け取りたい
-    ISCI** sci;
+    ISCI& sci0;
+    ISCI& sci1;
+    ISCI& sci2;
     ITimer8& timer8;
     INIC& nic;
 
@@ -20,7 +21,7 @@ class H8BoardInterruptController : public IInterruptController {
     uint64_t interrupt_flag;
 
 public:
-    H8BoardInterruptController(ISCI** sci, ITimer8& timer8, INIC& nic);
+    H8BoardInterruptController(ISCI& sci0, ISCI& sci1, ISCI& sci2, ITimer8& timer8, INIC& nic);
 
     void set(interrupt_t type) override;
     void clear(interrupt_t type) override;
