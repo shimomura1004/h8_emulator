@@ -7,8 +7,8 @@
 #include "sci/adm3202.h"
 #include "timer/h8_timer8.h"
 #include "net/rtl8019as.h"
-#include "interrupt/generic_interrupt_controller.h"
-#include "h8300h_mcu.h"
+#include "interrupt/h8board_interrupt_controller.h"
+#include "h8board_mcu.h"
 
 int main (int argc, char* argv[])
 {
@@ -24,9 +24,13 @@ int main (int argc, char* argv[])
     // stdio を使うときは screen コマンドを使うこと
     H83069F cpu;
     std::condition_variable& interrupt_cv = cpu.get_interrupt_cv();
-    H8300H_DRAM dram;
-    // todo: H8300H の固有のもの、H8300H クラス内で用意するのであれば配列にする必要もない
-    ISCI *sci[3] = {
+    GenericDRAM dram;
+    // ADM3202 adm3202[3] = {
+    //     ADM3202(0, interrupt_cv),
+    //     ADM3202(1, interrupt_cv, false),
+    //     ADM3202(2, interrupt_cv)
+    // };
+    ISCI* adm3202[3] = {
         new ADM3202(0, interrupt_cv),
         new ADM3202(1, interrupt_cv, false),
         new ADM3202(2, interrupt_cv)
@@ -34,8 +38,8 @@ int main (int argc, char* argv[])
     H8_Timer8 timer8(interrupt_cv);
     IOPort ioport;
     RTL8019AS rtl8019as(interrupt_cv);
-    GeneralInterruptController interrupt_controller(sci, timer8, rtl8019as);
-    H8300H_MCU mcu(dram, sci, timer8, ioport, rtl8019as);
+    H8BoardInterruptController interrupt_controller(adm3202, timer8, rtl8019as);
+    H8BoardMCU mcu(dram, adm3202, timer8, ioport, rtl8019as);
     H8Board h8(cpu, mcu, interrupt_controller);
     h8.init();
 

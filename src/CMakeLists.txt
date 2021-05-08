@@ -20,7 +20,7 @@ add_subdirectory(debugger)
 
 add_executable(h8emu
     elf_loader.cc
-    h8300h_mcu.cc
+    h8board_mcu.cc
     h8board.cc
     main.cc
 )

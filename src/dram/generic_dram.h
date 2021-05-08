@@ -6,13 +6,13 @@
 
 #include "dram.h"
 
-// todo: H8300H に特有の機能はなく、generic な実装としてよい
-class H8300H_DRAM : public IDRAM {
+// todo: メモリ容量はパラメータにする
+class GenericDRAM : public IDRAM {
     // 2MB のメモリ
     uint8_t ram[0x200000];
 
 public:
-    H8300H_DRAM();
+    GenericDRAM();
 
     uint8_t read8(uint32_t address) override;
     uint16_t read16(uint32_t address) override;

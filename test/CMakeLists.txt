@@ -17,7 +17,7 @@ add_executable(example
     instructions/mov_immediate_test.cc
     cpu/h83069f_test.cc
     # todo: これらはライブラリにして、src のファイルを直接参照するのをやめる
-    ../src/h8300h_mcu.cc
+    ../src/h8board_mcu.cc
     ../src/h8board.cc
     ../src/elf_loader.cc
 )

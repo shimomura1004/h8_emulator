@@ -12,7 +12,7 @@
 #include "bus/buscontroller.h"
 #include "net/nic.h"
 
-class H8300H_MCU : public IMCU {
+class H8BoardMCU : public IMCU {
     // モード5(内蔵ROM有効拡張16Mバイトモード) EMCビットが1(初期値)のとき
     static const uint32_t vec_start = 0x000000; // ベクタエリア
     static const uint32_t vec_end   = 0x0000ff;
@@ -93,7 +93,7 @@ class H8300H_MCU : public IMCU {
 
 public:
     // todo: sci も参照にしたい
-    H8300H_MCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport, INIC& nic);
+    H8BoardMCU(IDRAM& dram, ISCI** sci, ITimer8& timer8, IOPort& ioport, INIC& nic);
 
     void init() override;
 
