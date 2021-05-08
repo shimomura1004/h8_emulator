@@ -277,6 +277,7 @@ void Debugger::run(bool debug)
         h8.handle_interrupt();
 
         if (runner_mode == DEBUG_MODE || runner_mode == CONTINUE_MODE) {
+            // todo: なぜかスタックに積まれる数がとても多い
             // // 割込みが発生したら PC を保存
             // if (interrupted) {
             //     call_stack.push_back(h8.cpu.pc());

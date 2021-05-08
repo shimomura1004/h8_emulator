@@ -10,15 +10,15 @@
 class GeneralInterruptController : public IInterruptController {
     // todo: 参照で受け取りたい
     ISCI** sci;
-    ITimer8* timer8;
-    INIC* nic;
+    ITimer8& timer8;
+    INIC& nic;
 
     // todo: mutex は不要？
     std::mutex mutex;
     uint64_t interrupt_flag;
 
 public:
-    GeneralInterruptController(ISCI** sci, ITimer8* timer8, INIC* nic);
+    GeneralInterruptController(ISCI** sci, ITimer8& timer8, INIC& nic);
 
     void set(interrupt_t type) override;
     void clear(interrupt_t type) override;

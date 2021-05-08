@@ -30,7 +30,7 @@ constexpr static uint8_t timer8_interrupt_num = sizeof(timer8_interrupts) / size
 constexpr static uint8_t sci_interrupt_num = sizeof(sci_interrupts) / sizeof(interrupt_t);
 constexpr static uint8_t trap_num = sizeof(traps) / sizeof(interrupt_t);
 
-GeneralInterruptController::GeneralInterruptController(ISCI** sci, ITimer8* timer8, INIC* nic)
+GeneralInterruptController::GeneralInterruptController(ISCI** sci, ITimer8& timer8, INIC& nic)
     : sci(sci)
     , timer8(timer8)
     , nic(nic)
@@ -65,14 +65,14 @@ void GeneralInterruptController::clear(interrupt_t type)
     }
 
     if (type == interrupt_t::IRQ5) {
-        nic->clearInterrupt(type);
+        this->nic.clearInterrupt(type);
         return;
     }
 
     // 内部割込み(8ビットタイマ)のクリア
     for (int i = 0; i < timer8_interrupt_num; i++) {
         if (type == timer8_interrupts[i]) {
-            timer8->clearInterrupt(type);
+            this->timer8.clearInterrupt(type);
             return;
         }
     }
@@ -108,7 +108,7 @@ interrupt_t GeneralInterruptController::getInterruptType()
     interrupt_t type = interrupt_t::NONE;
 
     // IRQ5(Ethernet) の確認
-    type = nic->getInterrupt();
+    type = this->nic.getInterrupt();
     if (type != interrupt_t::NONE) {
         return type;
     }
@@ -116,7 +116,7 @@ interrupt_t GeneralInterruptController::getInterruptType()
     // 内部割込みの確認
 
     // 8ビットタイマの確認
-    type = timer8->getInterrupt();
+    type = this->timer8.getInterrupt();
     if (type != interrupt_t::NONE) {
         return type;
     }
