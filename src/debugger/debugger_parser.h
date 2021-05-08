@@ -32,15 +32,11 @@ public:
         TOGGLE_PRINT_PC,
     } Command;
 
-    typedef struct {
-        Command command;
-        union {
-            uint32_t address;
-        };
-    } ParseResult;
 
 protected:
-    ParseResult parse_result;
+    Command command;
+    uint32_t address;
+    std::string filepath;
 
     bool parse_help(std::string str);
     bool parse_quit(std::string str);
@@ -60,6 +56,7 @@ public:
     bool parse(const char* buf);
     Command get_command();
     uint32_t get_address();
+    std::string get_filepath();
 
     void print_help();
 

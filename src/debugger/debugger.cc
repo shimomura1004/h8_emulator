@@ -195,9 +195,11 @@ int Debugger::proccess_debugger_command()
             break;
         }
         case DebuggerParser::Command::DUMP_MEMORY: {
-            // todo: ファイル名を可変にする
-            h8.mcu.dump("core");
-            fprintf(stderr, "Memory dumped to 'core' file\n");
+            std::string parsed_filepath = this->debugger_parser.get_filepath();
+            const char *filepath = parsed_filepath.empty() ? "core" : parsed_filepath.c_str();
+
+            h8.mcu.dump(filepath);
+            fprintf(stderr, "Memory dumped to '%s' file\n", filepath);
             break;
         }
         case DebuggerParser::Command::LOOKUP_INSTRUCTION: {
