@@ -7,8 +7,8 @@
 // todo: add と mov が表現できればたぶん大丈夫
 
 class Instruction;
-typedef void(*instruction_parser_t)(H8Board*, Instruction*);
-typedef int(*instruction_runner_t)(H8Board*, Instruction*);
+typedef void(*instruction_parser_t)(H8Board*, Instruction&);
+typedef int(*instruction_runner_t)(H8Board*, Instruction&);
 
 // 呼び出し元からはパースするまで命令の種類がわからないが、
 // 継承を使って表現すると毎回メモリ領域をヒープに確保されてしまい効率が悪いので、

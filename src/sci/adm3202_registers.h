@@ -4,7 +4,6 @@
 #include <mutex>
 #include <condition_variable>
 
-// todo: H8300H に特有の機能はなく、generic な実装としてよい
 class ADM3202_Registers {
 public:
     // todo: enum は別ヘッダに移す

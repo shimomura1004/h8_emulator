@@ -190,6 +190,9 @@ int main(int argc, char *argv[])
             }
             // ユーザの入力を H8 に転送
             if (FD_ISSET(0, &fdset)) {
+                // バックスペース入力は OS 側へ通知している、本来は OS 側で処理しないといけない
+
+                // canonical 時は1行ごと、non-canonical 時は1文字ごとに読み取り
                 int size = read(0, user_buf, LINE_BUFFER_SIZE - 1);
                 if (size < 0) {
                     fprintf(stderr, "Error in reading user input.\n");
@@ -202,6 +205,7 @@ int main(int argc, char *argv[])
                     set_canonical();
                     printf("(command) ");
                     fflush(stdout);
+                    // todo: ここでフラグを立ててモードを区別できるようにする
                     continue;
                 }
 

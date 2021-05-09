@@ -8,7 +8,7 @@ Instruction::Instruction()
 
 int Instruction::run(H8Board* h8)
 {
-    return this->runner(h8, this);
+    return this->runner(h8, *this);
 }
 
 void Instruction::stringify_name(char *buf)

@@ -7,14 +7,14 @@
 namespace h8instructions {
 namespace mov {
 
-void absolute_address_24_b_parse(H8Board* h8, Instruction* instruction);
-int absolute_address_24_b_run(H8Board* h8, Instruction* instruction);
+void absolute_address_24_b_parse(H8Board* h8, Instruction& instruction);
+int absolute_address_24_b_run(H8Board* h8, Instruction& instruction);
 
-void absolute_address_24_w_parse(H8Board* h8, Instruction* instruction);
-int absolute_address_24_w_run(H8Board* h8, Instruction* instruction);
+void absolute_address_24_w_parse(H8Board* h8, Instruction& instruction);
+int absolute_address_24_w_run(H8Board* h8, Instruction& instruction);
 
-void absolute_address_24_l_parse(H8Board* h8, Instruction* instruction);
-int absolute_address_24_l_run(H8Board* h8, Instruction* instruction);
+void absolute_address_24_l_parse(H8Board* h8, Instruction& instruction);
+int absolute_address_24_l_run(H8Board* h8, Instruction& instruction);
 
 }
 }

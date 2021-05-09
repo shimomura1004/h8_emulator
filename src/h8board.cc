@@ -11,11 +11,13 @@ uint8_t H8Board::fetch_instruction_byte(uint8_t offset)
 
 int H8Board::execute_next_instruction()
 {
+    // todo: union をやめて InstructionParser クラスを作る
+    // lookup などもそのクラスのメンバ関数とする
     instruction_parser_t parser = operation_map2::lookup(this);
 
     if (parser) {
         Instruction instruction;
-        parser(this, &instruction);
+        parser(this, instruction);
 
         {
             // 初回のみ命令を print し動作確認

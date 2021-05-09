@@ -212,7 +212,7 @@ int Debugger::proccess_debugger_command()
 
             if (parser) {
                 Instruction instruction;
-                parser(&h8, &instruction);
+                parser(&h8, instruction);
                 instruction.print();
             } else {
                 fprintf(stderr, "Error: unknown instruction\n");
