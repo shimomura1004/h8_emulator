@@ -18,13 +18,12 @@ add_executable(example
     cpu/h83069f_test.cc
     # todo: これらはライブラリにして、src のファイルを直接参照するのをやめる
     ../src/h8board_mcu.cc
-    ../src/h8board.cc
-    ../src/elf_loader.cc
 )
 target_link_libraries(example
     cpu
     dram
     ioport
+    board
     bus
     operation_map
     instructions

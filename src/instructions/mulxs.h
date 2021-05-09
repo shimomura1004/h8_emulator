@@ -1,7 +1,7 @@
 #ifndef _INSTRUCTIONS_MULXS_INCLUDED_
 #define _INSTRUCTIONS_MULXS_INCLUDED_
 
-#include "h8board.h"
+#include "board/h8board.h"
 
 namespace h8instructions {
 namespace mulxs {

@@ -17,11 +17,10 @@ add_subdirectory(bus)
 add_subdirectory(interrupt)
 add_subdirectory(net)
 add_subdirectory(debugger)
+add_subdirectory(board)
 
 add_executable(h8emu
-    elf_loader.cc
     h8board_mcu.cc
-    h8board.cc
     main.cc
 )
 
@@ -38,6 +37,7 @@ target_link_libraries(
     bus
     interrupt
     net
+    board
     ${CMAKE_THREAD_LIBS_INIT}
 )
 

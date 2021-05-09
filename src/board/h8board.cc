@@ -1,4 +1,4 @@
-#include "h8board.h"
+#include "board/h8board.h"
 #include "operation_map/operation_map.h"
 
 // todo: デバッグ用
@@ -11,8 +11,7 @@ uint8_t H8Board::fetch_instruction_byte(uint8_t offset)
 
 int H8Board::execute_next_instruction()
 {
-    // todo: union をやめて InstructionParser クラスを作る
-    // lookup などもそのクラスのメンバ関数とする
+    // todo: InstructionParser クラスを作り、lookup をそのクラスのメンバ関数とする
     instruction_parser_t parser = operation_map2::lookup(this);
 
     if (parser) {

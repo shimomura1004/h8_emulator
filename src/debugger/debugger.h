@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "h8board.h"
+#include "board/h8board.h"
 #include "debugger_parser.h"
 
 class Debugger {

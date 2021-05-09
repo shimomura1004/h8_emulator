@@ -1,7 +1,7 @@
 #ifndef _INSTRUCTIONS_MOV_INCLUDED_
 #define _INSTRUCTIONS_MOV_INCLUDED_
 
-#include "h8board.h"
+#include "board/h8board.h"
 
 namespace h8instructions {
 namespace mov {

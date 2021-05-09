@@ -1,7 +1,7 @@
 #ifndef _INSTRUCTIIONS_ADDS_INCLUDED_
 #define _INSTRUCTIIONS_ADDS_INCLUDED_
 
-#include "h8board.h"
+#include "board/h8board.h"
 
 namespace h8instructions {
 namespace adds {

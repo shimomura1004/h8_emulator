@@ -2,7 +2,7 @@
 #define _CPU_TEST_FIXTURE_INCLUDED_
 
 #include <gtest/gtest.h>
-#include "h8board.h"
+#include "board/h8board.h"
 #include "cpu/h83069f.h"
 #include "dram/generic_dram.h"
 #include "dummy_mcu.h"

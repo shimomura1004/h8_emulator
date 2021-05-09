@@ -2,7 +2,7 @@
 #define _INSTRUCTION_INSTRUCTION_INCLUDED_
 
 #include "operator.h"
-#include "h8board.h"
+#include "board/h8board.h"
 
 // todo: add と mov が表現できればたぶん大丈夫
 

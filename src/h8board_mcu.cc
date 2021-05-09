@@ -1,5 +1,5 @@
 #include "h8board_mcu.h"
-#include "elf_loader.h"
+#include "board/elf_loader.h"
 
 // todo: ヘルパ関数としてどこかに定義
 

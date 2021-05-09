@@ -1,7 +1,7 @@
 #ifndef _OPERATION_MAP_INCLUDED_
 #define _OPERATION_MAP_INCLUDED_
 
-#include "h8board.h"
+#include "board/h8board.h"
 #include "instructions/instruction.h"
 
 typedef int(*instruction_handler_t)(H8Board*);

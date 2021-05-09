@@ -1,7 +1,7 @@
 #ifndef _INSTRUCTIONS_MOV_REGISTER_DIRECT_INCLUDED_
 #define _INSTRUCTIONS_MOV_REGISTER_DIRECT_INCLUDED_
 
-#include "h8board.h"
+#include "board/h8board.h"
 #include "instruction.h"
 
 namespace h8instructions {

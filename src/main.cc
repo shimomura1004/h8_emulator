@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "h8board.h"
+#include "board/h8board.h"
 #include "debugger/debugger.h"
 
 #include "cpu/h83069f.h"
