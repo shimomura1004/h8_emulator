@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <mutex>
-#include "mcu.h"
+#include "mcu/mcu.h"
 #include "sci/sci.h"
 #include "timer/timer8.h"
 #include "ioport/ioport.h"

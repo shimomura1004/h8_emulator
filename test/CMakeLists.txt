@@ -16,11 +16,10 @@ add_executable(example
     example.cc
     instructions/mov_immediate_test.cc
     cpu/h83069f_test.cc
-    # todo: これらはライブラリにして、src のファイルを直接参照するのをやめる
-    ../src/h8board_mcu.cc
 )
 target_link_libraries(example
     cpu
+    mcu
     dram
     ioport
     board

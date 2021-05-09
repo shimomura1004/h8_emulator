@@ -7,6 +7,7 @@ add_definitions("-Wall -I. -std=c++11 -pthread -g")
 # add_definitions("-Wconversion")
 
 add_subdirectory(cpu)
+add_subdirectory(mcu)
 add_subdirectory(sci)
 add_subdirectory(instructions)
 add_subdirectory(operation_map)
@@ -20,7 +21,6 @@ add_subdirectory(debugger)
 add_subdirectory(board)
 
 add_executable(h8emu
-    h8board_mcu.cc
     main.cc
 )
 
@@ -28,6 +28,7 @@ target_link_libraries(
     h8emu
     debugger
     cpu
+    mcu
     sci
     operation_map
     instructions

@@ -4,7 +4,7 @@
 #include <string>
 #include <mutex>
 #include "cpu/cpu.h"
-#include "mcu.h"
+#include "mcu/mcu.h"
 #include "interrupt/interrupt_controller.h"
 
 // todo: 今ボードが持っている役割は CPU に移すべき

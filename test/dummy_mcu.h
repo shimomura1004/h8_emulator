@@ -1,7 +1,7 @@
 #ifndef _DUMMY_MCU_INCLUDED_
 #define _DUMMY_MCU_INCLUDED_
 
-#include "mcu.h"
+#include "mcu/mcu.h"
 #include "dram/dram.h"
 
 class DummyMCU : public IMCU {

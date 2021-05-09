@@ -8,7 +8,7 @@
 #include "timer/h8_timer8.h"
 #include "net/rtl8019as.h"
 #include "interrupt/h8board_interrupt_controller.h"
-#include "h8board_mcu.h"
+#include "mcu/h8board_mcu.h"
 
 int main (int argc, char* argv[])
 {
