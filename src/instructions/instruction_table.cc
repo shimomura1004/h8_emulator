@@ -12,7 +12,6 @@
 #include "exts.h"
 #include "extu.h"
 #include "jsr.h"
-#include "mov.h"
 #include "mulxs.h"
 #include "neg.h"
 #include "nop.h"
@@ -90,7 +89,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
 
     if (handler == nop::nop) return "nop::nop";
 
-    if (handler == orl::or_immediate_b) return "orl::or_immediate_b";
     if (handler == orl::or_immediate_w) return "orl::or_immediate_w";
 
     if (handler == orc::orc) return "orc::orc";
