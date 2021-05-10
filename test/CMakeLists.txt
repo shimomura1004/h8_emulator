@@ -15,8 +15,10 @@ add_definitions("-Wall -I. -std=c++11 -pthread -g")
 add_executable(example
     example.cc
     instructions/mov_immediate_test.cc
+    instructions/or_immediate_test.cc
     cpu/h83069f_test.cc
 )
+
 target_link_libraries(example
     cpu
     mcu
@@ -28,4 +30,5 @@ target_link_libraries(example
     instructions
     gtest_main
     gmock)
+
 add_test(NAME example_test COMMAND example)
