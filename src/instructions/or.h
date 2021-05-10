@@ -7,14 +7,6 @@
 namespace h8instructions {
 namespace orl {
 
-int or_immediate_w(H8Board *h8);
-
-}
-}
-
-namespace h8instructions {
-namespace orl {
-
 void immediate_b_parse(H8Board* h8, Instruction& instruction);
 int immediate_b_run(H8Board* h8, Instruction& instruction);
 void immediate_w_parse(H8Board *h8, Instruction& instruction);

@@ -91,7 +91,7 @@ instruction_handler_t lookup_79(H8Board* h8300h)
     case 0x01: return nullptr;
     case 0x02: return h8instructions::cmp::cmp_immediate_w;
     case 0x03: return nullptr; // SUB
-    case 0x04: return h8instructions::orl::or_immediate_w;
+    case 0x04: return nullptr;
     case 0x05: return nullptr; // XOR
     case 0x06: return h8instructions::andl::and_immediate_w;
     default:   return nullptr;
@@ -197,7 +197,7 @@ instruction_parser_t lookup_79(H8Board* h8300h)
     case 0x01: return h8instructions::add::add_immediate_w_parse;
     // case 0x02: return h8instructions::cmp::cmp_immediate_w;
     // case 0x03: return nullptr; // SUB
-    // case 0x04: return h8instructions::orl::or_immediate_w;
+    case 0x04: return h8instructions::orl::immediate_w_parse;
     // case 0x05: return nullptr; // XOR
     // case 0x06: return h8instructions::andl::and_immediate_w;
     default:   return nullptr;
