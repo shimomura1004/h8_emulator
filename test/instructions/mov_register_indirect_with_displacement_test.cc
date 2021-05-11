@@ -80,3 +80,45 @@ TEST_F(CPUTestFix, mov_register_indirect_with_displacement16_w_2)
     int val = this->mcu->read16(DummyMCU::ram_start + 0x1234);
     EXPECT_EQ(val, 0x7890);
 }
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement16_l_1)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(DummyMCU::ram_start);
+    this->mcu->write32(DummyMCU::ram_start + 0x1234, 0x567890ab);
+
+    // mov.l @(0x1234:16,er1),er2
+    this->dram->write8(0, 0x01);
+    this->dram->write8(1, 0x00);
+    this->dram->write8(2, 0x6f);
+    this->dram->write8(3, 0x12);
+    this->dram->write8(4, 0x12);
+    this->dram->write8(5, 0x34);
+
+    // 正しく命令が実行され、32ビットレジスタ ER2 に、メモリから 0x567890ab がコピーされる
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->cpu->reg32(2).get();
+    EXPECT_EQ(val, 0x567890ab);
+}
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement16_l_2)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(DummyMCU::ram_start);
+    this->cpu->reg32(2).set(0x7890abcd);
+
+    // mov.l er2,@(0x1234:16,er1)
+    this->dram->write8(0, 0x01);
+    this->dram->write8(1, 0x00);
+    this->dram->write8(2, 0x6f);
+    this->dram->write8(3, 0x92);
+    this->dram->write8(4, 0x12);
+    this->dram->write8(5, 0x34);
+
+    // 正しく命令が実行され、メモリに、レジスタ R2 から 0x7890 がコピーされる
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->mcu->read32(DummyMCU::ram_start + 0x1234);
+    EXPECT_EQ(val, 0x7890abcd);
+}
