@@ -15,6 +15,7 @@ add_definitions("-Wall -I. -std=c++11 -pthread -g")
 add_executable(example
     example.cc
     instructions/mov_immediate_test.cc
+    instructions/mov_register_indirect_with_displacement_test.cc
     instructions/or_immediate_test.cc
     cpu/h83069f_test.cc
 )
