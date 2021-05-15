@@ -17,6 +17,7 @@ add_executable(example
     instructions/mov_register_direct_test.cc
     instructions/mov_immediate_test.cc
     instructions/mov_absolute_address_test.cc
+    instructions/mov_register_indirect_test.cc
     instructions/mov_register_indirect_with_displacement_test.cc
     instructions/or_immediate_test.cc
     cpu/h83069f_test.cc
