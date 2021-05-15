@@ -7,7 +7,7 @@
 #include "nic.h"
 #include "rtl8019as_register.h"
 
-// todo: ping への応答が1秒近くかかっている
+// TODO: ping への応答が1秒近くかかっている
 
 class RTL8019AS : public INIC {
     static const uint8_t DEVICE_NAME_SIZE = 8;
@@ -22,7 +22,7 @@ class RTL8019AS : public INIC {
     std::thread* tap_thread[2];
     bool terminate_flag;
 
-    // todo: ISR レジスタが割込みの種別を持っている、細かくフラグをわけないといけない
+    // TODO: ISR レジスタが割込みの種別を持っている、細かくフラグをわけないといけない
     bool hasInterruption;
     std::condition_variable& interrupt_cv;
 

@@ -1,6 +1,6 @@
 #include "andc.h"
 
-// todo: ccr.raw/ccr.set を使う
+// TODO: ccr.raw/ccr.set を使う
 int h8instructions::andc::andc(H8Board* h8)
 {
     uint8_t imm = h8->fetch_instruction_byte(1);

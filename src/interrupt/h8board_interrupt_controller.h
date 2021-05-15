@@ -6,7 +6,7 @@
 #include "timer/timer8.h"
 #include "net/nic.h"
 
-// todo: 本来 SCI/Timer/NIC からの割り込みは InterruptController が取りまとめるべき
+// TODO: 本来 SCI/Timer/NIC からの割り込みは InterruptController が取りまとめるべき
 //       現状は、各ペリフェラルが直接 interrupt_cv 経由で CPU に通知してしまっている
 // H8 ボードのハード構成に依存するため、H8 ボード専用のクラスとなる
 class H8BoardInterruptController : public IInterruptController {
@@ -16,7 +16,7 @@ class H8BoardInterruptController : public IInterruptController {
     ITimer8& timer8;
     INIC& nic;
 
-    // todo: mutex は不要？
+    // TODO: mutex は不要？
     std::mutex mutex;
     uint64_t interrupt_flag;
 

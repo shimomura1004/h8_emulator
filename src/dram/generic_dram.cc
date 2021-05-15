@@ -1,6 +1,6 @@
 #include "generic_dram.h"
 
-// todo: ヘルパ関数としてどこかに定義
+// TODO: ヘルパ関数としてどこかに定義
 #ifdef __BYTE_ORDER__
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
@@ -15,7 +15,7 @@
 #endif
 #endif
 
-// todo: IO ポートの設定が完了するまでは DRAM を読み書きさせない
+// TODO: IO ポートの設定が完了するまでは DRAM を読み書きさせない
 
 GenericDRAM::GenericDRAM()
     : ram {0}

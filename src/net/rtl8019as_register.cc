@@ -1,6 +1,6 @@
 #include "rtl8019as_register.h"
 
-// todo: レジスタへのアクセスは排他制御する
+// TODO: レジスタへのアクセスは排他制御する
 
 uint8_t RTL8019ASRegister::getPage()
 {
@@ -91,7 +91,7 @@ uint8_t* RTL8019ASRegister::getRegister(uint8_t index, uint8_t page, bool read_m
     return nullptr;
 }
 
-// todo: レジスタの初期値の設定
+// TODO: レジスタの初期値の設定
 // テスト用に、仮で以下の値を設定している
 // ISR(0xff): Remote DMA が常に完了した状態
 RTL8019ASRegister::RTL8019ASRegister()
@@ -163,7 +163,7 @@ void RTL8019ASRegister::set_CR_TXP(bool b)
 {
     std::lock_guard<std::mutex> lock(this->rtl_mutex);
     if (b) {
-        // todo: マジックナンバーを消す
+        // TODO: マジックナンバーを消す
         this->CR |= 1 << 2;
     } else {
         this->CR &= ~(1 << 2);
@@ -274,7 +274,7 @@ void RTL8019ASRegister::wait_txp_to_be(bool b)
 {
     std::unique_lock<std::mutex> txp_lock(this->rtl_mutex);
     this->rtl_cv.wait(txp_lock, [&]{
-        // todo: マジックナンバーを消す
+        // TODO: マジックナンバーを消す
         // TXP が true/false になるのを待つ
         return b == (bool)(CR & (1 << 2));
     });

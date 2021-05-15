@@ -1,7 +1,7 @@
 #include "board/h8board.h"
 #include "operation_map/operation_map.h"
 
-// todo: デバッグ用
+// TODO: デバッグ用
 #include <set>
 
 uint8_t H8Board::fetch_instruction_byte(uint8_t offset)
@@ -11,7 +11,7 @@ uint8_t H8Board::fetch_instruction_byte(uint8_t offset)
 
 int H8Board::execute_next_instruction()
 {
-    // todo: InstructionParser クラスを作り、lookup をそのクラスのメンバ関数とする
+    // TODO: InstructionParser クラスを作り、lookup をそのクラスのメンバ関数とする
     instruction_parser_t parser = operation_map2::lookup(this);
 
     if (parser) {
@@ -39,7 +39,7 @@ int H8Board::execute_next_instruction()
         return result;
     } else {
         {
-            // todo: 移行のためのフォールバック処理
+            // TODO: 移行のためのフォールバック処理
             instruction_handler_t handler = operation_map::lookup(this);
 
             if (handler == nullptr) {
@@ -63,7 +63,7 @@ int H8Board::execute_next_instruction()
     }
 }
 
-// todo: スタック操作関係は別クラスに移動
+// TODO: スタック操作関係は別クラスに移動
 void H8Board::push_to_stack_b(uint8_t value, uint8_t register_index)
 {
     Register32& r = this->cpu.reg32(register_index);
@@ -161,7 +161,7 @@ bool H8Board::handle_interrupt()
         // 割込み要求フラグをクリア
         interrupt_controller.clear(type);
 
-        // todo: CPU 内に隠蔽できないか
+        // TODO: CPU 内に隠蔽できないか
         // CCR と PC を退避
         // H8 では、現在のスタックポインタの指す場所に退避される
         save_pc_and_ccr_to_stack();
@@ -187,13 +187,13 @@ int H8Board::step()
         fprintf(stderr, "Abort.\n");
     }
 
-    // todo: スリープ、割込みによる復帰は CPU でやるべき
+    // TODO: スリープ、割込みによる復帰は CPU でやるべき
     if (is_sleep) {
         // スリープ状態の場合は wait する
         // 復帰するときは別スレッドから notify する必要がある
         // 割込みコントローラから起こすようになっている
 
-        // todo: CCR のロックを取ったほうがいいのでは？
+        // TODO: CCR のロックを取ったほうがいいのでは？
         std::mutex tmp;
         std::unique_lock<std::mutex> lock(tmp);
         interrupt_cv.wait(lock, [this]{
@@ -203,7 +203,7 @@ int H8Board::step()
 
 
             if (this->wake_for_debugger_flag) {
-                // todo: ロックが必要かもしれない
+                // TODO: ロックが必要かもしれない
                 this->wake_for_debugger_flag = false;
                 // CPU のスリープ中にデバッガを扱いたいため、一時的に復帰させる
                 // PC を sleep 命令のバイト数だけ戻し、次の実行で再び sleep させる
@@ -231,7 +231,7 @@ int H8Board::step()
     return result;
 }
 
-// todo: CPU に持たせるべき
+// TODO: CPU に持たせるべき
 void H8Board::print_registers()
 {
     for (int i = 0; i < 8; i++) {

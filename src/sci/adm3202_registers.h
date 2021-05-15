@@ -6,7 +6,7 @@
 
 class ADM3202_Registers {
 public:
-    // todo: enum は別ヘッダに移す
+    // TODO: enum は別ヘッダに移す
     typedef enum {
         SMR = 0,    // シリアルモードレジスタ
         BRR,        // ビットレートレジスタ

@@ -1,6 +1,6 @@
 #include "not.h"
 
-// todo: ccr 更新部の共通化
+// TODO: ccr 更新部の共通化
 
 int h8instructions::notl::not_b(H8Board *h8)
 {

@@ -65,7 +65,7 @@ class H8BoardMCU : public IMCU {
     static const uint32_t area7_start = 0xe00000;
     static const uint32_t area7_end   = 0xffffff;
 
-    // todo: rom/ram は DRAM と共通化できる
+    // TODO: rom/ram は DRAM と共通化できる
     // 内蔵 ROM/RAM の実体
     uint8_t rom[rom_end - rom_start + 1];
     uint8_t ram[ram_end - ram_start + 1];

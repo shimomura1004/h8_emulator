@@ -205,11 +205,11 @@ int main(int argc, char *argv[])
                     set_canonical();
                     printf("(command) ");
                     fflush(stdout);
-                    // todo: ここでフラグを立ててモードを区別できるようにする
+                    // TODO: ここでフラグを立ててモードを区別できるようにする
                     continue;
                 }
 
-                // todo: コマンド入力モードでパースに失敗するとずっと canonical になる
+                // TODO: コマンド入力モードでパースに失敗するとずっと canonical になる
                 if (strncmp(user_buf, SEND_COMMAND, sizeof(SEND_COMMAND) - 1) == 0) {
                     // コマンド入力モードで入力されたコマンドの処理
                     handle_send_command(h8_serial_sock, user_buf);

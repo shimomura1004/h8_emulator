@@ -17,10 +17,10 @@ int main (int argc, char* argv[])
         exit(1);
     }
 
-    // todo: ペリフェラルは全部同じようなインタフェースを持つ(read/write(8,16,32), get/clear interrupt)
+    // TODO: ペリフェラルは全部同じようなインタフェースを持つ(read/write(8,16,32), get/clear interrupt)
     // 共通のインタフェースを作ったほうが扱いやすいかも
 
-    // todo: H8300H で必要なオブジェクトは H8300H クラス内で初期化するほうがいい
+    // TODO: H8300H で必要なオブジェクトは H8300H クラス内で初期化するほうがいい
     // stdio を使うときは screen コマンドを使うこと
     H83069F cpu;
     std::condition_variable& interrupt_cv = cpu.get_interrupt_cv();

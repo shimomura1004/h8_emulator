@@ -1,6 +1,6 @@
 #include "shll.h"
 
-// todo: shll は1つにまとめられそう
+// TODO: shll は1つにまとめられそう
 
 int h8instructions::shll::shll_b(H8Board *h8)
 {

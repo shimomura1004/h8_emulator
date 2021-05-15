@@ -7,7 +7,7 @@
 #include "mcu/mcu.h"
 #include "interrupt/interrupt_controller.h"
 
-// todo: 今ボードが持っている役割は CPU に移すべき
+// TODO: 今ボードが持っている役割は CPU に移すべき
 // CPU が MCU 経由でデバイスを操作すればいい
 
 class H8Board {

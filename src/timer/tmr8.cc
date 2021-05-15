@@ -1,6 +1,6 @@
 #include "tmr8.h"
 
-// todo: クリアフラグへの対応
+// TODO: クリアフラグへの対応
 
 const interrupt_t TMR8::interrupts[] = {
     interrupt_t::CMIA0,
@@ -14,7 +14,7 @@ const interrupt_t TMR8::interrupts[] = {
 };
 
 // 発生させる割込みの種類に応じて、割込み発生までのカウント数を返す
-// todo: カウンタ(TCNT)の値を考慮する
+// TODO: カウンタ(TCNT)の値を考慮する
 uint8_t TMR8::get_count_for(interrupt_t type)
 {
     switch (type) {
@@ -132,7 +132,7 @@ void TMR8::set_interrupt(interrupt_t type)
     case interrupt_t::CMIA0:
         if (this->channel == 0) {
             this->tcsr.set_tcsr_cmfa(true);
-            // todo: magic number をやめる
+            // TODO: magic number をやめる
             this->interrupt_request_flags[0] = true;
         } else {
             fprintf(stderr, "Error: CMIA0 isn't supported with TMR%d\n", this->channel);
@@ -148,7 +148,7 @@ void TMR8::set_interrupt(interrupt_t type)
         break;
     case interrupt_t::CMIA1_CMIB1:
         if (this->channel == 1) {
-            // todo: 現状、CMFA1 に固定している
+            // TODO: 現状、CMFA1 に固定している
             this->tcsr.set_tcsr_cmfa(true);
             this->interrupt_request_flags[2] = true;
         } else {
@@ -181,7 +181,7 @@ void TMR8::set_interrupt(interrupt_t type)
         break;
     case interrupt_t::CMIA3_CMIB3:
         if (this->channel == 3) {
-            // todo: 現状、CMFA3 に固定している
+            // TODO: 現状、CMFA3 に固定している
             this->tcsr.set_tcsr_cmfa(true);
             this->interrupt_request_flags[6] = true;
         } else {
@@ -207,7 +207,7 @@ void TMR8::update_timer() {
     // 過去のタイマを失効させる
     this->valid_clock_id++;
 
-    // todo: 割込みは発生しなくてもカウンタは動作すべき(cmiea などを確認する必要なし)
+    // TODO: 割込みは発生しなくてもカウンタは動作すべき(cmiea などを確認する必要なし)
     // 有効にされた割込みに応じて複数のタイマを起動
     if (this->tcr.get_tcr_cmieb()) {
         static interrupt_t table[] = { CMIB0, CMIA1_CMIB1, CMIB2, CMIA3_CMIB3 };
@@ -291,7 +291,7 @@ uint8_t TMR8::get_tcnt()
     auto now = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = now - this->start_time;
 
-    // todo: 現状は決め打ち
+    // TODO: 現状は決め打ち
     double one_count_takes = periods[CLOCK_KIND::DIV8192] * 0xff / 1000;
     double count = diff.count() / one_count_takes;
     this->tcnt = (uint8_t)count;
@@ -301,7 +301,7 @@ uint8_t TMR8::get_tcnt()
 
 void TMR8::set_tcr(uint8_t value) {
     this->tcr.set_raw(value);
-    // todo: ウェイトをリセットしなければいけないときだけ update する
+    // TODO: ウェイトをリセットしなければいけないときだけ update する
     update_timer();
 }
 

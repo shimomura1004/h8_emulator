@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cstdint>
 
-// todo: バスコントローラの設定を反映させる
+// TODO: バスコントローラの設定を反映させる
 
 class BusController {
 public:

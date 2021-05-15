@@ -68,7 +68,7 @@ uint8_t ADM3202_Registers::read(uint32_t register_index)
     return regs[register_index];
 }
 
-// todo: CPU 側の関数を使って設定するほうがいい
+// TODO: CPU 側の関数を使って設定するほうがいい
 void ADM3202_Registers::write(uint32_t register_index, uint8_t byte)
 {
     std::lock_guard<std::mutex> lock(sci_mutex);
@@ -84,7 +84,7 @@ void ADM3202_Registers::write(uint32_t register_index, uint8_t byte)
     }
     case SCI::SCR: {
         set_nolock(register_index, byte);
-        // todo: enable になったとき、既に割り込みが発生していた場合は？
+        // TODO: enable になったとき、既に割り込みが発生していた場合は？
         break;
     }
     case SCI::TDR: {
@@ -111,7 +111,7 @@ void ADM3202_Registers::write(uint32_t register_index, uint8_t byte)
             sci_cv.notify_all();
         }
 
-        // todo: 他のビットも反映する
+        // TODO: 他のビットも反映する
         break;
     }
     case SCI::RDR: {

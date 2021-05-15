@@ -29,7 +29,7 @@
 
 using namespace h8instructions;
 
-// todo: 削除する
+// TODO: 削除する
 const char* lookup_instruction_name(instruction_handler_t handler)
 {
     if (handler == adds::adds) return "adds::adds";

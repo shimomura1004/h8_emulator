@@ -1,7 +1,7 @@
 #include "h8board_mcu.h"
 #include "board/elf_loader.h"
 
-// todo: ヘルパ関数としてどこかに定義
+// TODO: ヘルパ関数としてどこかに定義
 
 #ifdef __BYTE_ORDER__
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -186,7 +186,7 @@ void H8BoardMCU::dump(std::string filepath)
         fputc(0, fp);
     }
 
-    // todo: RTL8019AS のダンプに対応
+    // TODO: RTL8019AS のダンプに対応
 
     dram.dump(fp);
 
@@ -203,8 +203,8 @@ void H8BoardMCU::dump(std::string filepath)
         fputc(0, fp);
     }
 
-    // todo: タイマのダンプに対応
-    // todo: IO ポートのダンプに対応
+    // TODO: タイマのダンプに対応
+    // TODO: IO ポートのダンプに対応
 
     sci0.dump(fp);
     sci1.dump(fp);

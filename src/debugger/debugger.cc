@@ -26,7 +26,7 @@ static void sig_handler(int signo)
         switch (runner_mode) {
         case NORMAL_MODE: // デバッグモードでなければすぐに終了
         case DEBUG_MODE:  // デバッグモード中にさらに Ctrl-C されたら終了
-            // todo: sigwait を使うほうが素直かも
+            // TODO: sigwait を使うほうが素直かも
             // すぐに終了させず、一旦 sem_post で通常のコンテキストに処理を戻す
             // その後、sem_wait しているスレッドから再度 SIGINT がくる
             runner_mode = EXITING_MODE;
@@ -102,10 +102,10 @@ void Debugger::write_value_command(char *buf)
     }
 }
 
-// todo: メモリの内容を一部確認するコマンドがほしい
-// todo: レジスタを書き換えるコマンドがほしい
-// todo: SCI のレジスタを見るコマンドがほしい
-// todo: 様々な条件でのブレーク機能
+// TODO: メモリの内容を一部確認するコマンドがほしい
+// TODO: レジスタを書き換えるコマンドがほしい
+// TODO: SCI のレジスタを見るコマンドがほしい
+// TODO: 様々な条件でのブレーク機能
 //       特定のメモリアドレスへの書き込み時、レジスタが特定の値になったとき、など
 #include "instructions/jsr.h"
 #include "instructions/rts.h"
@@ -122,7 +122,7 @@ int Debugger::proccess_debugger_command()
             runner_mode = DEBUG_MODE;
         }
 
-        // // todo: バグがある
+        // // TODO: バグがある
         // if (step_out_mode) {
         //     instruction_handler_t handler = OperationMap::lookup(&h8);
         //     if (handler == h8instructions::rts::rts)  {
@@ -180,7 +180,7 @@ int Debugger::proccess_debugger_command()
             return 0;
         }
         case DebuggerParser::Command::STEP_OUT: {
-            // // bug: 動かない
+            // // BUG: 動かない
             // runner_mode = CONTINUE_MODE;
             // step_out_mode = true;
             return 0;
@@ -226,7 +226,7 @@ int Debugger::proccess_debugger_command()
             break;
         }
         case DebuggerParser::Command::WRITE_TO_REGISTER: {
-            // todo: 実装する
+            // TODO: 実装する
             write_value_command(buf);
             break;
         }
@@ -277,7 +277,7 @@ void Debugger::run(bool debug)
         h8.handle_interrupt();
 
         if (runner_mode == DEBUG_MODE || runner_mode == CONTINUE_MODE) {
-            // todo: なぜかスタックに積まれる数がとても多い
+            // TODO: なぜかスタックに積まれる数がとても多い
             // // 割込みが発生したら PC を保存
             // if (interrupted) {
             //     call_stack.push_back(h8.cpu.pc());
@@ -288,7 +288,7 @@ void Debugger::run(bool debug)
                 break;
             }
 
-            // // todo: instruction のパース結果を使ってもう少し情報を出力したい
+            // // TODO: instruction のパース結果を使ってもう少し情報を出力したい
             // instruction_handler_t handler = operation_map::lookup(&h8);
             // if ((handler == h8instructions::jsr::jsr_absolute_address) ||
             //     (handler == h8instructions::jsr::jsr_register_indirect))

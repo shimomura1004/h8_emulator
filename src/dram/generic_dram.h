@@ -6,7 +6,7 @@
 
 #include "dram.h"
 
-// todo: メモリ容量はパラメータにする
+// TODO: メモリ容量はパラメータにする
 class GenericDRAM : public IDRAM {
     // 2MB のメモリ
     uint8_t ram[0x200000];

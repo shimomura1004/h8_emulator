@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "tap_device.h"
 
-// todo: リングバッファへのアクセスは排他制御する
+// TODO: リングバッファへのアクセスは排他制御する
 
 RTL8019AS::RTL8019AS(std::condition_variable& interrupt_cv)
     : device_fd(-1)
@@ -162,7 +162,7 @@ void RTL8019AS::run_recv_from_tap()
             next_page -= (pstop - pstart);
         }
 
-        // todo: status とは？
+        // TODO: status とは？
         this->saprom[head_address + 0] = 0x00;
         this->saprom[head_address + 1] = next_page;
         // サイズは管理用の4バイト込みの大きさを書き込む

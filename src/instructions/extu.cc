@@ -1,6 +1,6 @@
 #include "extu.h"
 
-// todo: ccr の更新部分を共通化
+// TODO: ccr の更新部分を共通化
 
 int h8instructions::extu::extu_w(H8Board* h8)
 {
