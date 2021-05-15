@@ -26,8 +26,8 @@ void absolute_address_24_b_parse(H8Board* h8, Instruction& instruction)
         instruction.runner = nullptr;
         return;
     case 0x02:
-        instruction.parser = nullptr;
-        instruction.runner = nullptr;
+        instruction.op1.set_absolute_address24(absolute);
+        instruction.op2.set_register_direct8(b1 & 0x0f);
         return;
     case 0x08:
         instruction.parser = nullptr;
@@ -49,8 +49,18 @@ int absolute_address_24_b_run(H8Board* h8, Instruction& instruction)
     addressing_mode_t mode = instruction.op1.get_mode();
 
     switch (mode) {
-    case addressing_mode_t::AbsoluteAddress24:
-        return -1;
+    case addressing_mode_t::AbsoluteAddress24: {
+        uint32_t absolute = instruction.op1.get_absolute_address24();
+        Register8& dst = h8->cpu.reg8(instruction.op2.get_register_direct8());
+
+        uint8_t value = h8->mcu.read8(absolute);
+        dst.set(value);
+
+        h8instructions::mov::update_ccr<int8_t>(h8, (int8_t)value);
+        h8->cpu.pc() += 6;
+
+        return 0;
+    }
     case addressing_mode_t::RegisterDirect8: {
         const Register8& src = h8->cpu.reg8(instruction.op1.get_register_direct8());
         uint32_t absolute = instruction.op2.get_absolute_address24();
