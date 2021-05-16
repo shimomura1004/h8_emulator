@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.14)
 
 include_directories(
     ${h8emu_SOURCE_DIR}/src
