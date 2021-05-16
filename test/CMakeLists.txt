@@ -36,4 +36,8 @@ target_link_libraries(example
     gtest_main
     gmock)
 
-add_test(NAME example_test COMMAND example)
+add_test(
+    NAME example_test
+    COMMAND example
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
