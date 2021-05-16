@@ -1,6 +1,8 @@
 h8_emulator
 ==================================================
 
+![](https://github.com/shimomura1004/h8_emulator/workflows/CMake/badge.svg)
+
 ## Description
 h8_emulator emulates [H8/3069F board](https://akizukidenshi.com/catalog/g/gK-01271/).
 
