@@ -4,38 +4,6 @@
 namespace h8instructions {
 namespace mov {
 
-int register_indirect_with_increment_decrement_l(H8Board* h8)
-{
-    uint8_t b3 = h8->fetch_instruction_byte(3);
-    if ((b3 & 0x80) == 0) {
-        uint8_t src_register_index = (b3 & 0x70) >> 4;
-        uint8_t dst_register_index = (b3 & 0x07);
-        Register32& dst = h8->cpu.reg32(dst_register_index);
-
-        uint32_t value = h8->pop_from_stack_l(src_register_index);
-        dst.set(value);
-
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
-    } else {
-        uint8_t src_register_index = (b3 & 0x07);
-        uint8_t dst_register_index = (b3 & 0x70) >> 4;
-        Register32& src = h8->cpu.reg32(src_register_index);
-
-        h8->push_to_stack_l(src.get(), dst_register_index);
-        h8instructions::mov::update_ccr<int32_t>(h8, src.get());
-    }
-
-    h8->cpu.pc() += 4;
-
-    return 0;
-}
-
-}
-}
-
-namespace h8instructions {
-namespace mov {
-
 void register_indirect_with_increment_decrement_b_parser(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
@@ -94,8 +62,63 @@ int register_indirect_with_increment_decrement_b_run(H8Board* h8, Instruction& i
     }
 }
 
-// void register_indirect_with_increment_decrement_l_parser(H8300H* h8, Instruction* instruction);
-// int register_indirect_with_increment_decrement_l_run(H8300H* h8, Instruction* instruction);
+void register_indirect_with_increment_decrement_l_parser(H8Board* h8, Instruction& instruction)
+{
+    uint8_t b3 = h8->fetch_instruction_byte(3);
+
+    instruction.name = "mov.l";
+    instruction.parser = h8instructions::mov::register_indirect_with_increment_decrement_l_parser;
+    instruction.runner = h8instructions::mov::register_indirect_with_increment_decrement_l_run;
+
+    if ((b3 & 0x80) == 0) {
+        // mov.l @ERs+,ERd
+        instruction.op1.set_register_indirect_with_post_incement((b3 & 0x70) >> 4);
+        instruction.op2.set_register_direct32(b3 & 0x07);
+    } else {
+        // mov.l ERs,@-ERd
+        instruction.op1.set_register_direct32(b3 & 0x07);
+        instruction.op2.set_register_indirect_with_pre_decrement((b3 & 0x70) >> 4);
+    }
+}
+
+int register_indirect_with_increment_decrement_l_run(H8Board* h8, Instruction& instruction)
+{
+    addressing_mode_t mode = instruction.op1.get_mode();
+
+    switch (mode) {
+    case addressing_mode_t::RegisterIndirectWithPostIncement: {
+        // mov.l @ERs+,ERd
+        uint8_t src_register_index = instruction.op1.get_register_indirect_with_post_incement();
+        Register32& dst = h8->cpu.reg32(instruction.op2.get_register_direct32());
+
+        uint32_t value = h8->pop_from_stack_l(src_register_index);
+        dst.set(value);
+
+        h8instructions::mov::update_ccr<int32_t>(h8, value);
+
+        h8->cpu.pc() += 4;
+
+        return 0;
+    }
+    case addressing_mode_t::RegisterDirect32: {
+        // mov.l ERs,@-ERd
+        const Register32& src = h8->cpu.reg32(instruction.op1.get_register_direct32());
+        uint8_t dst_register_index = instruction.op2.get_register_indirect_with_pre_decrement();
+
+        uint32_t value = src.get();
+        h8->push_to_stack_l(value, dst_register_index);
+
+        h8instructions::mov::update_ccr<int32_t>(h8, value);
+
+        h8->cpu.pc() += 4;
+
+        return 0;
+    }
+    default:
+        fprintf(stderr, "Error: mismatched operator and operands\n");
+        return -1;
+    }
+}
 
 }
 }

@@ -45,3 +45,47 @@ TEST_F(CPUTestFix, mov_register_indirect_with_displacement_prepost_b_2)
     EXPECT_EQ(sp, DummyMCU::area2_start + 0x100 - 1);
 }
 
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement_prepost_l_1)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(7).set(DummyMCU::area2_start + 0x100);
+    this->mcu->write32(DummyMCU::area2_start + 0x100, 0x12345678);
+
+    // mov.l @ER7+,er2
+    this->dram->write8(0, 0x01);
+    this->dram->write8(1, 0x00);
+    this->dram->write8(2, 0x6d);
+    this->dram->write8(3, 0x72);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->cpu->reg32(2).get();
+    EXPECT_EQ(val, 0x12345678);
+
+    // スタックポインタが4バイト分、解放される
+    int sp = this->cpu->sp().get();
+    EXPECT_EQ(sp, DummyMCU::area2_start + 0x100 + 4);
+}
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement_prepost_l_2)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(7).set(DummyMCU::area2_start + 0x100);
+    this->cpu->reg32(2).set(0x567890ab);
+
+    // mov.l er2,@-er7
+    this->dram->write8(0, 0x01);
+    this->dram->write8(1, 0x00);
+    this->dram->write8(2, 0x6d);
+    this->dram->write8(3, 0xf2);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->mcu->read32(DummyMCU::area2_start + 0x100 - 4);
+    EXPECT_EQ(val, 0x567890ab);
+
+    // スタックポインタが4バイト分、消費される
+    int sp = this->cpu->sp().get();
+    EXPECT_EQ(sp, DummyMCU::area2_start + 0x100 - 4);
+}
+
