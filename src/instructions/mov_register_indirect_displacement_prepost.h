@@ -7,7 +7,6 @@
 namespace h8instructions {
 namespace mov {
 
-int register_indirect_with_increment_decrement_b(H8Board* h8);
 int register_indirect_with_increment_decrement_l(H8Board* h8);
 
 void register_indirect_with_increment_decrement_b_parser(H8Board* h8, Instruction& instruction);
