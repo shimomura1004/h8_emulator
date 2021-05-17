@@ -1,21 +1,6 @@
 #include "h8board_mcu.h"
 #include "board/elf_loader.h"
-
-// TODO: ヘルパ関数としてどこかに定義
-
-#ifdef __BYTE_ORDER__
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-
-#define bswap16_if_little_endian(v) (__builtin_bswap16(v));
-#define bswap32_if_little_endian(v) (__builtin_bswap32(v));
-
-#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-
-#define bswap16_if_little_endian(v) (v)
-#define bswap32_if_little_endian(v) (v)
-
-#endif
-#endif
+#include "util/byteorder.h"
 
 H8BoardMCU::H8BoardMCU(IDRAM& dram, ISCI& sci0, ISCI& sci1, ISCI& sci2, ITimer8& timer8, IOPort& ioport, INIC& nic)
     : dram(dram)
