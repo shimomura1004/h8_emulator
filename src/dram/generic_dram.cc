@@ -1,11 +1,23 @@
 #include "generic_dram.h"
 #include "util/byteorder.h"
+#include <cstdlib>
 
 // TODO: IO ポートの設定が完了するまでは DRAM を読み書きさせない
 
-GenericDRAM::GenericDRAM()
-    : ram {0}
-{}
+GenericDRAM::GenericDRAM(uint32_t size)
+    : ram((uint8_t*)malloc(sizeof(uint8_t) * size))
+{
+    if (this->ram == nullptr) {
+        fprintf(stderr, "Error: failed to allocate %d bytes DRAM\n", size);
+    }
+}
+
+GenericDRAM::~GenericDRAM()
+{
+    if (this->ram != nullptr) {
+        free(this->ram);
+    }
+}
 
 uint8_t GenericDRAM::read8(uint32_t address)
 {

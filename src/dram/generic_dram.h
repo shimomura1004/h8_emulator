@@ -6,13 +6,12 @@
 
 #include "dram.h"
 
-// TODO: メモリ容量はパラメータにする
 class GenericDRAM : public IDRAM {
-    // 2MB のメモリ
-    uint8_t ram[0x200000];
+    uint8_t* ram;
 
 public:
-    GenericDRAM();
+    GenericDRAM(uint32_t size);
+    ~GenericDRAM();
 
     uint8_t read8(uint32_t address) override;
     uint16_t read16(uint32_t address) override;

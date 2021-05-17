@@ -24,7 +24,7 @@ int main (int argc, char* argv[])
     // stdio を使うときは screen コマンドを使うこと
     H83069F cpu;
     std::condition_variable& interrupt_cv = cpu.get_interrupt_cv();
-    GenericDRAM dram;
+    GenericDRAM dram(0x200000);
     ADM3202 adm3202_0(0, interrupt_cv);
     ADM3202 adm3202_1(1, interrupt_cv, false);
     ADM3202 adm3202_2(2, interrupt_cv);

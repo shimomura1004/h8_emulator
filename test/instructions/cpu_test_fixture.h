@@ -20,7 +20,7 @@ protected:
     void SetUp() override
     {
         this->cpu = new H83069F();
-        this->dram = new GenericDRAM();
+        this->dram = new GenericDRAM(0x2000);
         this->interrupt_controller = new DummyInterruptController;
         this->mcu = new DummyMCU(*dram);
         this->h8 = new H8Board(*this->cpu, *this->mcu, *this->interrupt_controller);
