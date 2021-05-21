@@ -27,7 +27,6 @@ void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
     result_value < 0 ? h8->cpu.ccr().set_n() : h8->cpu.ccr().clear_n();
     result_value == 0 ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
 
-    // TODO: src_value >> (n - 1) でいい？
     bool src_value_mth_bit = src_value & (1 << (n - 1));
     bool dst_value_mth_bit = dst_value & (1 << (n - 1));
     bool result_value_mth_bit = result_value & (1 << (n - 1));
