@@ -17,7 +17,7 @@ int h8instructions::sub::sub_b(H8Board *h8)
     int8_t result_value = dst_value - src_value;
     dst.set(result_value);
 
-    update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
+    update_ccr<int8_t>(h8, src_value, dst_value, result_value);
 
     h8->cpu.pc() += 2;
 
@@ -38,7 +38,7 @@ int h8instructions::sub::sub_w(H8Board *h8)
     int16_t result_value = dst_value - src_value;
     dst.set(result_value);
 
-    update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
+    update_ccr<int16_t>(h8, src_value, dst_value, result_value);
 
     h8->cpu.pc() += 2;
 
@@ -58,7 +58,7 @@ int h8instructions::sub::sub_l(H8Board *h8)
     int32_t result_value = dst_value - src_value;
     dst.set(result_value);
 
-    update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
+    update_ccr<int32_t>(h8, src_value, dst_value, result_value);
 
     h8->cpu.pc() += 2;
 
@@ -83,7 +83,7 @@ int h8instructions::sub::sub_immediate_l(H8Board *h8)
     int32_t result_value = dst_value - src_value;
     dst.set(result_value);
 
-    update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
+    update_ccr<int32_t>(h8, src_value, dst_value, result_value);
 
     h8->cpu.pc() += 6;
 

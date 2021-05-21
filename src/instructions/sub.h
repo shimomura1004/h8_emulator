@@ -11,9 +11,10 @@ int sub_w(H8Board *h8);
 int sub_l(H8Board *h8);
 int sub_immediate_l(H8Board *h8);
 
-template<int n, class T>
+template<class T>
 void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
 {
+    constexpr int n = sizeof(T) * 8;
     bool src_value_nth_bit = src_value & (1 << (n - 4 - 1));
     bool dst_value_nth_bit = dst_value & (1 << (n - 4 - 1));
     bool result_value_nth_bit = result_value & (1 << (n - 4 - 1));
@@ -26,6 +27,7 @@ void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
     result_value < 0 ? h8->cpu.ccr().set_n() : h8->cpu.ccr().clear_n();
     result_value == 0 ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
 
+    // TODO: src_value >> (n - 1) でいい？
     bool src_value_mth_bit = src_value & (1 << (n - 1));
     bool dst_value_mth_bit = dst_value & (1 << (n - 1));
     bool result_value_mth_bit = result_value & (1 << (n - 1));

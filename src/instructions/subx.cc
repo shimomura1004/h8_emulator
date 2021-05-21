@@ -15,7 +15,7 @@ int h8instructions::subx::subx_register_direct(H8Board *h8)
     dst.set(result_value);
 
     bool prev_z = h8->cpu.ccr().z();
-    sub::update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
+    sub::update_ccr<int8_t>(h8, src_value, dst_value, result_value);
     if (result_value == 0) {
         prev_z ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
     }
