@@ -31,7 +31,7 @@ instruction_handler_t lookup(H8Board* h8300h)
     case 0x07: return lookup_7x(h8300h);
     case 0x08: return nullptr;
     case 0x09: return nullptr; // ADDX
-    case 0x0a: return h8instructions::cmp::cmp_immediate_b;
+    case 0x0a: return nullptr;
     case 0x0b: return nullptr; // SUBX
     case 0x0c: return nullptr;
     case 0x0d: return h8instructions::xorl::xor_immediate_b;
@@ -61,7 +61,7 @@ instruction_parser_t lookup(H8Board* h8300h)
     case 0x07: return lookup_7x(h8300h);
     case 0x08: return h8instructions::add::add_immediate_b_parse;
     // case 0x09: return nullptr; // ADDX
-    // case 0x0a: return h8instructions::cmp::cmp_immediate_b;
+    case 0x0a: return h8instructions::cmp::cmp_immediate_b_parse;
     // case 0x0b: return nullptr; // SUBX
     case 0x0c: return h8instructions::orl::immediate_b_parse;
     // case 0x0d: return h8instructions::xorl::xor_immediate_b;
