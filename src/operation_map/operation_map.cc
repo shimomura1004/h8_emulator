@@ -52,7 +52,7 @@ instruction_parser_t lookup(H8Board* h8300h)
 
     switch (ah) {
     case 0x00: return lookup_0x(h8300h);
-    // case 0x01: return lookup_1x(h8300h);
+    case 0x01: return lookup_1x(h8300h);
     // case 0x02:
     // case 0x03: return nullptr; // MOV.B
     // case 0x04: return lookup_4x(h8300h);

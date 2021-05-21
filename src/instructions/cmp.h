@@ -7,8 +7,6 @@
 namespace h8instructions {
 namespace cmp {
 
-int cmp_register_direct_b(H8Board* h8);
-
 int cmp_immediate_w(H8Board* h8);
 int cmp_register_direct_w(H8Board* h8);
 
