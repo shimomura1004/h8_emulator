@@ -39,6 +39,7 @@ add_test(
 
 add_executable(cmp_test
     cmp_immediate_test.cc
+    cmp_register_direct_test.cc
 )
 target_link_libraries(cmp_test
     cpu
