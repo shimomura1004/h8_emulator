@@ -61,9 +61,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
     if (handler == bset::bset_register_direct_imm) return "bset::bset_register_direct_imm";
     if (handler == btst::btst_register_direct_imm) return "btst::btst_register_direct_imm";
 
-    if (handler == cmp::cmp_immediate_l) return "cmp::cmp_immediate_l";
-    if (handler == cmp::cmp_register_direct_l) return "cmp::cmp_register_direct_l";
-
     if (handler == dec::dec_b) return "dec::dec_b";
     if (handler == dec::dec_w) return "dec::dec_w";
     if (handler == dec::dec_l) return "dec::dec_l";

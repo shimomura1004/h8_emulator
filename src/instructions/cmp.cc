@@ -1,47 +1,6 @@
 #include "cmp.h"
 #include "sub.h"
 
-int h8instructions::cmp::cmp_immediate_l(H8Board* h8)
-{
-    uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t register_index = b1 & 0x07;
-    const Register32& reg = h8->cpu.reg32(register_index);
-
-    uint8_t immediate[4];
-    immediate[3] = h8->fetch_instruction_byte(2);
-    immediate[2] = h8->fetch_instruction_byte(3);
-    immediate[1] = h8->fetch_instruction_byte(4);
-    immediate[0] = h8->fetch_instruction_byte(5);
-    int32_t src_value = *(int32_t*)immediate;
-
-    int32_t dst_value = reg.get();
-    int32_t result_value = dst_value - src_value;
-
-    h8instructions::sub::update_ccr<int32_t>(h8, src_value, dst_value, result_value);
-    h8->cpu.pc() += 6;
-
-    return 0;
-}
-
-int h8instructions::cmp::cmp_register_direct_l(H8Board* h8)
-{
-    uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t src_register_index = (b1 & 0x70) >> 4;
-    uint8_t dst_register_index = b1 & 0x07;
-    const Register32& src = h8->cpu.reg32(src_register_index);
-    const Register32& dst = h8->cpu.reg32(dst_register_index);
-
-    int32_t src_value = src.get();
-    int32_t dst_value = dst.get();
-    int32_t result_value = dst_value - src_value;
-
-    h8instructions::sub::update_ccr<int32_t>(h8, src_value, dst_value, result_value);
-    h8->cpu.pc() += 2;
-
-    return 0;
-}
-
-
 namespace h8instructions {
 namespace cmp {
 
@@ -159,6 +118,65 @@ int cmp_register_direct_w_run(H8Board* h8, Instruction& instruction)
     return 0;
 }
 
+void cmp_immediate_l_parse(H8Board* h8, Instruction& instruction)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+
+    uint8_t imm[4];
+    imm[3] = h8->fetch_instruction_byte(2);
+    imm[2] = h8->fetch_instruction_byte(3);
+    imm[1] = h8->fetch_instruction_byte(4);
+    imm[0] = h8->fetch_instruction_byte(5);
+    int32_t immediate = *(int32_t*)imm;
+
+    instruction.name ="cmp.l";
+    instruction.op1.set_immediate32(immediate);
+    instruction.op2.set_register_direct32(b1 & 0x07);
+
+    instruction.parser = h8instructions::cmp::cmp_immediate_l_parse;
+    instruction.runner = h8instructions::cmp::cmp_immediate_l_run;
+}
+
+int cmp_immediate_l_run(H8Board* h8, Instruction& instruction)
+{
+    const Register32& reg = h8->cpu.reg32(instruction.op2.get_register_direct32());
+
+    int32_t src_value = instruction.op1.get_immediate32();
+    int32_t dst_value = reg.get();
+    int32_t result_value = dst_value - src_value;
+
+    h8instructions::sub::update_ccr<int32_t>(h8, src_value, dst_value, result_value);
+    h8->cpu.pc() += 6;
+
+    return 0;
+}
+
+void cmp_register_direct_l_parse(H8Board* h8, Instruction& instruction)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+
+    instruction.name ="cmp.l";
+    instruction.op1.set_register_direct32((b1 & 0x70) >> 4);
+    instruction.op2.set_register_direct32(b1 & 0x07);
+
+    instruction.parser = h8instructions::cmp::cmp_register_direct_l_parse;
+    instruction.runner = h8instructions::cmp::cmp_register_direct_l_run;
+}
+
+int cmp_register_direct_l_run(H8Board* h8, Instruction& instruction)
+{
+    const Register32& src = h8->cpu.reg32(instruction.op1.get_register_direct32());
+    const Register32& dst = h8->cpu.reg32(instruction.op2.get_register_direct32());
+
+    int32_t src_value = src.get();
+    int32_t dst_value = dst.get();
+    int32_t result_value = dst_value - src_value;
+
+    h8instructions::sub::update_ccr<int32_t>(h8, src_value, dst_value, result_value);
+    h8->cpu.pc() += 2;
+
+    return 0;
+}
 
 }
 }

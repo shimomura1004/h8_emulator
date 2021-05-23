@@ -137,25 +137,6 @@ instruction_handler_t lookup_1B(H8Board* h8300h)
     }
 }
 
-instruction_handler_t lookup_1F(H8Board* h8300h)
-{
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh = (b1 & 0xf0) >> 4;
-
-    switch (bh) {
-    case 0x00: return nullptr; // DAS
-    case 0x08:
-    case 0x09:
-    case 0x0a:
-    case 0x0b:
-    case 0x0c:
-    case 0x0d:
-    case 0x0e:
-    case 0x0f: return h8instructions::cmp::cmp_register_direct_l;
-    default:   return nullptr;
-    }
-}
-
 instruction_handler_t lookup_1x(H8Board *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
@@ -177,7 +158,7 @@ instruction_handler_t lookup_1x(H8Board *h8300h)
     case 0x0c: return nullptr;
     case 0x0d: return nullptr;
     case 0x0e: return h8instructions::subx::subx_register_direct;
-    case 0x0f: return lookup_1F(h8300h);
+    case 0x0f: return nullptr;
     default:   return nullptr;
     }
 }
@@ -313,14 +294,14 @@ instruction_parser_t lookup_1F(H8Board* h8300h)
 
     switch (bh) {
     // case 0x00: return nullptr; // DAS
-    // case 0x08:
-    // case 0x09:
-    // case 0x0a:
-    // case 0x0b:
-    // case 0x0c:
-    // case 0x0d:
-    // case 0x0e:
-    // case 0x0f: return h8instructions::cmp::cmp_register_direct_l;
+    case 0x08:
+    case 0x09:
+    case 0x0a:
+    case 0x0b:
+    case 0x0c:
+    case 0x0d:
+    case 0x0e:
+    case 0x0f: return h8instructions::cmp::cmp_register_direct_l_parse;
     default:   return nullptr;
     }
 }
@@ -346,7 +327,7 @@ instruction_parser_t lookup_1x(H8Board *h8300h)
     case 0x0c: return h8instructions::cmp::cmp_register_direct_b_parse;
     case 0x0d: return h8instructions::cmp::cmp_register_direct_w_parse;
     // case 0x0e: return h8instructions::subx::subx_register_direct;
-    // case 0x0f: return lookup_1F(h8300h);
+    case 0x0f: return lookup_1F(h8300h);
     default:   return nullptr;
     }
 }

@@ -7,10 +7,6 @@
 namespace h8instructions {
 namespace cmp {
 
-int cmp_immediate_l(H8Board* h8);
-int cmp_register_direct_l(H8Board* h8);
-
-
 void cmp_immediate_b_parse(H8Board *h8, Instruction& instruction);
 int cmp_immediate_b_run(H8Board *h8, Instruction& instruction);
 void cmp_register_direct_b_parse(H8Board* h8, Instruction& instruction);
