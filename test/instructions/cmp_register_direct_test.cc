@@ -105,3 +105,104 @@ TEST_F(CPUTestFix, cmp_register_direct_b_ccr_n_v)
     EXPECT_EQ(this->h8->cpu.ccr().v(), true);
     EXPECT_EQ(this->h8->cpu.ccr().c(), true);
 }
+
+
+TEST_F(CPUTestFix, cmp_register_direct_w_ccr_z)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+
+    this->h8->cpu.reg16(0).set(0x0f0f);
+    this->h8->cpu.reg16(1).set(0x0f0f);
+    // cmp.w r0,r1
+    this->dram->write8(0, 0x1d);
+    this->dram->write8(1, 0x01);
+
+    // レジスタから即値を引いた結果を比較
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    // レジスタの値は変化しない
+    EXPECT_EQ(this->h8->cpu.reg16(0).get(), 0x0f0f);
+    EXPECT_EQ(this->h8->cpu.reg16(1).get(), 0x0f0f);
+
+    EXPECT_EQ(this->h8->cpu.ccr().h(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().n(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().z(), true);
+    EXPECT_EQ(this->h8->cpu.ccr().v(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().c(), false);
+}
+
+TEST_F(CPUTestFix, cmp_register_direct_w_ccr_h)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+
+    this->h8->cpu.reg16(0).set(0b0000100000000000);
+    this->h8->cpu.reg16(1).set(0b0100000000000000);
+    // cmp.w r0,r1
+    this->dram->write8(0, 0x1d);
+    this->dram->write8(1, 0x01);
+
+    // レジスタから即値を引いた結果を比較
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    // レジスタの値は変化しない
+    EXPECT_EQ(this->h8->cpu.reg16(0).get(), 0b0000100000000000);
+    EXPECT_EQ(this->h8->cpu.reg16(1).get(), 0b0100000000000000);
+
+    EXPECT_EQ(this->h8->cpu.ccr().h(), true);
+    EXPECT_EQ(this->h8->cpu.ccr().n(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().z(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().v(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().c(), false);
+}
+
+TEST_F(CPUTestFix, cmp_register_direct_w_ccr_n_c)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+
+    this->h8->cpu.reg16(0).set(0x2000);
+    this->h8->cpu.reg16(1).set(0x1000);
+    // cmp.w r0,r1
+    this->dram->write8(0, 0x1d);
+    this->dram->write8(1, 0x01);
+
+    // レジスタから即値を引いた結果を比較
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    // レジスタの値は変化しない
+    EXPECT_EQ(this->h8->cpu.reg16(0).get(), 0x2000);
+    EXPECT_EQ(this->h8->cpu.reg16(1).get(), 0x1000);
+
+    EXPECT_EQ(this->h8->cpu.ccr().h(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().n(), true);
+    EXPECT_EQ(this->h8->cpu.ccr().z(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().v(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().c(), true);
+}
+
+TEST_F(CPUTestFix, cmp_register_direct_w_ccr_n_v)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+
+    this->h8->cpu.reg16(0).set(0b1000000000000000);
+    this->h8->cpu.reg16(1).set(0b0000000000000000);
+    // cmp.w r0,r1
+    this->dram->write8(0, 0x1d);
+    this->dram->write8(1, 0x01);
+
+    // レジスタから即値を引いた結果を比較
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    // レジスタの値は変化しない
+    EXPECT_EQ(this->h8->cpu.reg16(0).get(), 0b1000000000000000);
+    EXPECT_EQ(this->h8->cpu.reg16(1).get(), 0b0000000000000000);
+
+    EXPECT_EQ(this->h8->cpu.ccr().h(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().n(), true);
+    EXPECT_EQ(this->h8->cpu.ccr().z(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().v(), true);
+    EXPECT_EQ(this->h8->cpu.ccr().c(), true);
+}

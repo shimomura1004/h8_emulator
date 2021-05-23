@@ -175,7 +175,7 @@ instruction_handler_t lookup_1x(H8Board *h8300h)
     case 0x0a: return lookup_1A(h8300h);
     case 0x0b: return lookup_1B(h8300h);
     case 0x0c: return nullptr;
-    case 0x0d: return h8instructions::cmp::cmp_register_direct_w;
+    case 0x0d: return nullptr;
     case 0x0e: return h8instructions::subx::subx_register_direct;
     case 0x0f: return lookup_1F(h8300h);
     default:   return nullptr;
@@ -344,7 +344,7 @@ instruction_parser_t lookup_1x(H8Board *h8300h)
     // case 0x0a: return lookup_1A(h8300h);
     // case 0x0b: return lookup_1B(h8300h);
     case 0x0c: return h8instructions::cmp::cmp_register_direct_b_parse;
-    // case 0x0d: return h8instructions::cmp::cmp_register_direct_w;
+    case 0x0d: return h8instructions::cmp::cmp_register_direct_w_parse;
     // case 0x0e: return h8instructions::subx::subx_register_direct;
     // case 0x0f: return lookup_1F(h8300h);
     default:   return nullptr;
