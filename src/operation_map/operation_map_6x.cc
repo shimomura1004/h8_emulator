@@ -8,15 +8,6 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_67(H8Board* h8300h)
-{
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh_msb = (b1 & 0x80) == 0;
-
-    return bh_msb ? nullptr  // BST
-                  : nullptr; // BIST
-}
-
 instruction_handler_t lookup_6x(H8Board *h8300h)
 {
     unsigned char b0 = h8300h->fetch_instruction_byte(0);
@@ -30,7 +21,7 @@ instruction_handler_t lookup_6x(H8Board *h8300h)
     case 0x04: return nullptr; // OR
     case 0x05: return nullptr; // XOR
     case 0x06: return nullptr; // AND
-    case 0x07: return lookup_67(h8300h);
+    case 0x07: return nullptr;
     case 0x08: return nullptr;
     case 0x09: return nullptr;
     case 0x0a: return nullptr;
