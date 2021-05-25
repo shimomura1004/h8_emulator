@@ -108,8 +108,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
 
     if (handler == trapa::trapa) return "trapa::trapa";
 
-    if (handler == xorl::xor_register_direct_b) return "xorl::xor_register_direct_b";
-
     fprintf(stderr, "Unknown instruction: 0x%p\n", handler);
     return nullptr;
 }
