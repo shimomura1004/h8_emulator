@@ -73,3 +73,21 @@ add_test(
     COMMAND xor_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(and_test
+    and_test.cc
+)
+target_link_libraries(and_test
+    cpu
+    mcu
+    dram
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME and_test
+    COMMAND and_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
