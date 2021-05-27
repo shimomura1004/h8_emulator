@@ -1,5 +1,4 @@
 #include "mov_register_indirect_displacement24.h"
-#include "mov.h"
 
 namespace h8instructions {
 namespace mov {
@@ -28,7 +27,7 @@ int register_indirect_with_displacement24_b(H8Board* h8)
         uint8_t value = h8->mcu.read8(address);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int8_t>(h8, value);
+        h8instructions::update_ccr<int8_t>(h8, value);
     } else if (b3h == 0x0a) {
         // Rs,@(d:24,ERd)
         uint8_t dst_register_index = (b1 & 0x70) >> 4;
@@ -40,7 +39,7 @@ int register_indirect_with_displacement24_b(H8Board* h8)
         uint32_t address = dst.get() + disp;
         h8->mcu.write8(address, value);
 
-        h8instructions::mov::update_ccr<int8_t>(h8, value);
+        h8instructions::update_ccr<int8_t>(h8, value);
     } else {
         fprintf(stderr, "Unknown mov.b format\n");
         return -1;
@@ -74,7 +73,7 @@ int register_indirect_with_displacement24_l(H8Board* h8)
         uint32_t value = h8->mcu.read32(address);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr<int32_t>(h8, value);
     } else {
         // ERs,@(d:24,ERd)
         uint8_t dst_register_index = (b3 & 0x70) >> 4;
@@ -86,7 +85,7 @@ int register_indirect_with_displacement24_l(H8Board* h8)
         uint32_t address = dst.get() + disp;
         h8->mcu.write32(address, value);
 
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr<int32_t>(h8, value);
     }
 
     h8->cpu.pc() += 10;

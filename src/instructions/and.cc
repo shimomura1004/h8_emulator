@@ -1,20 +1,23 @@
 #include "and.h"
 #include "xor.h"
 
+// TODO: and と xor は演算子以外ほぼ同じ
+
 int h8instructions::andl::and_immediate_w(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t reg_index = b1 & 0x0f;
     Register16& reg = h8->cpu.reg16(reg_index);
 
-    uint8_t immediate[2];
-    immediate[1] = h8->fetch_instruction_byte(2);
-    immediate[0] = h8->fetch_instruction_byte(3);
-    uint16_t imm = *(uint16_t*)immediate;
+    // uint8_t immediate[2];
+    // immediate[1] = h8->fetch_instruction_byte(2);
+    // immediate[0] = h8->fetch_instruction_byte(3);
+    // uint16_t imm = *(uint16_t*)immediate;
+    uint16_t imm = parse_immediate<uint16_t>(h8, 2);
 
     uint16_t value = reg.get() & imm;
     reg.set(value);
-    h8instructions::xorl::update_ccr<int16_t>(h8, value);
+    h8instructions::update_ccr<int16_t>(h8, value);
 
     h8->cpu.pc() += 4;
 
@@ -36,7 +39,7 @@ int h8instructions::andl::and_immediate_l(H8Board *h8)
 
     uint32_t value = reg.get() & imm;
     reg.set(value);
-    h8instructions::xorl::update_ccr<int32_t>(h8, value);
+    h8instructions::update_ccr<int32_t>(h8, value);
 
     h8->cpu.pc() += 6;
 
@@ -68,7 +71,7 @@ int and_immediate_b_run(H8Board *h8, Instruction& instruction)
     uint8_t result_value = src_value & dst_value;
 
     dst.set(result_value);
-    h8instructions::xorl::update_ccr<int8_t>(h8, (int8_t)result_value);
+    h8instructions::update_ccr<int8_t>(h8, (int8_t)result_value);
     h8->cpu.pc() += 2;
 
     return 0;

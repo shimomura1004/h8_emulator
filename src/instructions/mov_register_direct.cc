@@ -1,5 +1,4 @@
 #include "mov_register_direct.h"
-#include "mov.h"
 
 void h8instructions::mov::register_direct_b_parse(H8Board* h8, Instruction& instruction)
 {
@@ -21,7 +20,7 @@ int h8instructions::mov::register_direct_b_run(H8Board* h8, Instruction& instruc
     uint8_t value = src.get();
 
     dst.set(value);
-    update_ccr<int8_t>(h8, value);
+    h8instructions::update_ccr<int8_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -47,7 +46,7 @@ int h8instructions::mov::register_direct_w_run(H8Board* h8, Instruction& instruc
     uint16_t value = src.get();
 
     dst.set(value);
-    update_ccr<int16_t>(h8, value);
+    h8instructions::update_ccr<int16_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -73,7 +72,7 @@ int h8instructions::mov::register_direct_l_run(H8Board* h8, Instruction& instruc
     uint32_t value = src.get();
 
     dst.set(value);
-    update_ccr<int32_t>(h8, value);
+    h8instructions::update_ccr<int32_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;

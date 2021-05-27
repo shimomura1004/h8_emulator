@@ -1,5 +1,4 @@
 #include "mov_absolute_address.h"
-#include "mov.h"
 
 namespace h8instructions {
 namespace mov {
@@ -56,7 +55,7 @@ int absolute_address_24_b_run(H8Board* h8, Instruction& instruction)
         uint8_t value = h8->mcu.read8(absolute);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int8_t>(h8, (int8_t)value);
+        h8instructions::update_ccr<int8_t>(h8, (int8_t)value);
         h8->cpu.pc() += 6;
 
         return 0;
@@ -68,7 +67,7 @@ int absolute_address_24_b_run(H8Board* h8, Instruction& instruction)
         uint8_t value = src.get();
         h8->mcu.write8(absolute, value);
 
-        h8instructions::mov::update_ccr<int8_t>(h8, (int8_t)value);
+        h8instructions::update_ccr<int8_t>(h8, (int8_t)value);
         h8->cpu.pc() += 6;
 
         return 0;
@@ -131,7 +130,7 @@ int absolute_address_24_w_run(H8Board* h8, Instruction& instruction)
         uint16_t value = h8->mcu.read16(absolute);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int16_t>(h8, value);
+        h8instructions::update_ccr<int16_t>(h8, value);
         h8->cpu.pc() += 6;
 
         return 0;
@@ -143,7 +142,7 @@ int absolute_address_24_w_run(H8Board* h8, Instruction& instruction)
         uint16_t value = src.get();
         h8->mcu.write16(absolute, value);
 
-        h8instructions::mov::update_ccr<int16_t>(h8, value);
+        h8instructions::update_ccr<int16_t>(h8, value);
         h8->cpu.pc() += 6;
 
         return 0;
@@ -198,7 +197,7 @@ int absolute_address_24_l_run(H8Board* h8, Instruction& instruction)
         int32_t value = h8->mcu.read32(absolute);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr<int32_t>(h8, value);
         h8->cpu.pc() += 8;
 
         return 0;
@@ -210,7 +209,7 @@ int absolute_address_24_l_run(H8Board* h8, Instruction& instruction)
         uint32_t value = src.get();
         h8->mcu.write32(absolute, value);
 
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr<int32_t>(h8, value);
         h8->cpu.pc() += 8;
 
         return 0;

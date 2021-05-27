@@ -24,7 +24,7 @@ int xor_immediate_b_run(H8Board* h8, Instruction& instruction)
     uint8_t result_value = src_value ^ dst_value;
 
     dst.set(result_value);
-    update_ccr<int8_t>(h8, (int8_t)result_value);
+    h8instructions::update_ccr<int8_t>(h8, (int8_t)result_value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -52,7 +52,7 @@ int xor_register_direct_b_run(H8Board* h8, Instruction& instruction)
     uint8_t result_value = src_value ^ dst_value;
 
     dst.set(result_value);
-    update_ccr<int8_t>(h8, (int8_t)result_value);
+    h8instructions::update_ccr<int8_t>(h8, (int8_t)result_value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -80,7 +80,7 @@ int xor_register_direct_l_run(H8Board* h8, Instruction& instruction)
     uint32_t result_value = src_value ^ dst_value;
 
     dst.set(result_value);
-    update_ccr<int32_t>(h8, (int32_t)result_value);
+    h8instructions::update_ccr<int32_t>(h8, (int32_t)result_value);
     h8->cpu.pc() += 4;
 
     return 0;

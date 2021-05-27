@@ -1,5 +1,4 @@
 #include "mov_register_indirect_displacement16.h"
-#include "mov.h"
 
 namespace h8instructions {
 namespace mov {
@@ -44,7 +43,7 @@ int register_indirect_with_displacement16_b_run(H8Board* h8, Instruction& instru
         uint32_t address = dst.get() + displacement;
         h8->mcu.write8(address, value);
 
-        h8instructions::mov::update_ccr<int8_t>(h8, value);
+        h8instructions::update_ccr<int8_t>(h8, value);
 
         h8->cpu.pc() += 4;
 
@@ -60,7 +59,7 @@ int register_indirect_with_displacement16_b_run(H8Board* h8, Instruction& instru
         uint8_t value = h8->mcu.read8(address);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int8_t>(h8, value);
+        h8instructions::update_ccr<int8_t>(h8, value);
 
         h8->cpu.pc() += 4;
 
@@ -112,7 +111,7 @@ int register_indirect_with_displacement16_w_run(H8Board* h8, Instruction& instru
         uint32_t address = dst.get() + displacement;
         h8->mcu.write16(address, value);
 
-        h8instructions::mov::update_ccr<int16_t>(h8, value);
+        h8instructions::update_ccr<int16_t>(h8, value);
 
         h8->cpu.pc() += 4;
 
@@ -128,7 +127,7 @@ int register_indirect_with_displacement16_w_run(H8Board* h8, Instruction& instru
         uint16_t value = h8->mcu.read16(address);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int16_t>(h8, value);
+        h8instructions::update_ccr<int16_t>(h8, value);
 
         h8->cpu.pc() += 4;
 
@@ -181,7 +180,7 @@ int register_indirect_with_displacement16_l_run(H8Board* h8, Instruction& instru
         uint32_t address = dst.get() + displacement;
         h8->mcu.write32(address, value);
 
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr<int32_t>(h8, value);
 
         h8->cpu.pc() += 6;
 
@@ -196,7 +195,7 @@ int register_indirect_with_displacement16_l_run(H8Board* h8, Instruction& instru
         int32_t value = h8->mcu.read32(address);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr<int32_t>(h8, value);
 
         h8->cpu.pc() += 6;
 

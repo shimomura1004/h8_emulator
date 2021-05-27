@@ -35,7 +35,7 @@ int h8instructions::neg::neg_w(H8Board* h8)
         result_value = dst_value;
     }
 
-    update_ccr<16, int16_t>(h8, dst_value, result_value);
+    ::update_ccr<16, int16_t>(h8, dst_value, result_value);
 
     h8->cpu.pc() += 2;
 

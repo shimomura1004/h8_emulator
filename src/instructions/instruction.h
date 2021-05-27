@@ -32,4 +32,38 @@ public:
 
 };
 
+namespace h8instructions {
+
+template<class T>
+T parse_immediate(H8Board *h8, uint8_t offset)
+{
+    uint8_t imm[sizeof(T)];
+
+    for (int i=0; i < sizeof(T); i++) {
+        imm[sizeof(T) - i - 1] = h8->fetch_instruction_byte(offset + i);
+    }
+
+    return *(T*)imm;
+}
+
+template<class T>
+void update_ccr(H8Board* h8, T value)
+{
+    if (value < 0) {
+        h8->cpu.ccr().set_n();
+    } else {
+        h8->cpu.ccr().clear_n();
+    }
+
+    if (value == 0) {
+        h8->cpu.ccr().set_z();
+    } else {
+        h8->cpu.ccr().clear_z();
+    }
+
+    h8->cpu.ccr().clear_v();
+}
+
+}
+
 #endif

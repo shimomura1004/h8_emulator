@@ -1,5 +1,4 @@
 #include "mov_immediate.h"
-#include "mov.h"
 
 namespace h8instructions {
 namespace mov {
@@ -22,7 +21,7 @@ int immediate_b_run(H8Board* h8, Instruction& instruction)
     int8_t value = instruction.op1.get_immediate8();
 
     reg.set(value);
-    h8instructions::mov::update_ccr<int8_t>(h8, value);
+    h8instructions::update_ccr<int8_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -50,7 +49,7 @@ int immediate_w_run(H8Board* h8, Instruction& instruction)
     int16_t value = instruction.op1.get_immediate16();
 
     reg.set(value);
-    h8instructions::mov::update_ccr<int16_t>(h8, value);
+    h8instructions::update_ccr<int16_t>(h8, value);
     h8->cpu.pc() += 4;
 
     return 0;
@@ -81,7 +80,7 @@ int immediate_l_run(H8Board* h8, Instruction& instruction)
     int32_t value = instruction.op1.get_immediate32();
 
     reg.set(value);
-    h8instructions::mov::update_ccr<int32_t>(h8, value);
+    h8instructions::update_ccr<int32_t>(h8, value);
     h8->cpu.pc() += 6;
 
     return 0;

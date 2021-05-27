@@ -1,5 +1,6 @@
 #include "shar.h"
 
+// TODO: v　をクリアするところが違うが、だいたい同じ
 template<class T>
 static void update_ccr(H8Board* h8, T value, bool lsb)
 {
@@ -23,7 +24,7 @@ int h8instructions::shar::shar_w(H8Board* h8)
     value = (value >> 1) | (prev_value_msb ? 0x8000 : 0);
     reg.set(value);
 
-    update_ccr<int16_t>(h8, value, prev_value_lsb);
+    ::update_ccr<int16_t>(h8, value, prev_value_lsb);
 
     h8->cpu.pc() += 2;
 
@@ -44,7 +45,7 @@ int h8instructions::shar::shar_l(H8Board *h8)
     value = (value >> 1) | (prev_value_msb ? 0x80000000 : 0);
     reg.set(value);
 
-    update_ccr<int32_t>(h8, value, prev_value_lsb);
+    ::update_ccr<int32_t>(h8, value, prev_value_lsb);
 
     h8->cpu.pc() += 2;
 

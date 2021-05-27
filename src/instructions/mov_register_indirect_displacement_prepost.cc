@@ -1,5 +1,4 @@
 #include "mov_register_indirect_displacement_prepost.h"
-#include "mov.h"
 
 namespace h8instructions {
 namespace mov {
@@ -36,7 +35,7 @@ int register_indirect_with_increment_decrement_b_run(H8Board* h8, Instruction& i
         uint8_t value = h8->pop_from_stack_b(src_register_index);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int8_t>(h8, value);
+        h8instructions::update_ccr<int8_t>(h8, value);
 
         h8->cpu.pc() += 2;
 
@@ -50,7 +49,7 @@ int register_indirect_with_increment_decrement_b_run(H8Board* h8, Instruction& i
         uint8_t value = src.get();
         h8->push_to_stack_b(value, dst_register_index);
 
-        h8instructions::mov::update_ccr<int8_t>(h8, value);
+        h8instructions::update_ccr<int8_t>(h8, value);
 
         h8->cpu.pc() += 2;
 
@@ -94,7 +93,7 @@ int register_indirect_with_increment_decrement_l_run(H8Board* h8, Instruction& i
         uint32_t value = h8->pop_from_stack_l(src_register_index);
         dst.set(value);
 
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr<int32_t>(h8, value);
 
         h8->cpu.pc() += 4;
 
@@ -108,7 +107,7 @@ int register_indirect_with_increment_decrement_l_run(H8Board* h8, Instruction& i
         uint32_t value = src.get();
         h8->push_to_stack_l(value, dst_register_index);
 
-        h8instructions::mov::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr<int32_t>(h8, value);
 
         h8->cpu.pc() += 4;
 

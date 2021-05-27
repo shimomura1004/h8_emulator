@@ -1,22 +1,5 @@
 #include "or.h"
 
-static void update_ccr(H8Board* h8, uint32_t value)
-{
-    if (value < 0) {
-        h8->cpu.ccr().set_n();
-    } else {
-        h8->cpu.ccr().clear_n();
-    }
-
-    if (value == 0) {
-        h8->cpu.ccr().set_z();
-    } else {
-        h8->cpu.ccr().clear_z();
-    }
-
-    h8->cpu.ccr().clear_v();
-}
-
 namespace h8instructions {
 namespace orl {
 
@@ -39,7 +22,7 @@ int immediate_b_run(H8Board* h8, Instruction& instruction)
 
     uint8_t value = reg.get() | imm;
     reg.set(value);
-    update_ccr(h8, value);
+    h8instructions::update_ccr<uint8_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -68,7 +51,7 @@ int immediate_w_run(H8Board *h8, Instruction& instruction)
 
     uint16_t value = reg.get() | imm;
     reg.set(value);
-    update_ccr(h8, value);
+    h8instructions::update_ccr<uint16_t>(h8, value);
     h8->cpu.pc() += 4;
 
     return 0;

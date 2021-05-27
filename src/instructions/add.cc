@@ -49,7 +49,7 @@ int h8instructions::add::add_immediate_b_run(H8Board* h8, Instruction& instructi
     int8_t result_value = src_value + dst_value;
 
     dst.set(result_value);
-    update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
+    ::update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -77,7 +77,7 @@ int h8instructions::add::add_register_direct_b_run(H8Board* h8, Instruction& ins
     int8_t result_value = src_value + dst_value;
 
     dst.set(result_value);
-    update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
+    ::update_ccr<8, int8_t>(h8, src_value, dst_value, result_value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -108,7 +108,7 @@ int h8instructions::add::add_immediate_w_run(H8Board* h8, Instruction& instructi
     int16_t result_value = src_value + dst_value;
 
     dst.set(result_value);
-    update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
+    ::update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
     h8->cpu.pc() += 4;
 
     return 0;
@@ -136,7 +136,7 @@ int h8instructions::add::add_register_direct_w_run(H8Board* h8, Instruction& ins
     int16_t result_value = src_value + dst_value;
 
     dst.set(result_value);
-    update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
+    ::update_ccr<16, int16_t>(h8, src_value, dst_value, result_value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -170,7 +170,7 @@ int h8instructions::add::add_immediate_l_run(H8Board* h8, Instruction& instructi
     int32_t result_value = src_value + dst_value;
 
     dst.set(result_value);
-    update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
+    ::update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
     h8->cpu.pc() += 6;
 
     return 0;
@@ -198,7 +198,7 @@ int h8instructions::add::add_register_direct_l_run(H8Board* h8, Instruction& ins
     int32_t result_value = dst_value + src_value;
 
     dst.set(result_value);
-    update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
+    ::update_ccr<32, int32_t>(h8, src_value, dst_value, result_value);
     h8->cpu.pc() += 2;
 
     return 0;
