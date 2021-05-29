@@ -34,13 +34,16 @@ public:
 
 namespace h8instructions {
 
+/// H8 のアドレス start から T 型変数分のメモリを読み、T 型の値として返す
+/// 4バイト変数に、3バイト分だけ読みたいときは size に 3 を指定する
 template<class T>
-T parse_immediate(H8Board *h8, uint8_t offset)
+T parse_immediate(H8Board *h8, uint8_t start, uint8_t size = sizeof(T))
 {
-    uint8_t imm[sizeof(T)];
+    uint8_t imm[sizeof(T)] = {0};
+    const uint8_t offset = sizeof(T) - size;
 
     for (int i=0; i < sizeof(T); i++) {
-        imm[sizeof(T) - i - 1] = h8->fetch_instruction_byte(offset + i);
+        imm[sizeof(T) - (i + offset) - 1] = h8->fetch_instruction_byte(start + i);
     }
 
     return *(T*)imm;

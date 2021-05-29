@@ -8,13 +8,7 @@ int register_indirect_with_displacement24_b(H8Board* h8)
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t b3h = (b3 & 0xf0) >> 4;
-
-    uint8_t displacement[4];
-    displacement[3] = 0;
-    displacement[2] = h8->fetch_instruction_byte(5);
-    displacement[1] = h8->fetch_instruction_byte(6);
-    displacement[0] = h8->fetch_instruction_byte(7);
-    int32_t disp = *(int32_t*)displacement;
+    int32_t displacement = h8instructions::parse_immediate<int32_t>(h8, 5, 3);
 
     if (b3h == 0x02) {
         // @(d:24,ERs),Rd
@@ -23,7 +17,7 @@ int register_indirect_with_displacement24_b(H8Board* h8)
         const Register32& src = h8->cpu.reg32(src_register_index);
         Register8& dst = h8->cpu.reg8(dst_register_index);
 
-        uint32_t address = src.get() + disp;
+        uint32_t address = src.get() + displacement;
         uint8_t value = h8->mcu.read8(address);
         dst.set(value);
 
@@ -36,7 +30,7 @@ int register_indirect_with_displacement24_b(H8Board* h8)
         const Register8& src = h8->cpu.reg8(src_register_index);
 
         uint8_t value = src.get();
-        uint32_t address = dst.get() + disp;
+        uint32_t address = dst.get() + displacement;
         h8->mcu.write8(address, value);
 
         h8instructions::update_ccr_nzv<int8_t>(h8, value);
@@ -55,13 +49,7 @@ int register_indirect_with_displacement24_l(H8Board* h8)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t b5 = h8->fetch_instruction_byte(5);
-
-    uint8_t displacement[4];
-    displacement[3] = 0;
-    displacement[2] = h8->fetch_instruction_byte(7);
-    displacement[1] = h8->fetch_instruction_byte(8);
-    displacement[0] = h8->fetch_instruction_byte(9);
-    int32_t disp = *(int32_t*)displacement;
+    int32_t displacement = h8instructions::parse_immediate<int32_t>(h8, 7, 3);
 
     if ((b3 & 0x80) == 0) {
         // @(d:24,ERs),ERd
@@ -69,7 +57,7 @@ int register_indirect_with_displacement24_l(H8Board* h8)
         uint8_t dst_register_index = (b5 & 0x07);
         Register32& src = h8->cpu.reg32(src_register_index);
         Register32& dst = h8->cpu.reg32(dst_register_index);
-        uint32_t address = src.get() + disp;
+        uint32_t address = src.get() + displacement;
         uint32_t value = h8->mcu.read32(address);
         dst.set(value);
 
@@ -82,7 +70,7 @@ int register_indirect_with_displacement24_l(H8Board* h8)
         const Register32& src = h8->cpu.reg32(src_register_index);
 
         uint32_t value = src.get();
-        uint32_t address = dst.get() + disp;
+        uint32_t address = dst.get() + displacement;
         h8->mcu.write32(address, value);
 
         h8instructions::update_ccr_nzv<int32_t>(h8, value);
