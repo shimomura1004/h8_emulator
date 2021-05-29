@@ -3,6 +3,8 @@
 
 void Operand::stringify(char *buf) {
     switch (this->mode) {
+    case addressing_mode_t::NotUsed:
+        break;
     case addressing_mode_t::RegisterDirect8:
         sprintf(buf, "r%d%c", this->u8 % 8, (this->u8 < 8 ? 'h' : 'l'));
         break; 
@@ -63,6 +65,11 @@ void Operand::stringify(char *buf) {
 addressing_mode_t Operand::get_mode()
 {
     return this->mode;
+}
+
+void Operand::set_not_used()
+{
+    this->mode = addressing_mode_t::NotUsed;
 }
 
 void Operand::set_register_direct8(uint8_t register_index)

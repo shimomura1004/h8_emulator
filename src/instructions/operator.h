@@ -12,6 +12,7 @@
 // @(d:8,PC)/@(d:16, PC)    プログラムカウンタ相対（8/16 ビット）
 // @@aa:8                   メモリ間接
 enum addressing_mode_t {
+    NotUsed,
     RegisterDirect8,
     RegisterDirect16,
     RegisterDirect32,
@@ -54,6 +55,7 @@ public:
     void stringify(char *buf);
     addressing_mode_t get_mode();
 
+    void set_not_used();
     void set_register_direct8(uint8_t register_index);
     void set_register_direct16(uint8_t register_index);
     void set_register_direct32(uint8_t register_index);
