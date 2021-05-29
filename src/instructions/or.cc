@@ -31,10 +31,7 @@ int immediate_b_run(H8Board* h8, Instruction& instruction)
 void immediate_w_parse(H8Board *h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t imm[2];
-    imm[1] = h8->fetch_instruction_byte(2);
-    imm[0] = h8->fetch_instruction_byte(3);
-    uint16_t immediate = *(uint16_t*)imm;
+    uint16_t immediate = h8instructions::parse_immediate<uint16_t>(h8, 2);
 
     instruction.name = "or.w";
     instruction.op1.set_immediate16(immediate);

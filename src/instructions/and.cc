@@ -9,10 +9,6 @@ int h8instructions::andl::and_immediate_w(H8Board *h8)
     uint8_t reg_index = b1 & 0x0f;
     Register16& reg = h8->cpu.reg16(reg_index);
 
-    // uint8_t immediate[2];
-    // immediate[1] = h8->fetch_instruction_byte(2);
-    // immediate[0] = h8->fetch_instruction_byte(3);
-    // uint16_t imm = *(uint16_t*)immediate;
     uint16_t imm = parse_immediate<uint16_t>(h8, 2);
 
     uint16_t value = reg.get() & imm;
@@ -30,12 +26,7 @@ int h8instructions::andl::and_immediate_l(H8Board *h8)
     uint8_t reg_index = b1 & 0x07;
     Register32& reg = h8->cpu.reg32(reg_index);
 
-    uint8_t immediate[4];
-    immediate[3] = h8->fetch_instruction_byte(2);
-    immediate[2] = h8->fetch_instruction_byte(3);
-    immediate[1] = h8->fetch_instruction_byte(4);
-    immediate[0] = h8->fetch_instruction_byte(5);
-    uint32_t imm = *(uint32_t*)immediate;
+    uint32_t imm = h8instructions::parse_immediate<uint32_t>(h8, 2);
 
     uint32_t value = reg.get() & imm;
     reg.set(value);

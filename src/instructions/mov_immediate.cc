@@ -30,10 +30,7 @@ int immediate_b_run(H8Board* h8, Instruction& instruction)
 void immediate_w_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t imm[2];
-    imm[1] = h8->fetch_instruction_byte(2);
-    imm[0] = h8->fetch_instruction_byte(3);
-    int16_t immediate = *(int16_t*)imm;
+    int16_t immediate = h8instructions::parse_immediate<int16_t>(h8, 2);
 
     instruction.name = "mov.w";
     instruction.op1.set_immediate16(immediate);
@@ -58,13 +55,7 @@ int immediate_w_run(H8Board* h8, Instruction& instruction)
 void immediate_l_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-
-    uint8_t imm[4];
-    imm[3] = h8->fetch_instruction_byte(2);
-    imm[2] = h8->fetch_instruction_byte(3);
-    imm[1] = h8->fetch_instruction_byte(4);
-    imm[0] = h8->fetch_instruction_byte(5);
-    int32_t immediate = *(int32_t*)imm;
+    int32_t immediate = h8instructions::parse_immediate<int32_t>(h8, 2);
 
     instruction.name = "mov.l";
     instruction.op1.set_immediate32(immediate);
