@@ -4,6 +4,7 @@
 void Operand::stringify(char *buf) {
     switch (this->mode) {
     case addressing_mode_t::NotUsed:
+        buf[0] = 0;
         break;
     case addressing_mode_t::RegisterDirect8:
         sprintf(buf, "r%d%c", this->u8 % 8, (this->u8 < 8 ? 'h' : 'l'));

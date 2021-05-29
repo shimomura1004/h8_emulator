@@ -22,9 +22,13 @@ void Instruction::print()
     static char op1[32];
     static char op2[32];
 
-    // TODO: op2 が使われない場合に不要なコンマが入る
     this->stringify_name(name);
     this->op1.stringify(op1);
-    this->op2.stringify(op2);
-    printf("%s %s,%s\n", name, op1, op2);
+
+    if (this->op2.get_mode() == addressing_mode_t::NotUsed) {
+        printf("%s %s\n", name, op1);
+    } else {
+        this->op2.stringify(op2);
+        printf("%s %s,%s\n", name, op1, op2);
+    }
 }
