@@ -17,7 +17,7 @@ int h8instructions::andl::and_immediate_w(H8Board *h8)
 
     uint16_t value = reg.get() & imm;
     reg.set(value);
-    h8instructions::update_ccr<int16_t>(h8, value);
+    h8instructions::update_ccr_nzv<int16_t>(h8, value);
 
     h8->cpu.pc() += 4;
 
@@ -39,7 +39,7 @@ int h8instructions::andl::and_immediate_l(H8Board *h8)
 
     uint32_t value = reg.get() & imm;
     reg.set(value);
-    h8instructions::update_ccr<int32_t>(h8, value);
+    h8instructions::update_ccr_nzv<int32_t>(h8, value);
 
     h8->cpu.pc() += 6;
 
@@ -71,7 +71,7 @@ int and_immediate_b_run(H8Board *h8, Instruction& instruction)
     uint8_t result_value = src_value & dst_value;
 
     dst.set(result_value);
-    h8instructions::update_ccr<int8_t>(h8, (int8_t)result_value);
+    h8instructions::update_ccr_nzv<int8_t>(h8, (int8_t)result_value);
     h8->cpu.pc() += 2;
 
     return 0;

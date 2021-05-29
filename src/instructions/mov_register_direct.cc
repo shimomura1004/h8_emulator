@@ -20,7 +20,7 @@ int h8instructions::mov::register_direct_b_run(H8Board* h8, Instruction& instruc
     uint8_t value = src.get();
 
     dst.set(value);
-    h8instructions::update_ccr<int8_t>(h8, value);
+    h8instructions::update_ccr_nzv<int8_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -46,7 +46,7 @@ int h8instructions::mov::register_direct_w_run(H8Board* h8, Instruction& instruc
     uint16_t value = src.get();
 
     dst.set(value);
-    h8instructions::update_ccr<int16_t>(h8, value);
+    h8instructions::update_ccr_nzv<int16_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -72,7 +72,7 @@ int h8instructions::mov::register_direct_l_run(H8Board* h8, Instruction& instruc
     uint32_t value = src.get();
 
     dst.set(value);
-    h8instructions::update_ccr<int32_t>(h8, value);
+    h8instructions::update_ccr_nzv<int32_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;

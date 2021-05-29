@@ -47,7 +47,7 @@ T parse_immediate(H8Board *h8, uint8_t offset)
 }
 
 template<class T>
-void update_ccr(H8Board* h8, T value)
+void update_ccr_nzv(H8Board* h8, T value)
 {
     if (value < 0) {
         h8->cpu.ccr().set_n();

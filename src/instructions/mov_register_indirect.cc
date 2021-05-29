@@ -37,7 +37,7 @@ int register_indirect_b_run(H8Board* h8, Instruction& instruction)
         uint32_t address = dst.get();
         h8->mcu.write8(address, value);
 
-        h8instructions::update_ccr<int8_t>(h8, value);
+        h8instructions::update_ccr_nzv<int8_t>(h8, value);
 
         h8->cpu.pc() += 2;
 
@@ -52,7 +52,7 @@ int register_indirect_b_run(H8Board* h8, Instruction& instruction)
         uint8_t value = h8->mcu.read8(address);
         dst.set(value);
 
-        h8instructions::update_ccr<int8_t>(h8, value);
+        h8instructions::update_ccr_nzv<int8_t>(h8, value);
 
         h8->cpu.pc() += 2;
 
@@ -98,7 +98,7 @@ int register_indirect_w_run(H8Board* h8, Instruction& instruction)
         uint32_t address = dst.get();
         h8->mcu.write16(address, value);
 
-        h8instructions::update_ccr<int16_t>(h8, value);
+        h8instructions::update_ccr_nzv<int16_t>(h8, value);
 
         h8->cpu.pc() += 2;
 
@@ -113,7 +113,7 @@ int register_indirect_w_run(H8Board* h8, Instruction& instruction)
         uint16_t value = h8->mcu.read16(address);
         dst.set(value);
 
-        h8instructions::update_ccr<int16_t>(h8, value);
+        h8instructions::update_ccr_nzv<int16_t>(h8, value);
 
         h8->cpu.pc() += 2;
 
@@ -159,7 +159,7 @@ int register_indirect_l_run(H8Board* h8, Instruction& instruction)
         uint32_t address = dst.get();
         h8->mcu.write32(address, value);
 
-        h8instructions::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr_nzv<int32_t>(h8, value);
 
         h8->cpu.pc() += 4;
 
@@ -174,7 +174,7 @@ int register_indirect_l_run(H8Board* h8, Instruction& instruction)
         int32_t value = h8->mcu.read32(address);
         dst.set(value);
 
-        h8instructions::update_ccr<int32_t>(h8, value);
+        h8instructions::update_ccr_nzv<int32_t>(h8, value);
 
         h8->cpu.pc() += 4;
 

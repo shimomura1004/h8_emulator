@@ -22,7 +22,7 @@ int immediate_b_run(H8Board* h8, Instruction& instruction)
 
     uint8_t value = reg.get() | imm;
     reg.set(value);
-    h8instructions::update_ccr<uint8_t>(h8, value);
+    h8instructions::update_ccr_nzv<uint8_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;
@@ -51,7 +51,7 @@ int immediate_w_run(H8Board *h8, Instruction& instruction)
 
     uint16_t value = reg.get() | imm;
     reg.set(value);
-    h8instructions::update_ccr<uint16_t>(h8, value);
+    h8instructions::update_ccr_nzv<uint16_t>(h8, value);
     h8->cpu.pc() += 4;
 
     return 0;
