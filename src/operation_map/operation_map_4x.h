@@ -7,4 +7,8 @@ namespace operation_map {
 instruction_handler_t lookup_4x(H8Board* h8300h);
 }
 
+namespace operation_map2 {
+instruction_parser_t lookup_4x(H8Board* h8300h);
+}
+
 #endif

@@ -56,9 +56,7 @@ add_test(
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
 
-add_executable(xor_test
-    xor_test.cc
-)
+add_executable(xor_test xor_test.cc)
 target_link_libraries(xor_test
     cpu
     mcu
@@ -74,9 +72,7 @@ add_test(
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
 
-add_executable(and_test
-    and_test.cc
-)
+add_executable(and_test and_test.cc)
 target_link_libraries(and_test
     cpu
     mcu
@@ -89,5 +85,21 @@ target_link_libraries(and_test
 add_test(
     NAME and_test
     COMMAND and_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
+
+add_executable(bcc_test bcc_test.cc)
+target_link_libraries(bcc_test
+    cpu
+    mcu
+    dram
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME bcc_test
+    COMMAND bcc_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )

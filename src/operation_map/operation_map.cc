@@ -55,8 +55,8 @@ instruction_parser_t lookup(H8Board* h8300h)
     case 0x01: return lookup_1x(h8300h);
     // case 0x02:
     // case 0x03: return nullptr; // MOV.B
-    // case 0x04: return lookup_4x(h8300h);
-    // case 0x05: return lookup_5x(h8300h);
+    case 0x04: return lookup_4x(h8300h);
+    case 0x05: return lookup_5x(h8300h);
     case 0x06: return lookup_6x(h8300h);
     case 0x07: return lookup_7x(h8300h);
     case 0x08: return h8instructions::add::add_immediate_b_parse;
