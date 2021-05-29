@@ -22,6 +22,7 @@ void Instruction::print()
     static char op1[32];
     static char op2[32];
 
+    // TODO: op2 が使われない場合に不要なコンマが入る
     this->stringify_name(name);
     this->op1.stringify(op1);
     this->op2.stringify(op2);

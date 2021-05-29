@@ -1,33 +1,5 @@
 #include "bcc.h"
 
-int h8instructions::bcc::bls_8(H8Board* h8)
-{
-    int8_t disp = h8->fetch_instruction_byte(1);
-    h8->cpu.pc() += 2;
-
-    if (h8->cpu.ccr().c() || h8->cpu.ccr().z()) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
-int h8instructions::bcc::bls_16(H8Board* h8)
-{
-    uint8_t displacement[2];
-    displacement[1] = h8->fetch_instruction_byte(2);
-    displacement[0] = h8->fetch_instruction_byte(3);
-    int16_t disp = *(int16_t*)displacement;
-
-    h8->cpu.pc() += 4;
-
-    if (h8->cpu.ccr().c() || h8->cpu.ccr().z()) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
 int h8instructions::bcc::bcc_8(H8Board* h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
@@ -305,6 +277,50 @@ int bhi_16_run(H8Board* h8, Instruction& instruction)
     h8->cpu.pc() += 4;
 
     if (!(h8->cpu.ccr().c() || h8->cpu.ccr().z())) {
+        h8->cpu.pc() += instruction.op1.get_immediate16();
+    }
+
+    return 0;
+}
+
+void bls_8_parse(H8Board* h8, Instruction& instruction)
+{
+    instruction.name = "bls";
+    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
+    instruction.op2.set_not_used();
+
+    instruction.parser = bls_8_parse;
+    instruction.runner = bls_8_run;
+}
+
+int bls_8_run(H8Board* h8, Instruction& instruction)
+{
+    h8->cpu.pc() += 2;
+
+    if (h8->cpu.ccr().c() || h8->cpu.ccr().z()) {
+        h8->cpu.pc() += instruction.op1.get_immediate8();
+    }
+
+    return 0;
+}
+
+void bls_16_parse(H8Board* h8, Instruction& instruction)
+{
+    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2);
+
+    instruction.name = "bls";
+    instruction.op1.set_immediate16(displacement);
+    instruction.op2.set_not_used();
+
+    instruction.parser = bls_16_parse;
+    instruction.runner = bls_16_run;
+}
+
+int bls_16_run(H8Board* h8, Instruction& instruction)
+{
+    h8->cpu.pc() += 4;
+
+    if (h8->cpu.ccr().c() || h8->cpu.ccr().z()) {
         h8->cpu.pc() += instruction.op1.get_immediate16();
     }
 
