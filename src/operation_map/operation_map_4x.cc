@@ -9,7 +9,6 @@ instruction_handler_t lookup_4x(H8Board *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x0c: return h8instructions::bcc::bge_8;
     case 0x0d: return h8instructions::bcc::blt_8;
     case 0x0e: return h8instructions::bcc::bgt_8;
     case 0x0f: return h8instructions::bcc::ble_8;
@@ -40,7 +39,7 @@ instruction_parser_t lookup_4x(H8Board *h8300h)
     case 0x09: return nullptr; // BVS
     case 0x0a: return nullptr; // BPL
     case 0x0b: return nullptr; // BMI
-    // case 0x0c: return h8instructions::bcc::bge_8_parse;
+    case 0x0c: return h8instructions::bcc::bge_8_parse;
     // case 0x0d: return h8instructions::bcc::blt_8_parse;
     // case 0x0e: return h8instructions::bcc::bgt_8_parse;
     // case 0x0f: return h8instructions::bcc::ble_8_parse;
