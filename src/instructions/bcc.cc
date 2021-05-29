@@ -51,34 +51,6 @@ inline int run_template_16(H8Board* h8, Instruction& instruction, F cond)
 }
 
 
-int h8instructions::bcc::beq_8(H8Board *h8)
-{
-    int8_t disp = h8->fetch_instruction_byte(1);
-    h8->cpu.pc() += 2;
-
-    if (h8->cpu.ccr().z()) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
-int h8instructions::bcc::beq_16(H8Board *h8)
-{
-    uint8_t displacement[2];
-    displacement[1] = h8->fetch_instruction_byte(2);
-    displacement[0] = h8->fetch_instruction_byte(3);
-    int16_t disp = *(int16_t*)displacement;
-
-    h8->cpu.pc() += 4;
-
-    if (h8->cpu.ccr().z()) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
 int h8instructions::bcc::bge_8(H8Board *h8)
 {
     int8_t disp = h8->fetch_instruction_byte(1);
@@ -301,6 +273,26 @@ void bne_16_parse(H8Board* h8, Instruction& instruction)
 int bne_16_run(H8Board* h8, Instruction& instruction)
 {
     return run_template_16(h8, instruction, [=](){ return !h8->cpu.ccr().z(); });
+}
+
+void beq_8_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_8<beq_8_parse, beq_8_run>(h8, instruction, "beq");
+}
+
+int beq_8_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_8(h8, instruction, [=](){ return h8->cpu.ccr().z(); });
+}
+
+void beq_16_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_16<beq_16_parse, beq_16_run>(h8, instruction, "beq");
+}
+
+int beq_16_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_16(h8, instruction, [=](){ return h8->cpu.ccr().z(); });
 }
 
 

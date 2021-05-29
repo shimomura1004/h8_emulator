@@ -300,3 +300,68 @@ TEST_F(CPUTestFix, bne16_2)
 
     EXPECT_EQ(this->h8->cpu.pc(), DummyMCU::area2_start + 4);
 }
+
+
+TEST_F(CPUTestFix, beq8_1)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->h8->cpu.ccr().set_z();
+
+    // beq #0x10:8
+    this->dram->write8(0, 0x47);
+    this->dram->write8(1, 0x10);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    EXPECT_EQ(this->h8->cpu.pc(), DummyMCU::area2_start + 2 + 0x10);
+}
+
+TEST_F(CPUTestFix, beq8_2)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->h8->cpu.ccr().clear_z();
+
+    // bq #0x10:8
+    this->dram->write8(0, 0x47);
+    this->dram->write8(1, 0x10);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    EXPECT_EQ(this->h8->cpu.pc(), DummyMCU::area2_start + 2);
+}
+
+TEST_F(CPUTestFix, beq16_1)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->h8->cpu.ccr().set_z();
+
+    // beq #0x1001:16
+    this->dram->write8(0, 0x58);
+    this->dram->write8(1, 0x70);
+    this->dram->write8(2, 0x10);
+    this->dram->write8(3, 0x01);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    EXPECT_EQ(this->h8->cpu.pc(), DummyMCU::area2_start + 4 + 0x1001);
+}
+
+TEST_F(CPUTestFix, beq16_2)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->h8->cpu.ccr().clear_z();
+
+    // beq #0x1001:16
+    this->dram->write8(0, 0x58);
+    this->dram->write8(1, 0x70);
+    this->dram->write8(2, 0x10);
+    this->dram->write8(3, 0x01);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    EXPECT_EQ(this->h8->cpu.pc(), DummyMCU::area2_start + 4);
+}
