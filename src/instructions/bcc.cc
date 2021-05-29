@@ -1,7 +1,8 @@
 #include "bcc.h"
 
 template<instruction_parser_t parser, instruction_runner_t runner>
-inline void parse_template_8(H8Board* h8, Instruction& instruction, const char* name)
+static inline
+void parse_template_8(H8Board* h8, Instruction& instruction, const char* name)
 {
     instruction.name = name;
     instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
@@ -12,7 +13,8 @@ inline void parse_template_8(H8Board* h8, Instruction& instruction, const char* 
 }
 
 template<typename F>
-inline int run_template_8(H8Board* h8, Instruction& instruction, F cond)
+static inline
+int run_template_8(H8Board* h8, Instruction& instruction, F cond)
 {
     h8->cpu.pc() += 2;
 
@@ -203,170 +205,83 @@ namespace bcc {
 
 void bra_8_parse(H8Board* h8, Instruction& instruction)
 {
-    instruction.name = "bra";
-    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
-    instruction.op2.set_not_used();
-
-    instruction.parser = bra_8_parse;
-    instruction.runner = bra_8_run;
+    parse_template_8<bra_8_parse, bra_8_run>(h8, instruction, "bra");
 }
 
 int bra_8_run(H8Board* h8, Instruction& instruction)
 {
-    h8->cpu.pc() += 2;
-    h8->cpu.pc() += instruction.op1.get_immediate8();
-    return 0;
+    return run_template_8(h8, instruction, [=](){ return true; });
 }
 
 void bra_16_parse(H8Board* h8, Instruction& instruction)
 {
-    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2);
-
-    instruction.name = "bra";
-    instruction.op1.set_immediate16(displacement);
-    instruction.op2.set_not_used();
-
-    instruction.parser = bra_16_parse;
-    instruction.runner = bra_16_run;
+    parse_template_16<bra_16_parse, bra_16_run>(h8, instruction, "bra");
 }
 
 int bra_16_run(H8Board* h8, Instruction& instruction)
 {
-    h8->cpu.pc() += 4;
-    h8->cpu.pc() += instruction.op1.get_immediate16();
-    return 0;
+    return run_template_16(h8, instruction, [=](){ return true; });
 }
 
 void bhi_8_parse(H8Board* h8, Instruction& instruction)
 {
-    instruction.name = "bhi";
-    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
-    instruction.op2.set_not_used();
-
-    instruction.parser = bhi_8_parse;
-    instruction.runner = bhi_8_run;
+    parse_template_8<bhi_8_parse, bhi_8_run>(h8, instruction, "bhi");
 }
 
 int bhi_8_run(H8Board* h8, Instruction& instruction)
 {
-    h8->cpu.pc() += 2;
-
-    if (!(h8->cpu.ccr().c() || h8->cpu.ccr().z())) {
-        h8->cpu.pc() += instruction.op1.get_immediate8();
-    }
-
-    return 0;
+    return run_template_8(h8, instruction, [=](){ return !(h8->cpu.ccr().c() || h8->cpu.ccr().z()); });
 }
 
 void bhi_16_parse(H8Board* h8, Instruction& instruction)
 {
-    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2);
-
-    instruction.name = "bhi";
-    instruction.op1.set_immediate16(displacement);
-    instruction.op2.set_not_used();
-
-    instruction.parser = bhi_16_parse;
-    instruction.runner = bhi_16_run;
+    parse_template_16<bhi_16_parse, bhi_16_run>(h8, instruction, "bhi");
 }
 
 int bhi_16_run(H8Board* h8, Instruction& instruction)
 {
-    h8->cpu.pc() += 4;
-
-    if (!(h8->cpu.ccr().c() || h8->cpu.ccr().z())) {
-        h8->cpu.pc() += instruction.op1.get_immediate16();
-    }
-
-    return 0;
+    return run_template_16(h8, instruction, [=](){ return !(h8->cpu.ccr().c() || h8->cpu.ccr().z()); });
 }
 
 void bls_8_parse(H8Board* h8, Instruction& instruction)
 {
-    instruction.name = "bls";
-    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
-    instruction.op2.set_not_used();
-
-    instruction.parser = bls_8_parse;
-    instruction.runner = bls_8_run;
+    parse_template_8<bls_8_parse, bls_8_run>(h8, instruction, "bls");
 }
 
 int bls_8_run(H8Board* h8, Instruction& instruction)
 {
-    h8->cpu.pc() += 2;
-
-    if (h8->cpu.ccr().c() || h8->cpu.ccr().z()) {
-        h8->cpu.pc() += instruction.op1.get_immediate8();
-    }
-
-    return 0;
+    return run_template_8(h8, instruction, [=](){ return h8->cpu.ccr().c() || h8->cpu.ccr().z(); });
 }
 
 void bls_16_parse(H8Board* h8, Instruction& instruction)
 {
-    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2);
-
-    instruction.name = "bls";
-    instruction.op1.set_immediate16(displacement);
-    instruction.op2.set_not_used();
-
-    instruction.parser = bls_16_parse;
-    instruction.runner = bls_16_run;
+    parse_template_16<bls_16_parse, bls_16_run>(h8, instruction, "bls");
 }
 
 int bls_16_run(H8Board* h8, Instruction& instruction)
 {
-    h8->cpu.pc() += 4;
-
-    if (h8->cpu.ccr().c() || h8->cpu.ccr().z()) {
-        h8->cpu.pc() += instruction.op1.get_immediate16();
-    }
-
-    return 0;
+    return run_template_16(h8, instruction, [=](){ return h8->cpu.ccr().c() || h8->cpu.ccr().z(); });
 }
 
 void bcc_8_parse(H8Board* h8, Instruction& instruction)
 {
-    instruction.name = "bcc";
-    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
-    instruction.op2.set_not_used();
-
-    instruction.parser = bcc_8_parse;
-    instruction.runner = bcc_8_run;
+    parse_template_8<bcc_8_parse, bcc_8_run>(h8, instruction, "bcc");
 }
 
 int bcc_8_run(H8Board* h8, Instruction& instruction)
 {
-    h8->cpu.pc() += 2;
-
-    if (!h8->cpu.ccr().c()) {
-        h8->cpu.pc() += instruction.op1.get_immediate8();
-    }
-
-    return 0;
+    return run_template_8(h8, instruction, [=](){ return !h8->cpu.ccr().c(); });
 }
 
 void bcs_8_parse(H8Board* h8, Instruction& instruction)
 {
-    instruction.name = "bcs";
-    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
-    instruction.op2.set_not_used();
-
-    instruction.parser = bcs_8_parse;
-    instruction.runner = bcs_8_run;
+    parse_template_8<bcs_8_parse, bcs_8_run>(h8, instruction, "bcs");
 }
 
 int bcs_8_run(H8Board* h8, Instruction& instruction)
 {
-    h8->cpu.pc() += 2;
-
-    if (h8->cpu.ccr().c()) {
-        h8->cpu.pc() += instruction.op1.get_immediate8();
-    }
-
-    return 0;
+    return run_template_8(h8, instruction, [=](){ return h8->cpu.ccr().c(); });
 }
-
 
 void bne_8_parse(H8Board* h8, Instruction& instruction)
 {
