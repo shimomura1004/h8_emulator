@@ -1,32 +1,53 @@
 #include "bcc.h"
 
-int h8instructions::bcc::bne_8(H8Board *h8)
+template<instruction_parser_t parser, instruction_runner_t runner>
+inline void parse_template_8(H8Board* h8, Instruction& instruction, const char* name)
 {
-    int8_t disp = h8->fetch_instruction_byte(1);
+    instruction.name = name;
+    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
+    instruction.op2.set_not_used();
+
+    instruction.parser = parser;
+    instruction.runner = runner;
+}
+
+template<typename F>
+inline int run_template_8(H8Board* h8, Instruction& instruction, F cond)
+{
     h8->cpu.pc() += 2;
 
-    if (!h8->cpu.ccr().z()) {
-        h8->cpu.pc() += disp;
+    if (cond()) {
+        h8->cpu.pc() += instruction.op1.get_immediate8();
     }
 
     return 0;
 }
 
-int h8instructions::bcc::bne_16(H8Board* h8)
+template<instruction_parser_t parser, instruction_runner_t runner>
+inline void parse_template_16(H8Board* h8, Instruction& instruction, const char* name)
 {
-    uint8_t displacement[2];
-    displacement[1] = h8->fetch_instruction_byte(2);
-    displacement[0] = h8->fetch_instruction_byte(3);
-    int16_t disp = *(int16_t*)displacement;
+    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2);
 
+    instruction.name = name;
+    instruction.op1.set_immediate16(displacement);
+    instruction.op2.set_not_used();
+
+    instruction.parser = parser;
+    instruction.runner = runner;
+}
+
+template<typename F>
+inline int run_template_16(H8Board* h8, Instruction& instruction, F cond)
+{
     h8->cpu.pc() += 4;
 
-    if (!h8->cpu.ccr().z()) {
-        h8->cpu.pc() += disp;
+    if (cond()) {
+        h8->cpu.pc() += instruction.op1.get_immediate16();
     }
 
     return 0;
 }
+
 
 int h8instructions::bcc::beq_8(H8Board *h8)
 {
@@ -344,6 +365,27 @@ int bcs_8_run(H8Board* h8, Instruction& instruction)
     }
 
     return 0;
+}
+
+
+void bne_8_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_8<bne_8_parse, bne_8_run>(h8, instruction, "bne");
+}
+
+int bne_8_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_8(h8, instruction, [=](){ return !h8->cpu.ccr().z(); });
+}
+
+void bne_16_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_16<bne_16_parse, bne_16_run>(h8, instruction, "bne");
+}
+
+int bne_16_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_16(h8, instruction, [=](){ return !h8->cpu.ccr().z(); });
 }
 
 

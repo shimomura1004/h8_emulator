@@ -14,7 +14,6 @@ instruction_handler_t lookup_58(H8Board *h8)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x06: return h8instructions::bcc::bne_16;
     case 0x07: return h8instructions::bcc::beq_16;
     case 0x0c: return h8instructions::bcc::bge_16;
     case 0x0d: return h8instructions::bcc::blt_16;
@@ -57,16 +56,16 @@ instruction_parser_t lookup_58(H8Board *h8)
     case 0x03: return h8instructions::bcc::bls_16_parse;
     case 0x04: return nullptr; // BCC
     case 0x05: return nullptr; // BCS
-    // case 0x06: return h8instructions::bcc::bne_16;
-    // case 0x07: return h8instructions::bcc::beq_16;
+    case 0x06: return h8instructions::bcc::bne_16_parse;
+    // case 0x07: return h8instructions::bcc::beq_16_parse;
     case 0x08: return nullptr; // BVC
     case 0x09: return nullptr; // BVS
     case 0x0a: return nullptr; // BPL
     case 0x0b: return nullptr; // BMI
-    // case 0x0c: return h8instructions::bcc::bge_16;
-    // case 0x0d: return h8instructions::bcc::blt_16;
-    // case 0x0e: return h8instructions::bcc::bgt_16;
-    // case 0x0f: return h8instructions::bcc::ble_16;
+    // case 0x0c: return h8instructions::bcc::bge_16_parse;
+    // case 0x0d: return h8instructions::bcc::blt_16_parse;
+    // case 0x0e: return h8instructions::bcc::bgt_16_parse;
+    // case 0x0f: return h8instructions::bcc::ble_16_parse;
     default:   return nullptr;
     }
 }
