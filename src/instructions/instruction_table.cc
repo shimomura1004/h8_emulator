@@ -38,8 +38,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
 
     if (handler == andc::andc) return "andc::andc";
 
-    if (handler == bcc::bcc_8) return "bcc::bcc_8";
-    if (handler == bcc::bcs_8) return "bcc::bcs_8";
     if (handler == bcc::bne_8) return "bcc::bne_8";
     if (handler == bcc::bne_16) return "bcc::bne_16";
     if (handler == bcc::beq_8) return "bcc::beq_8";

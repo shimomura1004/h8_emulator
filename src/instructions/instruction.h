@@ -4,8 +4,6 @@
 #include "operator.h"
 #include "board/h8board.h"
 
-// TODO: add と mov が表現できればたぶん大丈夫
-
 class Instruction;
 typedef void(*instruction_parser_t)(H8Board*, Instruction&);
 typedef int(*instruction_runner_t)(H8Board*, Instruction&);
