@@ -24,9 +24,13 @@ int bls_16_run(H8Board* h8, Instruction& instruction);
 
 void bcc_8_parse(H8Board* h8, Instruction& instruction);
 int bcc_8_run(H8Board* h8, Instruction& instruction);
+void bcc_16_parse(H8Board* h8, Instruction& instruction);
+int bcc_16_run(H8Board* h8, Instruction& instruction);
 
 void bcs_8_parse(H8Board* h8, Instruction& instruction);
 int bcs_8_run(H8Board* h8, Instruction& instruction);
+void bcs_16_parse(H8Board* h8, Instruction& instruction);
+int bcs_16_run(H8Board* h8, Instruction& instruction);
 
 void bne_8_parse(H8Board* h8, Instruction& instruction);
 int bne_8_run(H8Board* h8, Instruction& instruction);
