@@ -38,12 +38,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
 
     if (handler == andc::andc) return "andc::andc";
 
-    if (handler == bcc::blt_8) return "bcc::blt_8";
-    if (handler == bcc::blt_16) return "bcc::blt_16";
-    if (handler == bcc::bgt_8) return "bcc::bgt_8";
-    if (handler == bcc::bgt_16) return "bcc::bgt_16";
-    if (handler == bcc::ble_8) return "bcc::ble_8";
-
     if (handler == bclr::bclr_register_direct_imm) return "bclr::bclr_register_direct_imm";
     if (handler == bset::bset_register_direct_imm) return "bset::bset_register_direct_imm";
     if (handler == btst::btst_register_direct_imm) return "btst::btst_register_direct_imm";

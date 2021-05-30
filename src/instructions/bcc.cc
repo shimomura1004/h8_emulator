@@ -50,98 +50,6 @@ inline int run_template_16(H8Board* h8, Instruction& instruction, F cond)
     return 0;
 }
 
-
-int h8instructions::bcc::blt_8(H8Board* h8)
-{
-    int8_t disp = h8->fetch_instruction_byte(1);
-    h8->cpu.pc() += 2;
-
-    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
-    if (n_xor_v) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
-int h8instructions::bcc::blt_16(H8Board* h8)
-{
-    uint8_t displacement[2];
-    displacement[1] = h8->fetch_instruction_byte(2);
-    displacement[0] = h8->fetch_instruction_byte(3);
-    int16_t disp = *(int16_t*)displacement;
-
-    h8->cpu.pc() += 4;
-
-    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
-    if (n_xor_v) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
-int h8instructions::bcc::bgt_8(H8Board* h8)
-{
-    int8_t disp = h8->fetch_instruction_byte(1);
-    h8->cpu.pc() += 2;
-
-    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
-    if (!(h8->cpu.ccr().z() || n_xor_v)) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
-int h8instructions::bcc::bgt_16(H8Board* h8)
-{
-    uint8_t displacement[2];
-    displacement[1] = h8->fetch_instruction_byte(2);
-    displacement[0] = h8->fetch_instruction_byte(3);
-    int16_t disp = *(int16_t*)displacement;
-
-    h8->cpu.pc() += 4;
-
-    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
-    if (!(h8->cpu.ccr().z() || n_xor_v)) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
-int h8instructions::bcc::ble_8(H8Board *h8)
-{
-    int8_t disp = h8->fetch_instruction_byte(1);
-    h8->cpu.pc() += 2;
-
-    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
-    if (h8->cpu.ccr().z() || n_xor_v) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
-int h8instructions::bcc::ble_16(H8Board *h8)
-{
-    uint8_t displacement[2];
-    displacement[1] = h8->fetch_instruction_byte(2);
-    displacement[0] = h8->fetch_instruction_byte(3);
-    int16_t disp = *(int16_t*)displacement;
-
-    h8->cpu.pc() += 4;
-
-    bool n_xor_v = (h8->cpu.ccr().n() && !h8->cpu.ccr().v()) || (!h8->cpu.ccr().n() && h8->cpu.ccr().v());
-    if (h8->cpu.ccr().z() || n_xor_v) {
-        h8->cpu.pc() += disp;
-    }
-
-    return 0;
-}
-
-
 namespace h8instructions {
 namespace bcc {
 
@@ -333,6 +241,89 @@ int bge_16_run(H8Board* h8, Instruction& instruction)
     return run_template_16(h8, instruction, bge_cond);
 }
 
+
+static inline bool blt_cond(H8Board *h8)
+{
+    bool n_xor_v = ( h8->cpu.ccr().n() && !h8->cpu.ccr().v())
+                || (!h8->cpu.ccr().n() &&  h8->cpu.ccr().v());
+    return n_xor_v;
+}
+
+void blt_8_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_8<blt_8_parse, blt_8_run>(h8, instruction, "blt");
+}
+
+int blt_8_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_8(h8, instruction, blt_cond);
+}
+
+void blt_16_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_16<blt_16_parse, blt_16_run>(h8, instruction, "blt");
+}
+
+int blt_16_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_16(h8, instruction, blt_cond);
+}
+
+
+static inline bool bgt_cond(H8Board *h8)
+{
+    bool n_xor_v = ( h8->cpu.ccr().n() && !h8->cpu.ccr().v())
+                || (!h8->cpu.ccr().n() &&  h8->cpu.ccr().v());
+    return !(h8->cpu.ccr().z() || n_xor_v);
+}
+
+void bgt_8_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_8<bgt_8_parse, bgt_8_run>(h8, instruction, "bgt");
+}
+
+int bgt_8_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_8(h8, instruction, bgt_cond);
+}
+
+void bgt_16_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_16<bgt_16_parse, bgt_16_run>(h8, instruction, "bgt");
+}
+
+int bgt_16_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_16(h8, instruction, bgt_cond);
+}
+
+
+static inline bool ble_cond(H8Board *h8)
+{
+    bool n_xor_v = ( h8->cpu.ccr().n() && !h8->cpu.ccr().v())
+                || (!h8->cpu.ccr().n() &&  h8->cpu.ccr().v());
+    return h8->cpu.ccr().z() || n_xor_v;
+}
+
+void ble_8_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_8<ble_8_parse, ble_8_run>(h8, instruction, "ble");
+}
+
+int ble_8_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_8(h8, instruction, ble_cond);
+}
+
+void ble_16_parse(H8Board* h8, Instruction& instruction)
+{
+    parse_template_16<ble_16_parse, ble_16_run>(h8, instruction, "ble");
+}
+
+int ble_16_run(H8Board* h8, Instruction& instruction)
+{
+    return run_template_16(h8, instruction, ble_cond);
+}
 
 }
 }

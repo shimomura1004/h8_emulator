@@ -8,19 +8,6 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_58(H8Board *h8)
-{
-    unsigned char b1 = h8->fetch_instruction_byte(1);
-    unsigned char bh = (b1 & 0xf0) >> 4;
-
-    switch (bh) {
-    case 0x0d: return h8instructions::bcc::blt_16;
-    case 0x0e: return h8instructions::bcc::bgt_16;
-    case 0x0f: return h8instructions::bcc::ble_16;
-    default:   return nullptr;
-    }
-}
-
 instruction_handler_t lookup_5x(H8Board *h8)
 {
     unsigned char b0 = h8->fetch_instruction_byte(0);
@@ -30,7 +17,6 @@ instruction_handler_t lookup_5x(H8Board *h8)
     case 0x04: return h8instructions::rts::rts;
     case 0x06: return h8instructions::rte::rte;
     case 0x07: return h8instructions::trapa::trapa;
-    case 0x08: return lookup_58(h8);
     case 0x09: return h8instructions::jmp::jmp_register_indirect;
     case 0x0d: return h8instructions::jsr::jsr_register_indirect;
     case 0x0e: return h8instructions::jsr::jsr_absolute_address;
@@ -61,9 +47,9 @@ instruction_parser_t lookup_58(H8Board *h8)
     case 0x0a: return nullptr; // BPL
     case 0x0b: return nullptr; // BMI
     case 0x0c: return h8instructions::bcc::bge_16_parse;
-    // case 0x0d: return h8instructions::bcc::blt_16_parse;
-    // case 0x0e: return h8instructions::bcc::bgt_16_parse;
-    // case 0x0f: return h8instructions::bcc::ble_16_parse;
+    case 0x0d: return h8instructions::bcc::blt_16_parse;
+    case 0x0e: return h8instructions::bcc::bgt_16_parse;
+    case 0x0f: return h8instructions::bcc::ble_16_parse;
     default:   return nullptr;
     }
 }
