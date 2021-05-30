@@ -1,70 +1,44 @@
 #include "bcc.h"
 
-template<instruction_parser_t parser, instruction_runner_t runner>
-static inline
-void parse_template_8(H8Board* h8, Instruction& instruction, const char* name)
-{
-    instruction.name = name;
-    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
-    instruction.op2.set_not_used();
-
-    instruction.parser = parser;
-    instruction.runner = runner;
-}
-
-template<typename F>
-static inline
-int run_template_8(H8Board* h8, Instruction& instruction, F cond)
-{
-    h8->cpu.pc() += 2;
-
-    if (cond(h8)) {
-        h8->cpu.pc() += instruction.op1.get_immediate8();
-    }
-
-    return 0;
-}
-
-template<instruction_parser_t parser, instruction_runner_t runner>
-inline void parse_template_16(H8Board* h8, Instruction& instruction, const char* name)
-{
-    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2);
-
-    instruction.name = name;
-    instruction.op1.set_immediate16(displacement);
-    instruction.op2.set_not_used();
-
-    instruction.parser = parser;
-    instruction.runner = runner;
-}
-
-template<typename F>
-inline int run_template_16(H8Board* h8, Instruction& instruction, F cond)
-{
-    h8->cpu.pc() += 4;
-
-    if (cond(h8)) {
-        h8->cpu.pc() += instruction.op1.get_immediate16();
-    }
-
-    return 0;
-}
-
-#define define_bcc_instruction(name) void name##_8_parse(H8Board* h8, Instruction& instruction) \
+#define define_bcc_instruction(instruction_name) void instruction_name##_8_parse(H8Board* h8, Instruction& instruction) \
 { \
-    parse_template_8<name##_8_parse, name##_8_run>(h8, instruction, #name); \
+    instruction.name = #instruction_name; \
+    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1)); \
+    instruction.op2.set_not_used(); \
+ \
+    instruction.parser = instruction_name##_8_parse; \
+    instruction.runner = instruction_name##_8_run; \
 } \
-int name##_8_run(H8Board* h8, Instruction& instruction) \
+int instruction_name##_8_run(H8Board* h8, Instruction& instruction) \
 { \
-    return run_template_8(h8, instruction, name##_cond); \
+    h8->cpu.pc() += 2; \
+ \
+    if (instruction_name##_cond(h8)) { \
+        h8->cpu.pc() += instruction.op1.get_immediate8(); \
+    } \
+ \
+    return 0; \
 } \
-void name##_16_parse(H8Board* h8, Instruction& instruction) \
+void instruction_name##_16_parse(H8Board* h8, Instruction& instruction) \
 { \
-    parse_template_16<name##_16_parse, name##_16_run>(h8, instruction, #name); \
+    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2); \
+ \
+    instruction.name = #instruction_name; \
+    instruction.op1.set_immediate16(displacement); \
+    instruction.op2.set_not_used(); \
+ \
+    instruction.parser = instruction_name##_16_parse; \
+    instruction.runner = instruction_name##_16_run; \
 } \
-int name##_16_run(H8Board* h8, Instruction& instruction) \
+int instruction_name##_16_run(H8Board* h8, Instruction& instruction) \
 { \
-    return run_template_16(h8, instruction, name##_cond); \
+    h8->cpu.pc() += 4; \
+ \
+    if (instruction_name##_cond(h8)) { \
+        h8->cpu.pc() += instruction.op1.get_immediate16(); \
+    } \
+ \
+    return 0; \
 }
 
 namespace h8instructions {
