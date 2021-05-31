@@ -7,12 +7,12 @@
 namespace h8instructions {
 namespace xorl {
 
-void xor_immediate_b_parse(H8Board* h8, Instruction& instruction);
-int xor_immediate_b_run(H8Board* h8, Instruction& instruction);
-void xor_register_direct_b_parse(H8Board* h8, Instruction& instruction);
-int xor_register_direct_b_run(H8Board* h8, Instruction& instruction);
-void xor_register_direct_l_parse(H8Board* h8, Instruction& instruction);
-int xor_register_direct_l_run(H8Board* h8, Instruction& instruction);
+void immediate_b_parse(H8Board* h8, Instruction& instruction);
+int immediate_b_run(H8Board* h8, Instruction& instruction);
+void register_direct_b_parse(H8Board* h8, Instruction& instruction);
+int register_direct_b_run(H8Board* h8, Instruction& instruction);
+void register_direct_l_parse(H8Board* h8, Instruction& instruction);
+int register_direct_l_run(H8Board* h8, Instruction& instruction);
 
 }
 }

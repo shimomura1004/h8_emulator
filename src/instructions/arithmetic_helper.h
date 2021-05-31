@@ -37,6 +37,7 @@ int run_immediate_b(H8Board* h8, Instruction& instruction, F op)
     return 0;
 }
 
+
 template<instruction_parser_t parser, instruction_runner_t runner>
 inline
 void parse_immediate_w(H8Board *h8, Instruction& instruction, const char* name)
@@ -62,6 +63,71 @@ int run_immediate_w(H8Board *h8, Instruction& instruction, F op)
     uint16_t value = op(reg.get(), imm);
     reg.set(value);
     h8instructions::update_ccr_nzv<uint16_t>(h8, value);
+    h8->cpu.pc() += 4;
+
+    return 0;
+}
+
+template<instruction_parser_t parser, instruction_runner_t runner>
+inline
+void parse_register_direct_b(H8Board* h8, Instruction& instruction, const char* name)
+{
+    uint8_t b1 = h8->fetch_instruction_byte(1);
+
+    instruction.name = name;
+    instruction.op1.set_register_direct8((b1 & 0xf0) >> 4);
+    instruction.op2.set_register_direct8(b1 & 0x0f);
+
+    instruction.parser = parser;
+    instruction.runner = runner;
+}
+
+template<class F>
+inline
+int run_register_direct_b(H8Board* h8, Instruction& instruction, F op)
+{
+    const Register8& src = h8->cpu.reg8(instruction.op1.get_register_direct8());
+    Register8& dst = h8->cpu.reg8(instruction.op2.get_register_direct8());
+
+    uint8_t src_value = src.get();
+    uint8_t dst_value = dst.get();
+    uint8_t result_value = op(src_value, dst_value);
+
+    dst.set(result_value);
+    h8instructions::update_ccr_nzv<int8_t>(h8, (int8_t)result_value);
+    h8->cpu.pc() += 2;
+
+    return 0;
+}
+
+
+template<instruction_parser_t parser, instruction_runner_t runner>
+inline
+void parse_register_direct_l(H8Board* h8, Instruction& instruction, const char* name)
+{
+    uint8_t b3 = h8->fetch_instruction_byte(3);
+
+    instruction.name = name;
+    instruction.op1.set_register_direct32((b3 & 0x70) >> 4);
+    instruction.op2.set_register_direct32(b3 & 0x07);
+
+    instruction.parser = parser;
+    instruction.runner = runner;
+}
+
+template<class F>
+inline
+int run_register_direct_l(H8Board* h8, Instruction& instruction, F op)
+{
+    const Register32& src = h8->cpu.reg32(instruction.op1.get_register_direct32());
+    Register32& dst = h8->cpu.reg32(instruction.op2.get_register_direct32());
+
+    uint32_t src_value = src.get();
+    uint32_t dst_value = dst.get();
+    uint32_t result_value = op(src_value, dst_value);
+
+    dst.set(result_value);
+    h8instructions::update_ccr_nzv<int32_t>(h8, (int32_t)result_value);
     h8->cpu.pc() += 4;
 
     return 0;

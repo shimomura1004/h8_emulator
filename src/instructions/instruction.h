@@ -30,6 +30,7 @@ public:
 
 };
 
+// TODO: h8instructions:: は h8::instruction:: に変える
 namespace h8instructions {
 
 /// H8 のアドレス start から T 型変数分のメモリを読み、T 型の値として返す
