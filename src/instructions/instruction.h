@@ -47,6 +47,7 @@ T parse_immediate(H8Board *h8, uint8_t start, uint8_t size = sizeof(T))
     return *(T*)imm;
 }
 
+// value の正負により n,z を設定し、v をクリアする
 template<class T>
 void update_ccr_nzv(H8Board* h8, T value)
 {
