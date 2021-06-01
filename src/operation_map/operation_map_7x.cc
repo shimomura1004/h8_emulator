@@ -33,7 +33,7 @@ instruction_handler_t lookup_7x(H8Board *h8300h)
     case 0x06: return lookup_76(h8300h);
     case 0x07: return lookup_77(h8300h);
     case 0x08: return h8instructions::mov::register_indirect_with_displacement24_b;
-    case 0x09: return lookup_79(h8300h);
+    case 0x09: return nullptr;
     case 0x0a: return lookup_7A(h8300h);
     case 0x0b: return nullptr; // EEPMOV
     case 0x0c: return lookup_7Cr0xx(h8300h);
@@ -80,36 +80,13 @@ instruction_handler_t lookup_77(H8Board* h8300h)
                   : nullptr; // BILD
 }
 
-instruction_handler_t lookup_79(H8Board* h8300h)
-{
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh = (b1 & 0xf0) >> 4;
-
-    switch (bh) {
-    case 0x00: return nullptr;
-    case 0x01: return nullptr;
-    case 0x02: return nullptr;
-    case 0x03: return nullptr; // SUB
-    case 0x04: return nullptr;
-    case 0x05: return nullptr; // XOR
-    case 0x06: return h8instructions::andl::and_immediate_w;
-    default:   return nullptr;
-    }
-}
-
 instruction_handler_t lookup_7A(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return nullptr;
-    case 0x01: return nullptr;
-    case 0x02: return nullptr;
     case 0x03: return h8instructions::sub::sub_immediate_l;
-    case 0x04: return nullptr; // OR
-    case 0x05: return nullptr; // XOR
-    case 0x06: return h8instructions::andl::and_immediate_l;
     default:   return nullptr;
     }
 }
@@ -198,7 +175,7 @@ instruction_parser_t lookup_79(H8Board* h8300h)
     // case 0x03: return nullptr; // SUB
     case 0x04: return h8instructions::orl::immediate_w_parse;
     // case 0x05: return nullptr; // XOR
-    // case 0x06: return h8instructions::andl::and_immediate_w;
+    case 0x06: return h8instructions::andl::and_immediate_w_parse;
     default:   return nullptr;
     }
 }
@@ -215,7 +192,7 @@ instruction_parser_t lookup_7A(H8Board* h8300h)
     // case 0x03: return h8instructions::sub::sub_immediate_l;
     // case 0x04: return nullptr; // OR
     // case 0x05: return nullptr; // XOR
-    // case 0x06: return h8instructions::andl::and_immediate_l;
+    case 0x06: return h8instructions::andl::and_immediate_l_parse;
     default:   return nullptr;
     }
 }

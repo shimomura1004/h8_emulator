@@ -34,8 +34,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
 {
     if (handler == adds::adds) return "adds::adds";
 
-    if (handler == andl::and_immediate_w) return "andl::and_immediate_w";
-
     if (handler == andc::andc) return "andc::andc";
 
     if (handler == bclr::bclr_register_direct_imm) return "bclr::bclr_register_direct_imm";

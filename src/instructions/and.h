@@ -7,10 +7,6 @@
 namespace h8instructions {
 namespace andl {
 
-int and_immediate_w(H8Board *h8);
-int and_immediate_l(H8Board *h8);
-
-
 void and_immediate_b_parse(H8Board* h8, Instruction& instruction);
 int and_immediate_b_run(H8Board *h8, Instruction& instruction);
 
