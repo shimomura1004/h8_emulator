@@ -1,5 +1,5 @@
 #include "and.h"
-#include "xor.h"
+#include "arithmetic_helper.h"
 
 // TODO: and と xor は演算子以外ほぼ同じ
 
@@ -43,31 +43,13 @@ namespace andl {
 
 void and_immediate_b_parse(H8Board* h8, Instruction& instruction)
 {
-    uint8_t b0 = h8->fetch_instruction_byte(0);
-
-    instruction.name = "and.b";
-    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
-    instruction.op2.set_register_direct8(b0 & 0x0f);
-
-    instruction.parser = h8instructions::andl::and_immediate_b_parse;
-    instruction.runner = h8instructions::andl::and_immediate_b_run;
+    h8instructions::arithmetic::parse_immediate_b<and_immediate_b_parse, and_immediate_b_run>(h8, instruction, "and.b");
 }
 
 int and_immediate_b_run(H8Board *h8, Instruction& instruction)
 {
-    Register8& dst = h8->cpu.reg8(instruction.op2.get_register_direct8());
-
-    uint8_t src_value = instruction.op1.get_immediate8();
-    uint8_t dst_value = dst.get();
-    uint8_t result_value = src_value & dst_value;
-
-    dst.set(result_value);
-    h8instructions::update_ccr_nzv<int8_t>(h8, (int8_t)result_value);
-    h8->cpu.pc() += 2;
-
-    return 0;
+    return h8instructions::arithmetic::run_immediate_b(h8, instruction, [](uint8_t op1, uint8_t op2){return op1 & op2;});
 }
-
 
 }
 }

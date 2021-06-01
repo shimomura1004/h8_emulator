@@ -31,7 +31,7 @@ int run_immediate_b(H8Board* h8, Instruction& instruction, F op)
 
     uint8_t value = op(reg.get(), imm);
     reg.set(value);
-    h8instructions::update_ccr_nzv<uint8_t>(h8, value);
+    h8instructions::update_ccr_nzv<int8_t>(h8, value);
     h8->cpu.pc() += 2;
 
     return 0;
