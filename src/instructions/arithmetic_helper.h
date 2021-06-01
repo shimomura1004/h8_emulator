@@ -76,8 +76,8 @@ void parse_immediate_l(H8Board *h8, Instruction& instruction, const char* name)
     uint32_t immediate = h8instructions::parse_immediate<uint32_t>(h8, 2);
 
     instruction.name = name;
-    instruction.op1.set_immediate16(immediate);
-    instruction.op2.set_register_direct16(b1 & 0x07);
+    instruction.op1.set_immediate32(immediate);
+    instruction.op2.set_register_direct32(b1 & 0x07);
 
     instruction.parser = parser;
     instruction.runner = runner;

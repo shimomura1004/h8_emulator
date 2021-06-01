@@ -24,6 +24,48 @@ TEST_F(CPUTestFix, and_immediate_b)
     EXPECT_EQ(this->h8->cpu.ccr().v(), false);
 }
 
+TEST_F(CPUTestFix, and_immediate_w)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+
+    this->h8->cpu.reg16(1).set(0xffff);
+    // and.w #0xffff,r1
+    this->dram->write8(0, 0x79);
+    this->dram->write8(1, 0x61);
+    this->dram->write8(2, 0x0f);
+    this->dram->write8(3, 0x0f);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    EXPECT_EQ(this->h8->cpu.reg16(1).get(), 0x0f0f);
+    EXPECT_EQ(this->h8->cpu.ccr().n(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().z(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().v(), false);
+}
+
+TEST_F(CPUTestFix, and_immediate_l)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+
+    this->h8->cpu.reg32(1).set(0xf0f0f0f0);
+    // and.l #0xffffffff,er1
+    this->dram->write8(0, 0x7a);
+    this->dram->write8(1, 0x61);
+    this->dram->write8(2, 0xff);
+    this->dram->write8(3, 0xff);
+    this->dram->write8(4, 0xff);
+    this->dram->write8(5, 0xff);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    EXPECT_EQ(this->h8->cpu.reg32(1).get(), 0xf0f0f0f0);
+    EXPECT_EQ(this->h8->cpu.ccr().n(), true);
+    EXPECT_EQ(this->h8->cpu.ccr().z(), false);
+    EXPECT_EQ(this->h8->cpu.ccr().v(), false);
+}
+
 // TEST_F(CPUTestFix, and_register_direct_b)
 // {
 //     this->h8->cpu.pc() = DummyMCU::area2_start;
