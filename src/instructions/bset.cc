@@ -28,12 +28,12 @@ namespace bset {
 
 void register_direct_immediate_parse(H8Board* h8, Instruction& instruction)
 {
-    h8instructions::bit::parse_register_direct_immediate_b<register_direct_immediate_parse, register_direct_immediate_run>(h8, instruction, "bset");
+    h8instructions::bit::parse_register_direct_immediate<register_direct_immediate_parse, register_direct_immediate_run>(h8, instruction, "bset");
 }
 
 int register_direct_immediate_run(H8Board* h8, Instruction& instruction)
 {
-    return h8instructions::bit::run_immediate_b(h8, instruction, [](uint8_t op1, uint8_t op2){return op1 | op2;});
+    return h8instructions::bit::run_register_direct_immediate(h8, instruction, [](uint8_t op1, uint8_t op2){return op1 | op2;});
 }
 
 void bset_register_indirect_parse(H8Board* h8, Instruction& instruction);

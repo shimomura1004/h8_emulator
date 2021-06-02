@@ -25,7 +25,6 @@ instruction_handler_t lookup_7x(H8Board *h8300h)
 
     switch (al) {
     case 0x01: return nullptr; // BNOT
-    case 0x02: return h8instructions::bclr::bclr_register_direct_imm;
     case 0x03: return h8instructions::btst::btst_register_direct_imm;
     case 0x04: return lookup_74(h8300h);
     case 0x05: return lookup_75(h8300h);
@@ -104,7 +103,7 @@ instruction_parser_t lookup_7x(H8Board *h8300h)
     switch (al) {
     case 0x00: return h8instructions::bset::register_direct_immediate_parse;
     // case 0x01: return nullptr; // BNOT
-    // case 0x02: return h8instructions::bclr::bclr_register_direct_imm;
+    case 0x02: return h8instructions::bclr::register_direct_immediate_parse;
     // case 0x03: return h8instructions::btst::btst_register_direct_imm;
     case 0x04: return lookup_74(h8300h);
     case 0x05: return lookup_75(h8300h);

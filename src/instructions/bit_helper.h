@@ -10,7 +10,7 @@ namespace bit {
 
 template<instruction_parser_t parser, instruction_runner_t runner>
 inline
-void parse_register_direct_immediate_b(H8Board* h8, Instruction& instruction, const char* name)
+void parse_register_direct_immediate(H8Board* h8, Instruction& instruction, const char* name)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -24,7 +24,7 @@ void parse_register_direct_immediate_b(H8Board* h8, Instruction& instruction, co
 
 template<class F>
 inline
-int run_immediate_b(H8Board* h8, Instruction& instruction, F op)
+int run_register_direct_immediate(H8Board* h8, Instruction& instruction, F op)
 {
     Register8& dst = h8->cpu.reg8(instruction.op2.get_register_direct8());
     uint8_t imm = instruction.op1.get_immediate8();
