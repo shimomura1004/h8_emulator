@@ -103,3 +103,19 @@ add_test(
     COMMAND bcc_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(bset_test bset_test.cc)
+target_link_libraries(bset_test
+    cpu
+    mcu
+    dram
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME bset_test
+    COMMAND bset_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)

@@ -23,20 +23,10 @@ instruction_handler_t lookup(H8Board* h8300h)
     switch (ah) {
     case 0x00: return lookup_0x(h8300h);
     case 0x01: return lookup_1x(h8300h);
-    case 0x02:
-    case 0x03: return nullptr; // MOV.B
     case 0x05: return lookup_5x(h8300h);
     case 0x06: return lookup_6x(h8300h);
     case 0x07: return lookup_7x(h8300h);
-    case 0x08: return nullptr;
-    case 0x09: return nullptr; // ADDX
-    case 0x0a: return nullptr;
-    case 0x0b: return nullptr; // SUBX
-    case 0x0c: return nullptr;
-    case 0x0d: return nullptr;
-    case 0x0e: return nullptr;
-    case 0x0f: return nullptr;
-    default:   return nullptr;
+    default: return nullptr;
     }
 }
 

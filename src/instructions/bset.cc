@@ -1,21 +1,5 @@
 #include "bset.h"
-
-int h8instructions::bset::bset_register_direct_imm(H8Board* h8)
-{
-    uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t imm = (b1 & 0x70) >> 4;
-    uint8_t dst_register_index = (b1 & 0x0f);
-    Register8& dst = h8->cpu.reg8(dst_register_index);
-
-    uint8_t mask = (1 << imm);
-    uint8_t value = dst.get();
-    value |= mask;
-    dst.set(value);
-
-    h8->cpu.pc() += 2;
-
-    return 0;
-}
+#include "bit_helper.h"
 
 int h8instructions::bset::bset_register_indirect(H8Board* h8)
 {
@@ -36,4 +20,24 @@ int h8instructions::bset::bset_register_indirect(H8Board* h8)
     h8->cpu.pc() += 4;
 
     return 0;
+}
+
+
+namespace h8instructions {
+namespace bset {
+
+void register_direct_immediate_parse(H8Board* h8, Instruction& instruction)
+{
+    h8instructions::bit::parse_register_direct_immediate_b<register_direct_immediate_parse, register_direct_immediate_run>(h8, instruction, "bset");
+}
+
+int register_direct_immediate_run(H8Board* h8, Instruction& instruction)
+{
+    return h8instructions::bit::run_immediate_b(h8, instruction, [](uint8_t op1, uint8_t op2){return op1 | op2;});
+}
+
+void bset_register_indirect_parse(H8Board* h8, Instruction& instruction);
+int bset_register_indirect_run(H8Board* h8, Instruction& instruction);
+
+}
 }
