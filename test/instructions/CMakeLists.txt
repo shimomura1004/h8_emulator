@@ -135,3 +135,19 @@ add_test(
     COMMAND bclr_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(nop_test nop_test.cc)
+target_link_libraries(nop_test
+    cpu
+    mcu
+    dram
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME nop_test
+    COMMAND nop_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
