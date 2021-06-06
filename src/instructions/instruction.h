@@ -33,6 +33,8 @@ public:
 // TODO: h8instructions:: は h8::instruction:: に変える
 namespace h8instructions {
 
+// エミュレータの実行環境はリトルエンディアンが前提となっている
+// BUG: 符号拡張が必要
 /// H8 のアドレス start から T 型変数分のメモリを読み、T 型の値として返す
 /// 4バイト変数に、3バイト分だけ読みたいときは size に 3 を指定する
 template<class T>
@@ -41,7 +43,7 @@ T parse_immediate(H8Board *h8, uint8_t start, uint8_t size = sizeof(T))
     uint8_t imm[sizeof(T)] = {0};
     const uint8_t offset = sizeof(T) - size;
 
-    for (int i=0; i < sizeof(T); i++) {
+    for (int i=0; i < sizeof(T) - offset; i++) {
         imm[sizeof(T) - (i + offset) - 1] = h8->fetch_instruction_byte(start + i);
     }
 
