@@ -34,7 +34,12 @@ public:
 namespace h8instructions {
 
 // エミュレータの実行環境はリトルエンディアンが前提となっている
-// BUG: 符号拡張が必要
+// 0x123456:24 は H8 のメモリ上では [0x12, 0x34, 0x56]
+// エミュレータのメモリ(32ビット)上では [0x56, 0x34, 0x12, 0x00]
+// 符号拡張が必要なので注意する
+// [0xff, 0x12, 0x34] -> [0x34, 0x12, 0xff, 0xff]
+
+// TODO: バイト配列にコピーしてキャストしなくても、単に加算していけばいいのでは？
 /// H8 のアドレス start から T 型変数分のメモリを読み、T 型の値として返す
 /// 4バイト変数に、3バイト分だけ読みたいときは size に 3 を指定する
 template<class T>
@@ -45,6 +50,17 @@ T parse_immediate(H8Board *h8, uint8_t start, uint8_t size = sizeof(T))
 
     for (int i=0; i < sizeof(T) - offset; i++) {
         imm[sizeof(T) - (i + offset) - 1] = h8->fetch_instruction_byte(start + i);
+    }
+
+    if (size != sizeof(T)) {
+        // 符号拡張する
+        bool msb = h8->fetch_instruction_byte(start) & 0x80;
+        if (msb) {
+            // 負の数の場合は 0xff で埋める
+            for (int i=0; i < offset; i++) {
+                imm[sizeof(T) - i - 1] = 0xff;
+            }
+        }
     }
 
     return *(T*)imm;

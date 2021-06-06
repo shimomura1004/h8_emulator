@@ -122,3 +122,95 @@ TEST_F(CPUTestFix, mov_register_indirect_with_displacement16_l_2)
     int val = this->mcu->read32(DummyMCU::ram_start + 0x1234);
     EXPECT_EQ(val, 0x7890abcd);
 }
+
+
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_1)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(DummyMCU::ram_start);
+    this->mcu->write8(DummyMCU::ram_start + 0x000010, 0x56);
+
+    // mov.b @(0x000010:24,er1),r2
+    this->dram->write8(0, 0x78);
+    this->dram->write8(1, 0x10);
+    this->dram->write8(2, 0x6a);
+    this->dram->write8(3, 0x22);
+    this->dram->write8(4, 0x00);
+    this->dram->write8(5, 0x00);
+    this->dram->write8(6, 0x00);
+    this->dram->write8(7, 0x10);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    int val = this->cpu->reg8(2).get();
+    EXPECT_EQ(val, 0x56);
+}
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_1_minus)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(DummyMCU::ram_start + 0x11);
+    this->mcu->write8(DummyMCU::ram_start + 0x000010, 0x56);
+
+    // mov.b @(0x(-1):24,er1),r2
+    this->dram->write8(0, 0x78);
+    this->dram->write8(1, 0x10);
+    this->dram->write8(2, 0x6a);
+    this->dram->write8(3, 0x22);
+    this->dram->write8(4, 0x00);
+    this->dram->write8(5, 0xff);
+    this->dram->write8(6, 0xff);
+    this->dram->write8(7, 0xff);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    int val = this->cpu->reg8(2).get();
+    EXPECT_EQ(val, 0x56);
+}
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_2)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(DummyMCU::ram_start);
+    this->cpu->reg8(2).set(0x78);
+
+    // mov.b r2,@(0x123456:24,er1)
+    this->dram->write8(0, 0x78);
+    this->dram->write8(1, 0x10);
+    this->dram->write8(2, 0x6a);
+    this->dram->write8(3, 0xa2);
+    this->dram->write8(4, 0x00);
+    this->dram->write8(5, 0x00);
+    this->dram->write8(6, 0x00);
+    this->dram->write8(7, 0x10);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->mcu->read8(DummyMCU::ram_start + 0x000010);
+    EXPECT_EQ(val, 0x78);
+}
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_2_minus)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(DummyMCU::ram_start + 0x11);
+    this->cpu->reg8(2).set(0x78);
+
+    // mov.b r2,@((-1):24,er1)
+    this->dram->write8(0, 0x78);
+    this->dram->write8(1, 0x10);
+    this->dram->write8(2, 0x6a);
+    this->dram->write8(3, 0xa2);
+    this->dram->write8(4, 0x00);
+    this->dram->write8(5, 0xff);
+    this->dram->write8(6, 0xff);
+    this->dram->write8(7, 0xff);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->mcu->read8(DummyMCU::ram_start + 0x000010);
+    EXPECT_EQ(val, 0x78);
+}
