@@ -7,11 +7,7 @@ void register_indirect_with_displacement16_b_parser(H8Board* h8, Instruction& in
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b1_msb = b1 & 0x80;
-
-    uint8_t disp[2];
-    disp[1] = h8->fetch_instruction_byte(2);
-    disp[0] = h8->fetch_instruction_byte(3);
-    int16_t displacement = *(int16_t*)disp;
+    uint16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2);
 
     instruction.name = "mov.b";
     instruction.parser = h8instructions::mov::register_indirect_with_displacement16_b_parser;
@@ -75,11 +71,7 @@ void register_indirect_with_displacement16_w_parser(H8Board* h8, Instruction& in
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b1_msb = b1 & 0x80;
-
-    uint8_t disp[2];
-    disp[1] = h8->fetch_instruction_byte(2);
-    disp[0] = h8->fetch_instruction_byte(3);
-    int16_t displacement = *(int16_t*)disp;
+    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 2);
 
     instruction.name = "mov.w";
     instruction.parser = h8instructions::mov::register_indirect_with_displacement16_w_parser;
@@ -143,11 +135,7 @@ void register_indirect_with_displacement16_l_parser(H8Board* h8, Instruction& in
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t b3_msb = b3 & 0x80;
-
-    uint8_t disp[2];
-    disp[1] = h8->fetch_instruction_byte(4);
-    disp[0] = h8->fetch_instruction_byte(5);
-    int16_t displacement = *(int16_t*)disp;
+    int16_t displacement = h8instructions::parse_immediate<int16_t>(h8, 4);
 
     instruction.name = "mov.l";
     instruction.parser = h8instructions::mov::register_indirect_with_displacement16_l_parser;
