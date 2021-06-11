@@ -150,19 +150,22 @@ TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_1)
 
 TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_1_minus)
 {
+    // ドキュメントが間違っていて、ディスプレースメントは符号拡張しない
+    // 0x00ffbf20 + (-0x10) = 0x00ffbf10 にアクセスできるか？
     this->h8->cpu.pc() = DummyMCU::area2_start;
-    this->cpu->reg32(1).set(DummyMCU::ram_start + 0x11);
+    this->cpu->reg32(1).set(-0x10);
     this->mcu->write8(DummyMCU::ram_start + 0x000010, 0x56);
 
-    // mov.b @(0x(-1):24,er1),r2
+    // mov.b @(0xffbf20:24,er1),r2
     this->dram->write8(0, 0x78);
     this->dram->write8(1, 0x10);
     this->dram->write8(2, 0x6a);
     this->dram->write8(3, 0x22);
     this->dram->write8(4, 0x00);
+    // ram_start = 0xffbf00
     this->dram->write8(5, 0xff);
-    this->dram->write8(6, 0xff);
-    this->dram->write8(7, 0xff);
+    this->dram->write8(6, 0xbf);
+    this->dram->write8(7, 0x20);
 
     int ret = this->h8->execute_next_instruction();
     EXPECT_EQ(ret, 0);
@@ -196,21 +199,21 @@ TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_2)
 TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_2_minus)
 {
     this->h8->cpu.pc() = DummyMCU::area2_start;
-    this->cpu->reg32(1).set(DummyMCU::ram_start + 0x11);
-    this->cpu->reg8(2).set(0x78);
+    this->cpu->reg32(1).set(-0x10);
+    this->cpu->reg8(2).set(0xab);
 
-    // mov.b r2,@((-1):24,er1)
+    // mov.b r2,@(0xffbf20:24,er1)
     this->dram->write8(0, 0x78);
     this->dram->write8(1, 0x10);
     this->dram->write8(2, 0x6a);
     this->dram->write8(3, 0xa2);
     this->dram->write8(4, 0x00);
     this->dram->write8(5, 0xff);
-    this->dram->write8(6, 0xff);
-    this->dram->write8(7, 0xff);
+    this->dram->write8(6, 0xbf);
+    this->dram->write8(7, 0x20);
 
     int ret = this->h8->execute_next_instruction();
     EXPECT_EQ(ret, 0);
     int val = this->mcu->read8(DummyMCU::ram_start + 0x000010);
-    EXPECT_EQ(val, 0x78);
+    EXPECT_EQ(val, 0xab);
 }
