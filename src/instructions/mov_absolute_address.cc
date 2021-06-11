@@ -76,7 +76,7 @@ void absolute_address_24_w_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t b1h = (b1 & 0xf0) >> 4;
-    int32_t absolute = h8instructions::parse_immediate<int32_t>(h8, 3, 3, false);
+    uint32_t absolute = h8instructions::parse_immediate<uint32_t>(h8, 3, 3, false);
 
     instruction.name = "mov.w";
     instruction.parser = h8instructions::mov::absolute_address_24_w_parse;
@@ -145,7 +145,7 @@ void absolute_address_24_l_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
     uint8_t b3h = (b3 & 0xf0) >> 4;
-    int32_t absolute = h8instructions::parse_immediate<int32_t>(h8, 5, 3, false);
+    uint32_t absolute = h8instructions::parse_immediate<uint32_t>(h8, 5, 3, false);
 
     instruction.name = "mov.l";
     instruction.parser = h8instructions::mov::absolute_address_24_l_parse;
