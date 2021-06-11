@@ -43,7 +43,7 @@ namespace h8instructions {
 /// H8 のアドレス start から T 型変数分のメモリを読み、T 型の値として返す
 /// 4バイト変数に、3バイト分だけ読みたいときは size に 3 を指定する
 template<class T>
-T parse_immediate(H8Board *h8, uint8_t start, uint8_t size = sizeof(T))
+T parse_immediate(H8Board *h8, uint8_t start, uint8_t size = sizeof(T), bool code_extension=true)
 {
     uint8_t imm[sizeof(T)] = {0};
     const uint8_t offset = sizeof(T) - size;
@@ -52,7 +52,7 @@ T parse_immediate(H8Board *h8, uint8_t start, uint8_t size = sizeof(T))
         imm[sizeof(T) - (i + offset) - 1] = h8->fetch_instruction_byte(start + i);
     }
 
-    if (size != sizeof(T)) {
+    if ((size != sizeof(T)) && code_extension) {
         // 符号拡張する
         bool msb = h8->fetch_instruction_byte(start) & 0x80;
         if (msb) {

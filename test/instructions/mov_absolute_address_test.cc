@@ -25,6 +25,26 @@ TEST_F(CPUTestFix, mov_absolute_address_24_b)
     EXPECT_EQ(val, 0x56);
 }
 
+TEST_F(CPUTestFix, mov_absolute_address_24_b_minus)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->mcu->write8(0x800000, 0x56);
+
+    // mov.b @0x800000:24,r1l
+    this->dram->write8(0, 0x6a);
+    this->dram->write8(1, 0x21);
+    this->dram->write8(2, 0x00);
+    this->dram->write8(3, 0x80);
+    this->dram->write8(4, 0x00);
+    this->dram->write8(5, 0x00);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->cpu->reg8(1).get();
+    EXPECT_EQ(val, 0x56);
+}
+
+
 TEST_F(CPUTestFix, mov_absolute_address_24_w)
 {
     this->h8->cpu.pc() = DummyMCU::area2_start;
