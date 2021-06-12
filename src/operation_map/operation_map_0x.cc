@@ -17,15 +17,6 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_0100(H8Board* h8300h)
-{
-    unsigned char b2 = h8300h->fetch_instruction_byte(2);
-    switch (b2) {
-    case 0x78: return h8instructions::mov::register_indirect_with_displacement24_l;
-    default: return nullptr;
-    }
-}
-
 instruction_handler_t lookup_01C05x(H8Board* h8300h)
 {
     unsigned char b2 = h8300h->fetch_instruction_byte(2);
@@ -53,7 +44,6 @@ instruction_handler_t lookup_01(H8Board* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return lookup_0100(h8300h);
     case 0x08: return h8instructions::sleep::sleep;
     case 0x0c: return lookup_01C05x(h8300h);
     case 0x0d: return lookup_01D05x(h8300h);
@@ -102,7 +92,7 @@ instruction_parser_t lookup_0100(H8Board* h8300h)
     case 0x6b: return h8instructions::mov::absolute_address_24_l_parse;
     case 0x6d: return h8instructions::mov::register_indirect_with_increment_decrement_l_parser;
     case 0x6f: return h8instructions::mov::register_indirect_with_displacement16_l_parser;
-    // case 0x78: return h8instructions::mov::register_indirect_with_displacement24_l;
+    case 0x78: return h8instructions::mov::register_indirect_with_displacement24_l_parser;
     default:   return nullptr;
     }
 }

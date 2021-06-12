@@ -217,3 +217,106 @@ TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_b_2_minus)
     int val = this->mcu->read8(DummyMCU::ram_start + 0x000010);
     EXPECT_EQ(val, 0xab);
 }
+
+
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_l_1)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(DummyMCU::ram_start);
+    this->mcu->write32(DummyMCU::ram_start + 0x000010, 0x56789abc);
+
+    // mov.l @(0x000010:24,er1),er2
+    this->dram->write8(0, 0x01);
+    this->dram->write8(1, 0x00);
+    this->dram->write8(2, 0x78);
+    this->dram->write8(3, 0x10);
+    this->dram->write8(4, 0x68);
+    this->dram->write8(5, 0x22);
+    this->dram->write8(6, 0x00);
+    this->dram->write8(7, 0x00);
+    this->dram->write8(8, 0x00);
+    this->dram->write8(9, 0x10);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    int val = this->cpu->reg32(2).get();
+    EXPECT_EQ(val, 0x56789abc);
+}
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_l_1_minus)
+{
+    // ドキュメントが間違っていて、ディスプレースメントは符号拡張しない
+    // 0x00ffbf20 + (-0x10) = 0x00ffbf10 にアクセスできるか？
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(-0x10);
+    this->mcu->write32(DummyMCU::ram_start + 0x000010, 0x98765432);
+
+    // mov.l @(0xffbf20:24,er1),er2
+    this->dram->write8(0, 0x01);
+    this->dram->write8(1, 0x00);
+    this->dram->write8(2, 0x78);
+    this->dram->write8(3, 0x10);
+    this->dram->write8(4, 0x68);
+    this->dram->write8(5, 0x22);
+    this->dram->write8(6, 0x00);
+    // ram_start = 0xffbf00
+    this->dram->write8(7, 0xff);
+    this->dram->write8(8, 0xbf);
+    this->dram->write8(9, 0x20);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+
+    int val = this->cpu->reg32(2).get();
+    EXPECT_EQ(val, 0x98765432);
+}
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_l_2)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(DummyMCU::ram_start);
+    this->cpu->reg32(2).set(0x789abcde);
+
+    // mov.l er2,@(0x000020:24,er1)
+    this->dram->write8(0, 0x01);
+    this->dram->write8(1, 0x00);
+    this->dram->write8(2, 0x78);
+    this->dram->write8(3, 0x90);
+    this->dram->write8(4, 0x6b);
+    this->dram->write8(5, 0xa2);
+    this->dram->write8(6, 0x00);
+    this->dram->write8(7, 0x00);
+    this->dram->write8(8, 0x00);
+    this->dram->write8(9, 0x20);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->mcu->read32(DummyMCU::ram_start + 0x000020);
+    EXPECT_EQ(val, 0x789abcde);
+}
+
+TEST_F(CPUTestFix, mov_register_indirect_with_displacement24_l_2_minus)
+{
+    this->h8->cpu.pc() = DummyMCU::area2_start;
+    this->cpu->reg32(1).set(-0x10);
+    this->cpu->reg32(2).set(0x3456789a);
+
+    // mov.l r2,@(0xffbf30:24,er1)
+    this->dram->write8(0, 0x01);
+    this->dram->write8(1, 0x00);
+    this->dram->write8(2, 0x78);
+    this->dram->write8(3, 0x90);
+    this->dram->write8(4, 0x6b);
+    this->dram->write8(5, 0xa2);
+    this->dram->write8(6, 0x00);
+    this->dram->write8(7, 0xff);
+    this->dram->write8(8, 0xbf);
+    this->dram->write8(9, 0x30);
+
+    int ret = this->h8->execute_next_instruction();
+    EXPECT_EQ(ret, 0);
+    int val = this->mcu->read32(DummyMCU::ram_start + 0x000020);
+    EXPECT_EQ(val, 0x3456789a);
+}
