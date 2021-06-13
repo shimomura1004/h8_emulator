@@ -169,8 +169,11 @@ int Debugger::proccess_debugger_command()
             // ステップ実行して sleep が実行されると Runner に処理が戻らなくなる
             // その状態で Ctrl-c されると即座に終了してしまうため
             // continue モードにすることでデバッガに戻れるようにする
-            instruction_handler_t handler = operation_map::lookup(&h8);
-            if (handler == h8instructions::sleep::sleep) {
+
+            // TODO: 関数ポインタの比較ではなく、命令の種類を返す関数があってもいいのでは
+            // enum InstructionType get_type(parser) 的な
+            instruction_parser_t parser = operation_map2::lookup(&this->h8);
+            if (parser == h8instructions::sleep::sleep_parse) {
                 runner_mode = CONTINUE_MODE;
             }
             return 0;

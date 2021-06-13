@@ -151,3 +151,19 @@ add_test(
     COMMAND nop_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(sleep_test sleep_test.cc)
+target_link_libraries(sleep_test
+    cpu
+    mcu
+    dram
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME sleep_test
+    COMMAND sleep_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
