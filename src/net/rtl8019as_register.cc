@@ -286,7 +286,7 @@ uint8_t RTL8019ASRegister::read8(uint32_t address)
     std::lock_guard<std::mutex> lock(this->rtl_mutex);
 
     if (address > 0x0f) {
-        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
+        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)\n", address);
         return 0;
     }
 
@@ -307,7 +307,7 @@ void RTL8019ASRegister::write8(uint32_t address, uint8_t value)
     std::lock_guard<std::mutex> lock(this->rtl_mutex);
 
     if (address > 0x0f) {
-        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
+        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)\n", address);
         return;
     }
 

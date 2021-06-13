@@ -167,3 +167,19 @@ add_test(
     COMMAND sleep_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(rts_test rts_test.cc)
+target_link_libraries(rts_test
+    cpu
+    mcu
+    dram
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME rts_test
+    COMMAND rts_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)

@@ -76,7 +76,7 @@ uint8_t RTL8019AS::read8(uint32_t address)
         // reset port
         return 0;
     } else {
-        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
+        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)\n", address);
         return 0;
     }
 }
@@ -93,7 +93,7 @@ void RTL8019AS::write8(uint32_t address, uint8_t value)
         // reset port
         return;
     } else {
-        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)", address);
+        fprintf(stderr, "Error: Invalid access to RTL8019AS register (0x%x)\n", address);
         return;
     }
 }
