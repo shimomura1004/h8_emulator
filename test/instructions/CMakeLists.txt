@@ -200,6 +200,22 @@ add_test(
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
 
+add_executable(jmp_test jmp_test.cc)
+target_link_libraries(jmp_test
+    cpu
+    mcu
+    dram
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME jmp_test
+    COMMAND jmp_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
+
 add_executable(trapa_test trapa_test.cc)
 target_link_libraries(trapa_test
     cpu
