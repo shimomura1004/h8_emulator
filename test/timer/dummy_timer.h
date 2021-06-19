@@ -1,7 +1,7 @@
 #ifndef _DUMMY_TIMER_INCLUDED_
 #define _DUMMY_TIMER_INCLUDED_
 
-#include "timer/timer.h"
+#include "timer/timer8.h"
 
 class DummyTimer : public ITimer8 {
     interrupt_t getInterrupt() override { return interrupt_t::NONE; }

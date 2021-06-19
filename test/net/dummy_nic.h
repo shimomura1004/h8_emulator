@@ -1,7 +1,7 @@
 #ifndef _DUMMY_NIC_INCLUDED_
 #define _DUMMY_NIC_INCLUDED_
 
-#include "nic/nic.h"
+#include "net/nic.h"
 
 class DummyNIC : public INIC {
 public:
