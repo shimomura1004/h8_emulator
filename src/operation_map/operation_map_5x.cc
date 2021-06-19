@@ -14,7 +14,6 @@ instruction_handler_t lookup_5x(H8Board *h8)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x07: return h8instructions::trapa::trapa;
     case 0x09: return h8instructions::jmp::jmp_register_indirect;
     case 0x0d: return h8instructions::jsr::jsr_register_indirect;
     case 0x0e: return h8instructions::jsr::jsr_absolute_address;
@@ -65,7 +64,7 @@ instruction_parser_t lookup_5x(H8Board *h8)
     case 0x04: return h8instructions::rts::rts_parse;
     case 0x05: return nullptr; // BSR
     case 0x06: return h8instructions::rte::rte_parse;
-    // case 0x07: return h8instructions::trapa::trapa;
+    case 0x07: return h8instructions::trapa::trapa_parse;
     case 0x08: return lookup_58(h8);
     // case 0x09: return h8instructions::jmp::jmp_register_indirect;
     case 0x0a: return nullptr; // JMP

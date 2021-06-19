@@ -75,8 +75,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
 
     if (handler == subs::subs) return "subs::subs";
 
-    if (handler == trapa::trapa) return "trapa::trapa";
-
     fprintf(stderr, "Unknown instruction: 0x%p\n", handler);
     return nullptr;
 }

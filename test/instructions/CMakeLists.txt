@@ -199,3 +199,20 @@ add_test(
     COMMAND rte_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(trapa_test trapa_test.cc)
+target_link_libraries(trapa_test
+    cpu
+    mcu
+    dram
+    interrupt
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME trapa_test
+    COMMAND trapa_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
