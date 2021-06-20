@@ -216,6 +216,22 @@ add_test(
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
 
+add_executable(jsr_test jsr_test.cc)
+target_link_libraries(jsr_test
+    cpu
+    mcu
+    dram
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME jsr_test
+    COMMAND jsr_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
+
 add_executable(trapa_test trapa_test.cc)
 target_link_libraries(trapa_test
     cpu
