@@ -48,8 +48,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
     if (handler == extu::extu_w) return "extu::extu_w";
     if (handler == extu::extu_l) return "extu::extu_l";
 
-    if (handler == jsr::jsr_absolute_address) return "jsr::jsr_absolute_address";
-
     if (handler == mulxs::mulxs_b) return "mulxs::mulxs_b";
     if (handler == mulxs::mulxs_w) return "mulxs::mulxs_w";
 

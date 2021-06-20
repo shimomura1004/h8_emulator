@@ -7,8 +7,6 @@
 namespace h8instructions {
 namespace jsr {
 
-int jsr_absolute_address(H8Board* h8);
-
 void jsr_register_indirect_parse(H8Board* h8, Instruction& instruction);
 int jsr_register_indirect_run(H8Board* h8, Instruction& instruction);
 void jsr_absolute_address_parse(H8Board* h8, Instruction& instruction);

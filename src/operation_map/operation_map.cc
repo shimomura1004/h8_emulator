@@ -23,7 +23,6 @@ instruction_handler_t lookup(H8Board* h8300h)
     switch (ah) {
     case 0x00: return lookup_0x(h8300h);
     case 0x01: return lookup_1x(h8300h);
-    case 0x05: return lookup_5x(h8300h);
     case 0x06: return lookup_6x(h8300h);
     case 0x07: return lookup_7x(h8300h);
     default: return nullptr;
