@@ -248,3 +248,20 @@ add_test(
     COMMAND trapa_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(mulxs_test mulxs_test.cc)
+target_link_libraries(mulxs_test
+    cpu
+    mcu
+    dram
+    interrupt
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME mulxs_test
+    COMMAND mulxs_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)

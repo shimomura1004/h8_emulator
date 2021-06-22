@@ -48,9 +48,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
     if (handler == extu::extu_w) return "extu::extu_w";
     if (handler == extu::extu_l) return "extu::extu_l";
 
-    if (handler == mulxs::mulxs_b) return "mulxs::mulxs_b";
-    if (handler == mulxs::mulxs_w) return "mulxs::mulxs_w";
-
     if (handler == neg::neg_w) return "neg::neg_w";
 
     if (handler == orc::orc) return "orc::orc";
