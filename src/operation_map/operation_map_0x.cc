@@ -17,27 +17,6 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_01D05x(H8Board* h8300h)
-{
-    unsigned char b2 = h8300h->fetch_instruction_byte(2);
-    unsigned char cl = b2 & 0x0f;
-    switch (cl) {
-    case 0x03: return h8instructions::divxs::divxs_w;
-    default:   return nullptr;
-    }
-}
-
-instruction_handler_t lookup_01(H8Board* h8300h)
-{
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh = (b1 & 0xf0) >> 4;
-
-    switch (bh) {
-    case 0x0d: return lookup_01D05x(h8300h);
-    default: return nullptr;
-    }
-}
-
 instruction_handler_t lookup_0B(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
@@ -57,7 +36,6 @@ instruction_handler_t lookup_0x(H8Board *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x01: return lookup_01(h8300h);
     case 0x04: return h8instructions::orc::orc;
     case 0x06: return h8instructions::andc::andc;
     case 0x0b: return lookup_0B(h8300h);
@@ -101,7 +79,7 @@ instruction_parser_t lookup_01D05x(H8Board* h8300h)
     unsigned char cl = b2 & 0x0f;
     switch (cl) {
     // case 0x01: return nullptr; // DIVXS
-    // case 0x03: return h8instructions::divxs::divxs_w;
+    case 0x03: return h8instructions::divxs::divxs_w_parse;
     default:   return nullptr;
     }
 }

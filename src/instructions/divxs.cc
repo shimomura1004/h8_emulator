@@ -1,12 +1,24 @@
 #include "divxs.h"
 
-int h8instructions::divxs::divxs_w(H8Board* h8)
+namespace h8instructions {
+namespace divxs {
+
+void divxs_w_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b3 = h8->fetch_instruction_byte(3);
-    uint8_t src_register_index = (b3 & 0xf0) >> 4;
-    uint8_t dst_register_index = (b3 & 0x07);
-    const Register16& src = h8->cpu.reg16(src_register_index);
-    Register32& dst = h8->cpu.reg32(dst_register_index);
+
+    instruction.name = "divxs.w";
+    instruction.op1.set_register_direct16((b3 & 0xf0) >> 4);
+    instruction.op2.set_register_direct32(b3 & 0x07);
+
+    instruction.parser = divxs_w_parse;
+    instruction.runner = divxs_w_run;
+}
+
+int divxs_w_run(H8Board* h8, Instruction& instruction)
+{
+    const Register16& src = h8->cpu.reg16(instruction.op1.get_register_direct16());
+    Register32& dst = h8->cpu.reg32(instruction.op2.get_register_direct32());
 
     // 被除数
     int32_t dst_value = dst.get();
@@ -39,4 +51,7 @@ int h8instructions::divxs::divxs_w(H8Board* h8)
     h8->cpu.pc() += 4;
 
     return 0;
+}
+
+}
 }

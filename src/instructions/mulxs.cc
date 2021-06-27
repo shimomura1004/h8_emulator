@@ -1,7 +1,5 @@
 #include "mulxs.h"
 
-
-
 namespace h8instructions {
 namespace mulxs {
 
