@@ -282,3 +282,20 @@ add_test(
     COMMAND divxs_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(adds_test adds_test.cc)
+target_link_libraries(adds_test
+    cpu
+    mcu
+    dram
+    interrupt
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME adds_test
+    COMMAND adds_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
