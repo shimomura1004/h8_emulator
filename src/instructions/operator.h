@@ -32,6 +32,7 @@ enum addressing_mode_t {
     ProgramCounterRelative8,
     ProgramCounterRelative16,
     MemoryIndirect,
+    CcrDirect,
 };
 
 class Operand {
@@ -75,6 +76,7 @@ public:
     void set_program_counter_relative8(int8_t offset);
     void set_program_counter_relative16(int16_t offset);
     void set_memory_indirect(uint8_t address);
+    void set_ccr();
 
     uint8_t  get_register_direct8();
     uint8_t  get_register_direct16();

@@ -32,8 +32,6 @@ using namespace h8instructions;
 // TODO: 削除する
 const char* lookup_instruction_name(instruction_handler_t handler)
 {
-    if (handler == andc::andc) return "andc::andc";
-
     if (handler == btst::btst_register_direct_imm) return "btst::btst_register_direct_imm";
 
     if (handler == dec::dec_b) return "dec::dec_b";

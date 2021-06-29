@@ -299,3 +299,20 @@ add_test(
     COMMAND adds_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
+
+add_executable(andc_test andc_test.cc)
+target_link_libraries(andc_test
+    cpu
+    mcu
+    dram
+    interrupt
+    board
+    operation_map
+    instructions
+    gtest_main
+    gmock)
+add_test(
+    NAME andc_test
+    COMMAND andc_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)

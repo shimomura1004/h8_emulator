@@ -57,6 +57,9 @@ void Operand::stringify(char *buf) {
     case addressing_mode_t::MemoryIndirect:
         sprintf(buf, "@@%d (0x%hx)", this->u8, this->u8);
         break;
+    case addressing_mode_t::CcrDirect:
+        sprintf(buf, "ccr");
+        break;
     default:
         fprintf(stderr, "Error: Unknown addressing mode\n");
         return;
@@ -175,6 +178,11 @@ void Operand::set_memory_indirect(uint8_t address)
 {
     this->mode = addressing_mode_t::MemoryIndirect;
     this->u8 = address;
+}
+
+void Operand::set_ccr()
+{
+    this->mode = addressing_mode_t::CcrDirect;
 }
 
 uint8_t Operand::get_register_direct8()

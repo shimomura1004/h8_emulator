@@ -1,9 +1,22 @@
 #include "andc.h"
 
-// TODO: ccr.raw/ccr.set を使う
-int h8instructions::andc::andc(H8Board* h8)
+namespace h8instructions {
+namespace andc {
+
+void andc_parse(H8Board* h8, Instruction& instruction)
 {
-    uint8_t imm = h8->fetch_instruction_byte(1);
+    instruction.name = "andc";
+    instruction.op1.set_immediate8(h8->fetch_instruction_byte(1));
+    instruction.op2.set_ccr();
+
+    instruction.parser = andc_parse;
+    instruction.runner = andc_run;
+}
+
+// TODO: ccr.raw/ccr.set を使う
+int andc_run(H8Board* h8, Instruction& instruction)
+{
+    uint8_t imm = instruction.op1.get_immediate8();
 
     (h8->cpu.ccr().i()  && (imm & (1<<7))) ? h8->cpu.ccr().set_i()  : h8->cpu.ccr().clear_i();
     (h8->cpu.ccr().ui() && (imm & (1<<6))) ? h8->cpu.ccr().set_ui() : h8->cpu.ccr().clear_ui();
@@ -17,4 +30,7 @@ int h8instructions::andc::andc(H8Board* h8)
     h8->cpu.pc() += 2;
 
     return 0;
+}
+
+}
 }

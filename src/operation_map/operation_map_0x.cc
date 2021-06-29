@@ -24,7 +24,6 @@ instruction_handler_t lookup_0x(H8Board *h8300h)
 
     switch (al) {
     case 0x04: return h8instructions::orc::orc;
-    case 0x06: return h8instructions::andc::andc;
     default:   return nullptr;
     }
 }
@@ -164,7 +163,7 @@ instruction_parser_t lookup_0x(H8Board *h8300h)
     // case 0x03: return nullptr; // LDC
     // case 0x04: return h8instructions::orc::orc;
     // case 0x05: return nullptr; // XORC
-    // case 0x06: return h8instructions::andc::andc;
+    case 0x06: return h8instructions::andc::andc_parse;
     // case 0x07: return nullptr; // LDC
     case 0x08: return h8instructions::add::add_register_direct_b_parse;
     case 0x09: return h8instructions::add::add_register_direct_w_parse;
