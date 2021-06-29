@@ -6,7 +6,6 @@ namespace adds {
 void adds_parse(H8Board* h8, Instruction& instruction)
 {
     unsigned char b1 = h8->fetch_instruction_byte(1);
-    unsigned char register_index = b1 & 0x0f;
 
     instruction.name = "adds";
 
