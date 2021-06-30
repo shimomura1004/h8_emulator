@@ -15,23 +15,6 @@
 #include "instructions/xor.h"
 #include "instructions/divxs.h"
 
-namespace operation_map {
-
-instruction_handler_t lookup_0x(H8Board *h8300h)
-{
-    unsigned char b0 = h8300h->fetch_instruction_byte(0);
-    unsigned char al = b0 & 0x0f;
-
-    switch (al) {
-    case 0x04: return h8instructions::orc::orc;
-    default:   return nullptr;
-    }
-}
-
-}
-
-
-
 namespace operation_map2 {
 
 instruction_parser_t lookup_0100(H8Board* h8300h)
@@ -161,7 +144,7 @@ instruction_parser_t lookup_0x(H8Board *h8300h)
     case 0x01: return lookup_01(h8300h);
     // case 0x02: return nullptr; // STC
     // case 0x03: return nullptr; // LDC
-    // case 0x04: return h8instructions::orc::orc;
+    case 0x04: return h8instructions::orc::orc_parse;
     // case 0x05: return nullptr; // XORC
     case 0x06: return h8instructions::andc::andc_parse;
     // case 0x07: return nullptr; // LDC
