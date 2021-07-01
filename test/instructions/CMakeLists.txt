@@ -1,3 +1,5 @@
+# テストの数が増えてきたのでまとめていきたい
+
 add_executable(mov_test
     mov_register_direct_test.cc
     mov_immediate_test.cc
@@ -300,9 +302,8 @@ add_test(
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
 
-# テストの数が増えてきたのでまとめていきたい
-add_executable(andc_test andc_test.cc)
-target_link_libraries(andc_test
+add_executable(ccr_test andc_test.cc orc_test.cc)
+target_link_libraries(ccr_test
     cpu
     mcu
     dram
@@ -313,24 +314,7 @@ target_link_libraries(andc_test
     gtest_main
     gmock)
 add_test(
-    NAME andc_test
-    COMMAND andc_test
-    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
-)
-
-add_executable(orc_test orc_test.cc)
-target_link_libraries(orc_test
-    cpu
-    mcu
-    dram
-    interrupt
-    board
-    operation_map
-    instructions
-    gtest_main
-    gmock)
-add_test(
-    NAME orc_test
-    COMMAND orc_test
+    NAME ccr_test
+    COMMAND ccr_test
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )

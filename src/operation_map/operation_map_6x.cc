@@ -13,22 +13,7 @@ instruction_handler_t lookup_6x(H8Board *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x00: return nullptr; // BSET
-    case 0x01: return nullptr; // BNOT
-    case 0x02: return nullptr; // BCLR
-    case 0x03: return nullptr; // BTST
-    case 0x04: return nullptr; // OR
-    case 0x05: return nullptr; // XOR
-    case 0x06: return nullptr; // AND
-    case 0x07: return nullptr;
-    case 0x08: return nullptr;
-    case 0x09: return nullptr;
-    case 0x0a: return nullptr;
-    case 0x0b: return nullptr;
-    case 0x0c: return nullptr;
     case 0x0d: return h8instructions::mov::register_indirect_with_displacement24_w;
-    case 0x0e: return nullptr;
-    case 0x0f: return nullptr;
     default:   return nullptr;
     }
 }
