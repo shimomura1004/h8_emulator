@@ -6,7 +6,7 @@
 // 命令の実行のテストと、命令のパースのテストは違う
 // ここで確認するのはパーサの選択やパースの実行結果ではなく、命令の実行結果
 
-TEST_F(CPUTestFix, nop)
+TEST_F(CPUTestFix, rte)
 {
     this->h8->cpu.pc() = DummyMCU::area2_start;
     this->h8->cpu.reg32(7).set(DummyMCU::area2_start + 0x50);
