@@ -24,7 +24,6 @@ instruction_handler_t lookup_7x(H8Board *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x03: return h8instructions::btst::btst_register_direct_imm;
     case 0x07: return lookup_77(h8300h);
     case 0x0a: return lookup_7A(h8300h);
     case 0x0c: return lookup_7Cr0xx(h8300h);
@@ -71,7 +70,7 @@ instruction_parser_t lookup_7x(H8Board *h8300h)
     case 0x00: return h8instructions::bset::register_direct_immediate_parse;
     // case 0x01: return nullptr; // BNOT
     case 0x02: return h8instructions::bclr::register_direct_immediate_parse;
-    // case 0x03: return h8instructions::btst::btst_register_direct_imm;
+    case 0x03: return h8instructions::btst::btst_register_direct_imm_parse;
     case 0x04: return lookup_74(h8300h);
     case 0x05: return lookup_75(h8300h);
     case 0x06: return lookup_76(h8300h);

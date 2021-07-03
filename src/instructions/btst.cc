@@ -1,13 +1,25 @@
 #include "btst.h"
 
-int h8instructions::btst::btst_register_direct_imm(H8Board* h8)
+namespace h8instructions {
+namespace btst {
+
+void btst_register_direct_imm_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t imm = (b1 & 0x70) >> 4;
-    uint8_t dst_register_index = (b1 & 0x0f);
-    const Register8& dst = h8->cpu.reg8(dst_register_index);
 
-    uint8_t mask = (1 << imm);
+    instruction.name = "btst";
+    instruction.op1.set_immediate8((b1 & 0x70) >> 4);
+    instruction.op2.set_register_direct8(b1 & 0x0f);
+
+    instruction.parser = btst_register_direct_imm_parse;
+    instruction.runner = btst_register_direct_imm_run;
+}
+
+int btst_register_direct_imm_run(H8Board* h8, Instruction& instruction)
+{
+    const Register8& dst = h8->cpu.reg8(instruction.op2.get_register_direct8());
+
+    uint8_t mask = (1 << instruction.op1.get_immediate8());
     uint8_t value = dst.get();
 
     (value & mask) ? h8->cpu.ccr().clear_z() : h8->cpu.ccr().set_z();
@@ -15,4 +27,7 @@ int h8instructions::btst::btst_register_direct_imm(H8Board* h8)
     h8->cpu.pc() += 2;
 
     return 0;
+}
+
+}
 }
