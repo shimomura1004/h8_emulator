@@ -5,22 +5,6 @@
 #include "instructions/mov_register_indirect_displacement_prepost.h"
 #include "instructions/mov_absolute_address.h"
 
-namespace operation_map {
-
-instruction_handler_t lookup_6x(H8Board *h8300h)
-{
-    unsigned char b0 = h8300h->fetch_instruction_byte(0);
-    unsigned char al = b0 & 0x0f;
-
-    switch (al) {
-    case 0x0d: return h8instructions::mov::register_indirect_with_displacement24_w;
-    default:   return nullptr;
-    }
-}
-
-}
-
-
 namespace operation_map2 {
 
 instruction_parser_t lookup_67(H8Board* h8300h)

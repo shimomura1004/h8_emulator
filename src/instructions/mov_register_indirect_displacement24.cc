@@ -3,17 +3,6 @@
 namespace h8instructions {
 namespace mov {
 
-int register_indirect_with_displacement24_w(H8Board* h8)
-{
-    return -1;
-}
-
-}
-}
-
-namespace h8instructions {
-namespace mov {
-
 // ドキュメントではディスプレースメントは符号拡張とあるが、実際には拡張しない
 // ディスプレースメントが 0xff0000:24 のとき、 0x00ff0000:32 となる(0xffff0000:32 にはならない)
 void register_indirect_with_displacement24_b_parser(H8Board* h8, Instruction& instruction)
