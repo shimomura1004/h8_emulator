@@ -24,7 +24,6 @@ instruction_handler_t lookup_7x(H8Board *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x07: return lookup_77(h8300h);
     case 0x0a: return lookup_7A(h8300h);
     case 0x0c: return lookup_7Cr0xx(h8300h);
     case 0x0d: return lookup_7Dr0xx(h8300h);
@@ -32,16 +31,6 @@ instruction_handler_t lookup_7x(H8Board *h8300h)
     case 0x0f: return lookup_7Faaxx(h8300h);
     default:   return nullptr;
     }
-}
-
-
-instruction_handler_t lookup_77(H8Board* h8300h)
-{
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh_msb = (b1 & 0x80) == 0;
-
-    return bh_msb ? h8instructions::bld::bld_register_direct
-                  : nullptr; // BILD
 }
 
 instruction_handler_t lookup_7A(H8Board* h8300h)
@@ -119,12 +108,11 @@ instruction_parser_t lookup_76(H8Board* h8300h)
 
 instruction_parser_t lookup_77(H8Board* h8300h)
 {
-    // unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    // unsigned char bh_msb = (b1 & 0x80) == 0;
+    unsigned char b1 = h8300h->fetch_instruction_byte(1);
+    unsigned char bh_msb = (b1 & 0x80) == 0;
 
-    return nullptr;
-    // return bh_msb ? h8instructions::bld::bld_register_direct
-    //               : nullptr; // BILD
+    return bh_msb ? h8instructions::bld::bld_register_direct_parse
+                  : nullptr; // BILD
 }
 
 instruction_parser_t lookup_79(H8Board* h8300h)

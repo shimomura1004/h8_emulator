@@ -31,7 +31,7 @@ add_test(
 
 # shift ops
 
-add_executable(bit_manipulation_test bset_test.cc bclr_test.cc btst_test.cc)
+add_executable(bit_manipulation_test bset_test.cc bclr_test.cc btst_test.cc bld_test.cc)
 target_link_libraries(bit_manipulation_test cpu mcu dram board operation_map instructions gtest_main gmock)
 add_test(
     NAME bit_manipulation_test
