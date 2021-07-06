@@ -57,7 +57,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
     if (handler == sub::sub_b) return "sub::sub_b";
     if (handler == sub::sub_w) return "sub::sub_w";
     if (handler == sub::sub_l) return "sub::sub_l";
-    if (handler == sub::sub_immediate_l) return "sub::sub_immediate_l";
 
     if (handler == subs::subs) return "subs::subs";
 

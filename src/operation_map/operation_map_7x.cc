@@ -24,7 +24,6 @@ instruction_handler_t lookup_7x(H8Board *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x0a: return lookup_7A(h8300h);
     case 0x0c: return lookup_7Cr0xx(h8300h);
     case 0x0d: return lookup_7Dr0xx(h8300h);
     case 0x0e: return lookup_7Eaaxx(h8300h);
@@ -32,21 +31,7 @@ instruction_handler_t lookup_7x(H8Board *h8300h)
     default:   return nullptr;
     }
 }
-
-instruction_handler_t lookup_7A(H8Board* h8300h)
-{
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh = (b1 & 0xf0) >> 4;
-
-    switch (bh) {
-    case 0x03: return h8instructions::sub::sub_immediate_l;
-    default:   return nullptr;
-    }
 }
-
-}
-
-
 
 namespace operation_map2 {
 
@@ -141,7 +126,7 @@ instruction_parser_t lookup_7A(H8Board* h8300h)
     case 0x00: return h8instructions::mov::immediate_l_parse;
     case 0x01: return h8instructions::add::add_immediate_l_parse;
     case 0x02: return h8instructions::cmp::cmp_immediate_l_parse;
-    // case 0x03: return h8instructions::sub::sub_immediate_l;
+    case 0x03: return h8instructions::sub::sub_immediate_l_parse;
     // case 0x04: return nullptr; // OR
     // case 0x05: return nullptr; // XOR
     case 0x06: return h8instructions::andl::and_immediate_l_parse;

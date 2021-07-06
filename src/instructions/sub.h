@@ -2,6 +2,7 @@
 #define _INSTRUCTIONS_SUB_INCLUDED_
 
 #include "board/h8board.h"
+#include "instruction.h"
 
 namespace h8instructions {
 namespace sub {
@@ -9,7 +10,7 @@ namespace sub {
 int sub_b(H8Board *h8);
 int sub_w(H8Board *h8);
 int sub_l(H8Board *h8);
-int sub_immediate_l(H8Board *h8);
+// int sub_immediate_l(H8Board *h8);
 
 template<class T>
 void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
@@ -40,6 +41,9 @@ void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
              ( src_value_mth_bit &&  result_value_mth_bit);
     c ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c();
 }
+
+void sub_immediate_l_parse(H8Board* h8, Instruction& instruction);
+int sub_immediate_l_run(H8Board* h8, Instruction& instruction);
 
 }
 }
