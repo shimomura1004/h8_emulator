@@ -1,7 +1,7 @@
 #include "subx.h"
 #include "sub.h"
 
-int h8instructions::subx::subx_register_direct(H8Board *h8)
+int h8instructions::subx::register_direct(H8Board *h8)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     uint8_t src_register_index = (b1 & 0xf0) >> 4;

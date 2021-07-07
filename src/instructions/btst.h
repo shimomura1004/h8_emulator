@@ -7,8 +7,8 @@
 namespace h8instructions {
 namespace btst {
 
-void btst_register_direct_imm_parse(H8Board* h8, Instruction& instruction);
-int btst_register_direct_imm_run(H8Board* h8, Instruction& instruction);
+void register_direct_imm_parse(H8Board* h8, Instruction& instruction);
+int register_direct_imm_run(H8Board* h8, Instruction& instruction);
 
 }
 }

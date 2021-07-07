@@ -49,12 +49,12 @@ instruction_parser_t lookup_5x(H8Board *h8)
     case 0x06: return h8instructions::rte::rte_parse;
     case 0x07: return h8instructions::trapa::trapa_parse;
     case 0x08: return lookup_58(h8);
-    case 0x09: return h8instructions::jmp::jmp_register_indirect_parse;
+    case 0x09: return h8instructions::jmp::register_indirect_parse;
     case 0x0a: return nullptr; // JMP
     case 0x0b: return nullptr; // JMP
     case 0x0c: return nullptr; // BSR
-    case 0x0d: return h8instructions::jsr::jsr_register_indirect_parse;
-    case 0x0e: return h8instructions::jsr::jsr_absolute_address_parse;
+    case 0x0d: return h8instructions::jsr::register_indirect_parse;
+    case 0x0e: return h8instructions::jsr::absolute_address_parse;
     case 0x0f: return nullptr; // JSR
     default:   return nullptr;
     }

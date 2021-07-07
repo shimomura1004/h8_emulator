@@ -42,8 +42,8 @@ void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
     c ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c();
 }
 
-void sub_immediate_l_parse(H8Board* h8, Instruction& instruction);
-int sub_immediate_l_run(H8Board* h8, Instruction& instruction);
+void immediate_l_parse(H8Board* h8, Instruction& instruction);
+int immediate_l_run(H8Board* h8, Instruction& instruction);
 
 }
 }

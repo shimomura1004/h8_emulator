@@ -6,7 +6,7 @@
 namespace h8instructions {
 namespace subx {
 
-int subx_register_direct(H8Board *h8);
+int register_direct(H8Board *h8);
 
 }
 }

@@ -94,7 +94,7 @@ instruction_parser_t lookup_0A(H8Board* h8300h)
     case 0x0c:
     case 0x0d:
     case 0x0e:
-    case 0x0f: return h8instructions::add::add_register_direct_l_parse;
+    case 0x0f: return h8instructions::add::register_direct_l_parse;
     default:   return nullptr;
     }
 }
@@ -148,8 +148,8 @@ instruction_parser_t lookup_0x(H8Board *h8300h)
     // case 0x05: return nullptr; // XORC
     case 0x06: return h8instructions::andc::andc_parse;
     // case 0x07: return nullptr; // LDC
-    case 0x08: return h8instructions::add::add_register_direct_b_parse;
-    case 0x09: return h8instructions::add::add_register_direct_w_parse;
+    case 0x08: return h8instructions::add::register_direct_b_parse;
+    case 0x09: return h8instructions::add::register_direct_w_parse;
     case 0x0a: return lookup_0A(h8300h);
     case 0x0b: return lookup_0B(h8300h);
     case 0x0c: return h8instructions::mov::register_direct_b_parse;

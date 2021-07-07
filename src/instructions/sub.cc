@@ -68,7 +68,7 @@ int h8instructions::sub::sub_l(H8Board *h8)
 namespace h8instructions {
 namespace sub {
 
-void sub_immediate_l_parse(H8Board* h8, Instruction& instruction)
+void immediate_l_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
     // H8 仕様書が間違っている…即値は4バイト
@@ -78,11 +78,11 @@ void sub_immediate_l_parse(H8Board* h8, Instruction& instruction)
     instruction.op1.set_immediate32(immediate);
     instruction.op2.set_register_direct32(b1 & 0x07);
 
-    instruction.parser = sub_immediate_l_parse;
-    instruction.runner = sub_immediate_l_run;
+    instruction.parser = immediate_l_parse;
+    instruction.runner = immediate_l_run;
 }
 
-int sub_immediate_l_run(H8Board* h8, Instruction& instruction)
+int immediate_l_run(H8Board* h8, Instruction& instruction)
 {
     Register32& dst = h8->cpu.reg32(instruction.op2.get_register_direct32());
     int32_t src_value = instruction.op1.get_immediate32();

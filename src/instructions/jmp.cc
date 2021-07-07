@@ -3,7 +3,7 @@
 namespace h8instructions {
 namespace jmp {
 
-void jmp_register_indirect_parse(H8Board* h8, Instruction& instruction)
+void register_indirect_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -11,7 +11,7 @@ void jmp_register_indirect_parse(H8Board* h8, Instruction& instruction)
     instruction.op1.set_register_direct32((b1 & 0x70) >> 4);
     instruction.op2.set_not_used();
 
-    instruction.parser = jmp_register_indirect_parse;
+    instruction.parser = register_indirect_parse;
     instruction.runner = jmp_register_indirect_run;
 }
 

@@ -3,7 +3,7 @@
 namespace h8instructions {
 namespace btst {
 
-void btst_register_direct_imm_parse(H8Board* h8, Instruction& instruction)
+void register_direct_imm_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
 
@@ -11,11 +11,11 @@ void btst_register_direct_imm_parse(H8Board* h8, Instruction& instruction)
     instruction.op1.set_immediate8((b1 & 0x70) >> 4);
     instruction.op2.set_register_direct8(b1 & 0x0f);
 
-    instruction.parser = btst_register_direct_imm_parse;
-    instruction.runner = btst_register_direct_imm_run;
+    instruction.parser = register_direct_imm_parse;
+    instruction.runner = register_direct_imm_run;
 }
 
-int btst_register_direct_imm_run(H8Board* h8, Instruction& instruction)
+int register_direct_imm_run(H8Board* h8, Instruction& instruction)
 {
     const Register8& dst = h8->cpu.reg8(instruction.op2.get_register_direct8());
 

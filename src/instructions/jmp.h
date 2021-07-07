@@ -7,7 +7,7 @@
 namespace h8instructions {
 namespace jmp {
 
-void jmp_register_indirect_parse(H8Board* h8, Instruction& instruction);
+void register_indirect_parse(H8Board* h8, Instruction& instruction);
 int jmp_register_indirect_run(H8Board* h8, Instruction& instruction);
 
 }
