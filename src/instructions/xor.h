@@ -5,7 +5,7 @@
 #include "instruction.h"
 
 namespace h8instructions {
-namespace xorl {
+namespace h8xor {
 
 void immediate_b_parse(H8Board* h8, Instruction& instruction);
 int immediate_b_run(H8Board* h8, Instruction& instruction);

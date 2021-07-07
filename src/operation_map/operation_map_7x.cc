@@ -110,9 +110,9 @@ instruction_parser_t lookup_79(H8Board* h8300h)
     case 0x01: return h8instructions::add::immediate_w_parse;
     case 0x02: return h8instructions::cmp::immediate_w_parse;
     // case 0x03: return nullptr; // SUB
-    case 0x04: return h8instructions::orl::immediate_w_parse;
+    case 0x04: return h8instructions::h8or::immediate_w_parse;
     // case 0x05: return nullptr; // XOR
-    case 0x06: return h8instructions::andl::immediate_w_parse;
+    case 0x06: return h8instructions::h8and::immediate_w_parse;
     default:   return nullptr;
     }
 }
@@ -129,7 +129,7 @@ instruction_parser_t lookup_7A(H8Board* h8300h)
     case 0x03: return h8instructions::sub::immediate_l_parse;
     // case 0x04: return nullptr; // OR
     // case 0x05: return nullptr; // XOR
-    case 0x06: return h8instructions::andl::immediate_l_parse;
+    case 0x06: return h8instructions::h8and::immediate_l_parse;
     default:   return nullptr;
     }
 }

@@ -4,9 +4,8 @@
 #include "board/h8board.h"
 #include "instruction.h"
 
-// TODO: andl -> and_
 namespace h8instructions {
-namespace andl {
+namespace h8and {
 
 void immediate_b_parse(H8Board* h8, Instruction& instruction);
 int immediate_b_run(H8Board *h8, Instruction& instruction);

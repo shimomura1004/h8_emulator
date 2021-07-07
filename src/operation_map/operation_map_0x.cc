@@ -58,7 +58,7 @@ instruction_parser_t lookup_01F06x(H8Board* h8300h)
     unsigned char cl = b2 & 0x0f;
     switch (cl) {
     // case 0x04: return nullptr; // OR
-    case 0x05: return h8instructions::xorl::register_direct_l_parse;
+    case 0x05: return h8instructions::h8xor::register_direct_l_parse;
     // case 0x06: return nullptr; // AND
     default:   return nullptr;
     }

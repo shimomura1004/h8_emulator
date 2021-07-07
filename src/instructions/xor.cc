@@ -2,7 +2,7 @@
 #include "arithmetic_helper.h"
 
 namespace h8instructions {
-namespace xorl {
+namespace h8xor {
 
 void immediate_b_parse(H8Board* h8, Instruction& instruction)
 {
