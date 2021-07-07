@@ -1,16 +1,26 @@
 #include "sub.h"
 
-// おそらく index 0~7 が RnH、8~f が RnL
-int h8instructions::sub::sub_b(H8Board *h8)
+namespace h8instructions {
+namespace sub {
+
+void register_direct_b_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t src_register_index = (b1 & 0xf0) >> 4;
-    uint8_t dst_register_index = (b1 & 0x0f);
 
+    instruction.name = "sub.b";
+    instruction.op1.set_register_direct8((b1 & 0xf0) >> 4);
+    instruction.op2.set_register_direct8(b1 & 0x0f);
+
+    instruction.parser = register_direct_b_parse;
+    instruction.runner = register_direct_b_run;
+}
+
+int register_direct_b_run(H8Board* h8, Instruction& instruction)
+{
     // RnH(0~7),RnL(8~f) だが ER レジスタは8本しかない
     // インデックス 0(R0H) と 8(R8L) はどちらも ER0 に対応するので、剰余を取る
-    const Register8& src = h8->cpu.reg8(src_register_index);
-    Register8& dst = h8->cpu.reg8(dst_register_index);
+    const Register8& src = h8->cpu.reg8(instruction.op1.get_register_direct8());
+    Register8& dst = h8->cpu.reg8(instruction.op2.get_register_direct8());
 
     int8_t src_value = src.get();
     int8_t dst_value = dst.get();
@@ -24,14 +34,22 @@ int h8instructions::sub::sub_b(H8Board *h8)
     return 0;
 }
 
-int h8instructions::sub::sub_w(H8Board *h8)
+void register_direct_w_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t src_register_index = (b1 & 0xf0) >> 4;
-    uint8_t dst_register_index = (b1 & 0x0f);
 
-    const Register16& src = h8->cpu.reg16(src_register_index);
-    Register16& dst = h8->cpu.reg16(dst_register_index);
+    instruction.name = "sub.w";
+    instruction.op1.set_register_direct16((b1 & 0xf0) >> 4);
+    instruction.op2.set_register_direct16(b1 & 0x0f);
+
+    instruction.parser = register_direct_w_parse;
+    instruction.runner = register_direct_w_run;
+}
+
+int register_direct_w_run(H8Board* h8, Instruction& instruction)
+{
+    const Register16& src = h8->cpu.reg16(instruction.op1.get_register_direct16());
+    Register16& dst = h8->cpu.reg16(instruction.op2.get_register_direct16());
 
     int16_t src_value = src.get();
     int16_t dst_value = dst.get();
@@ -45,13 +63,22 @@ int h8instructions::sub::sub_w(H8Board *h8)
     return 0;
 }
 
-int h8instructions::sub::sub_l(H8Board *h8)
+void register_direct_l_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t src_register_index = (b1 & 0x70) >> 4;
-    uint8_t dst_register_index = (b1 & 0x07);
-    Register32& src = h8->cpu.reg32(src_register_index);
-    Register32& dst = h8->cpu.reg32(dst_register_index);
+
+    instruction.name = "sub.l";
+    instruction.op1.set_register_direct32((b1 & 0x70) >> 4);
+    instruction.op2.set_register_direct32(b1 & 0x07);
+
+    instruction.parser = register_direct_l_parse;
+    instruction.runner = register_direct_l_run;
+}
+
+int register_direct_l_run(H8Board* h8, Instruction& instruction)
+{
+    Register32& src = h8->cpu.reg32(instruction.op1.get_register_direct32());
+    Register32& dst = h8->cpu.reg32(instruction.op2.get_register_direct32());
 
     int32_t src_value = src.get();
     int32_t dst_value = dst.get();
@@ -64,9 +91,6 @@ int h8instructions::sub::sub_l(H8Board *h8)
 
     return 0;
 }
-
-namespace h8instructions {
-namespace sub {
 
 void immediate_l_parse(H8Board* h8, Instruction& instruction)
 {

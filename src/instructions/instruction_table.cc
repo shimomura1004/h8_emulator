@@ -54,10 +54,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
     if (handler == shlr::shlr_w) return "shlr::shlr_w";
     if (handler == shlr::shlr_l) return "shlr::shlr_l";
 
-    if (handler == sub::sub_b) return "sub::sub_b";
-    if (handler == sub::sub_w) return "sub::sub_w";
-    if (handler == sub::sub_l) return "sub::sub_l";
-
     if (handler == subs::subs) return "subs::subs";
 
     fprintf(stderr, "Unknown instruction: 0x%p\n", handler);

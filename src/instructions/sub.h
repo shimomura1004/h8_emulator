@@ -7,11 +7,6 @@
 namespace h8instructions {
 namespace sub {
 
-int sub_b(H8Board *h8);
-int sub_w(H8Board *h8);
-int sub_l(H8Board *h8);
-// int sub_immediate_l(H8Board *h8);
-
 template<class T>
 void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
 {
@@ -41,6 +36,14 @@ void update_ccr(H8Board* h8, T src_value, T dst_value, T result_value)
              ( src_value_mth_bit &&  result_value_mth_bit);
     c ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c();
 }
+
+
+void register_direct_b_parse(H8Board* h8, Instruction& instruction);
+int register_direct_b_run(H8Board* h8, Instruction& instruction);
+void register_direct_w_parse(H8Board* h8, Instruction& instruction);
+int register_direct_w_run(H8Board* h8, Instruction& instruction);
+void register_direct_l_parse(H8Board* h8, Instruction& instruction);
+int register_direct_l_run(H8Board* h8, Instruction& instruction);
 
 void immediate_l_parse(H8Board* h8, Instruction& instruction);
 int immediate_l_run(H8Board* h8, Instruction& instruction);
