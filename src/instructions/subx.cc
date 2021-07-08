@@ -1,13 +1,25 @@
 #include "subx.h"
 #include "sub.h"
 
-int h8instructions::subx::register_direct(H8Board *h8)
+namespace h8instructions {
+namespace subx {
+
+void register_direct_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t src_register_index = (b1 & 0xf0) >> 4;
-    uint8_t dst_register_index = (b1 & 0x0f);
-    const Register8& src = h8->cpu.reg8(src_register_index);
-    Register8& dst = h8->cpu.reg8(dst_register_index);
+    
+    instruction.name = "subx";
+    instruction.op1.set_register_direct8((b1 & 0xf0) >> 4);
+    instruction.op2.set_register_direct8(b1 & 0x0f);
+
+    instruction.parser = register_direct_parse;
+    instruction.runner = register_direct_run;
+}
+
+int register_direct_run(H8Board* h8, Instruction& instruction)
+{
+    const Register8& src = h8->cpu.reg8(instruction.op1.get_register_direct8());
+    Register8& dst = h8->cpu.reg8(instruction.op2.get_register_direct8());
 
     char src_value = src.get();
     char dst_value = dst.get();
@@ -23,4 +35,7 @@ int h8instructions::subx::register_direct(H8Board *h8)
     h8->cpu.pc() += 2;
 
     return 0;
+}
+
+}
 }
