@@ -2,13 +2,17 @@
 #define _INSTRUCTIONS_NOT_INCLUDED_
 
 #include "board/h8board.h"
+#include "instruction.h"
 
 namespace h8instructions {
-namespace notl {
+namespace h8not {
 
-int not_b(H8Board *h8);
-int not_w(H8Board *h8);
-int not_l(H8Board *h8);
+void not_b_parse(H8Board* h8, Instruction& instruction);
+int not_b_run(H8Board* h8, Instruction& instruction);
+void not_w_parse(H8Board* h8, Instruction& instruction);
+int not_w_run(H8Board* h8, Instruction& instruction);
+void not_l_parse(H8Board* h8, Instruction& instruction);
+int not_l_run(H8Board* h8, Instruction& instruction);
 
 }
 }

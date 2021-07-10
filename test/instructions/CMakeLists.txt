@@ -21,7 +21,7 @@ add_test(
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
 
-add_executable(logical_ops_test and_test.cc or_immediate_test.cc xor_test.cc)
+add_executable(logical_ops_test and_test.cc or_immediate_test.cc xor_test.cc not_test.cc)
 target_link_libraries(logical_ops_test cpu mcu dram board operation_map instructions gtest_main gmock)
 add_test(
     NAME logical_ops_test
