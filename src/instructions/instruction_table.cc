@@ -45,10 +45,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
     if (handler == neg::neg_w) return "neg::neg_w";
 
     if (handler == shar::shar_w) return "shar::shar_w";
-
-    if (handler == shll::shll_b) return "shll::shll_b";
-    if (handler == shll::shll_w) return "shll::shll_w";
-    if (handler == shll::shll_l) return "shll::shll_l";
     
     if (handler == shlr::shlr_b) return "shlr::shlr_b";
     if (handler == shlr::shlr_w) return "shlr::shlr_w";
