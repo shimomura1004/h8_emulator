@@ -30,6 +30,13 @@ add_test(
 )
 
 # shift ops
+add_executable(shift_ops_test shll_test.cc)
+target_link_libraries(shift_ops_test cpu mcu dram board operation_map instructions gtest_main gmock)
+add_test(
+    NAME shift_ops_test
+    COMMAND shift_ops_test
+    WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
+)
 
 add_executable(bit_manipulation_test bset_test.cc bclr_test.cc btst_test.cc bld_test.cc)
 target_link_libraries(bit_manipulation_test cpu mcu dram board operation_map instructions gtest_main gmock)
