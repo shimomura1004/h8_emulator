@@ -23,9 +23,6 @@ instruction_handler_t lookup_11(H8Board* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    case 0x00: return h8instructions::shlr::shlr_b;
-    case 0x01: return h8instructions::shlr::shlr_w;
-    case 0x03: return h8instructions::shlr::shlr_l;
     case 0x08:
     case 0x09: return h8instructions::shar::shar_w;
     case 0x0b: return h8instructions::shar::shar_l;
@@ -128,9 +125,9 @@ instruction_parser_t lookup_11(H8Board* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    // case 0x00: return h8instructions::shlr::shlr_b;
-    // case 0x01: return h8instructions::shlr::shlr_w;
-    // case 0x03: return h8instructions::shlr::shlr_l;
+    case 0x00: return h8instructions::shlr::shlr_b_parse;
+    case 0x01: return h8instructions::shlr::shlr_w_parse;
+    case 0x03: return h8instructions::shlr::shlr_l_parse;
     // case 0x08:
     // case 0x09: return h8instructions::shar::shar_w;
     // case 0x0b: return h8instructions::shar::shar_l;
@@ -252,7 +249,7 @@ instruction_parser_t lookup_1x(H8Board *h8300h)
 
     switch (al) {
     case 0x00: return lookup_10(h8300h);
-    // case 0x01: return lookup_11(h8300h);
+    case 0x01: return lookup_11(h8300h);
     // case 0x02: return lookup_12(h8300h);
     // case 0x03: return lookup_13(h8300h);
     // case 0x04: return nullptr; // OR

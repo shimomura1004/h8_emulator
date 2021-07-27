@@ -6,7 +6,7 @@ namespace shll {
 #define define_shll(opsize, opsize_char) \
 void shll_##opsize_char##_parse(H8Board* h8, Instruction& instruction) \
 { \
-    unsigned char b1 = h8->fetch_instruction_byte(1); \
+    uint8_t b1 = h8->fetch_instruction_byte(1); \
  \
     instruction.name = "shll." # opsize_char; \
     instruction.op1.set_register_direct##opsize(b1 & 0x0f); \

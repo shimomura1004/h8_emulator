@@ -1,73 +1,47 @@
 #include "shlr.h"
 
-int h8instructions::shlr::shlr_b(H8Board *h8)
-{
-    uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t register_index = b1 & 0x0f;
-    Register8& reg = h8->cpu.reg8(register_index);
+namespace h8instructions {
+namespace shlr {
 
-    uint8_t value = reg.get();
-    bool prev_value_lsb = value & 0x01;
-
-    // gcc では unsigned の場合は論理シフトされるので不要だが、
-    // 他の環境を考慮し念のため最上位ビットを 0 にしておく
-    value = (value >> 1) & 0x7f;
-    reg.set(value);
-
-    (value < 0) ? h8->cpu.ccr().set_n() : h8->cpu.ccr().clear_n();
-    (value == 0) ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
-    h8->cpu.ccr().clear_v();
-    prev_value_lsb ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c();
-
-    h8->cpu.pc() += 2;
-
-    return 0;
+#define define_shlr(opsize, opsize_char) \
+void shlr_##opsize_char##_parse(H8Board* h8, Instruction& instruction) \
+{ \
+    uint8_t b1 = h8->fetch_instruction_byte(1); \
+ \
+    instruction.name = "shlr." # opsize_char; \
+    instruction.op1.set_register_direct##opsize(b1 & 0x0f); \
+    instruction.op2.set_not_used(); \
+ \
+    instruction.parser = shlr_##opsize_char##_parse; \
+    instruction.runner = shlr_##opsize_char##_run; \
+} \
+ \
+int shlr_##opsize_char##_run(H8Board* h8, Instruction& instruction) \
+{ \
+    static const uint##opsize##_t mask = ~(1 << (opsize - 1)); \
+ \
+    Register##opsize& reg = h8->cpu.reg##opsize(instruction.op1.get_register_direct##opsize()); \
+ \
+    uint##opsize##_t er = reg.get(); \
+    bool er_lsb = er & 0x01; \
+    /* gcc では unsigned の場合は論理シフトされるので不要だが、 \
+       他の環境を考慮し念のため最上位ビットを 0 にしておく */ \
+    er = (er >> 1) & mask; \
+    reg.set(er); \
+ \
+    h8->cpu.ccr().clear_n(); \
+    (er == 0) ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z(); \
+    h8->cpu.ccr().clear_v(); \
+    er_lsb ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c(); \
+ \
+    h8->cpu.pc() += 2; \
+ \
+    return 0; \
 }
 
-int h8instructions::shlr::shlr_w(H8Board *h8)
-{
-    uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t register_index = b1 & 0x0f;
-    Register16& reg = h8->cpu.reg16(register_index);
+define_shlr(8, b);
+define_shlr(16, w);
+define_shlr(32, l);
 
-    uint16_t value = reg.get();
-    bool prev_value_lsb = value & 0x01;
-
-    // gcc では unsigned の場合は論理シフトされるので不要だが、
-    // 他の環境を考慮し念のため最上位ビットを 0 にしておく
-    value = (value >> 1) & 0x7fff;
-    reg.set(value);
-
-    (value < 0) ? h8->cpu.ccr().set_n() : h8->cpu.ccr().clear_n();
-    (value == 0) ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
-    h8->cpu.ccr().clear_v();
-    prev_value_lsb ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c();
-
-    h8->cpu.pc() += 2;
-
-    return 0;
 }
-
-int h8instructions::shlr::shlr_l(H8Board *h8)
-{
-    uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t register_index = b1 & 0x07;
-    Register32& reg = h8->cpu.reg32(register_index);
-
-    uint32_t value = reg.get();
-    bool prev_value_lsb = value & 0x01;
-
-    // gcc では unsigned の場合は論理シフトされるので不要だが、
-    // 他の環境を考慮し念のため最上位ビットを 0 にしておく
-    value = (value >> 1) & 0x7fffffff;
-    reg.set(value);
-
-    (value < 0) ? h8->cpu.ccr().set_n() : h8->cpu.ccr().clear_n();
-    (value == 0) ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
-    h8->cpu.ccr().clear_v();
-    prev_value_lsb ? h8->cpu.ccr().set_c() : h8->cpu.ccr().clear_c();
-
-    h8->cpu.pc() += 2;
-
-    return 0;
 }
