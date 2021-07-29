@@ -30,7 +30,7 @@ add_test(
 )
 
 # shift ops
-add_executable(shift_ops_test shll_test.cc shlr_test.cc)
+add_executable(shift_ops_test shll_test.cc shlr_test.cc shar_test.cc)
 target_link_libraries(shift_ops_test cpu mcu dram board operation_map instructions gtest_main gmock)
 add_test(
     NAME shift_ops_test

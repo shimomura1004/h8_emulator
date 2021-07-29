@@ -17,19 +17,6 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_11(H8Board* h8300h)
-{
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh = (b1 & 0xf0) >> 4;
-
-    switch (bh) {
-    case 0x08:
-    case 0x09: return h8instructions::shar::shar_w;
-    case 0x0b: return h8instructions::shar::shar_l;
-    default:   return nullptr;
-    }
-}
-
 instruction_handler_t lookup_12(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
@@ -90,7 +77,6 @@ instruction_handler_t lookup_1x(H8Board *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x01: return lookup_11(h8300h);
     case 0x02: return lookup_12(h8300h);
     case 0x07: return lookup_17(h8300h);
     case 0x0a: return lookup_1A(h8300h);
@@ -129,8 +115,8 @@ instruction_parser_t lookup_11(H8Board* h8300h)
     case 0x01: return h8instructions::shlr::shlr_w_parse;
     case 0x03: return h8instructions::shlr::shlr_l_parse;
     // case 0x08:
-    // case 0x09: return h8instructions::shar::shar_w;
-    // case 0x0b: return h8instructions::shar::shar_l;
+    case 0x09: return h8instructions::shar::shar_w_parse;
+    case 0x0b: return h8instructions::shar::shar_l_parse;
     default:   return nullptr;
     }
 }
