@@ -18,7 +18,7 @@ void shlr_##opsize_char##_parse(H8Board* h8, Instruction& instruction) \
  \
 int shlr_##opsize_char##_run(H8Board* h8, Instruction& instruction) \
 { \
-    static const uint##opsize##_t mask = ~(1 << (opsize - 1)); \
+    static const uint##opsize##_t mask = (uint##opsize##_t)~(1 << (opsize - 1)); \
  \
     Register##opsize& reg = h8->cpu.reg##opsize(instruction.op1.get_register_direct##opsize()); \
  \
