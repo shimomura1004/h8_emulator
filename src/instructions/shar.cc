@@ -18,7 +18,7 @@ void shar_##opsize_char##_parse(H8Board* h8, Instruction& instruction) \
  \
 int shar_##opsize_char##_run(H8Board* h8, Instruction& instruction) \
 { \
-    static const int##opsize##_t mask = (1 << (opsize - 1)); \
+    static const int##opsize##_t mask = (int##opsize##_t)(1 << (opsize - 1)); \
  \
     Register##opsize& reg = h8->cpu.reg##opsize(instruction.op1.get_register_direct##opsize()); \
  \
