@@ -1,55 +1,65 @@
 #include "extu.h"
 
-// TODO: ccr の更新部分を共通化
+namespace h8instructions {
+namespace extu {
 
-int h8instructions::extu::extu_w(H8Board* h8)
+template<class T>
+static inline void update_ccr(H8Board* h8, T value)
+{
+    h8->cpu.ccr().clear_n();
+    (value == 0) ? h8->cpu.ccr().set_z() : h8->cpu.ccr().clear_z();
+    h8->cpu.ccr().clear_v();
+}
+
+void extu_w_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t register_index = (b1 & 0x0f);
-    Register16& reg = h8->cpu.reg16(register_index);
 
-    uint8_t value = reg.get() & 0x00ff;
+    instruction.name = "extu.w";
+    instruction.op1.set_register_direct16(b1 & 0x0f);
+    instruction.op2.set_not_used();
 
-    // 上位1バイトを 0 で埋める
-    reg.set(0x00ff & (uint16_t)value);
+    instruction.parser = extu_w_parse;
+    instruction.runner = extu_w_run;
+}
 
-    h8->cpu.ccr().clear_n();
+int extu_w_run(H8Board* h8, Instruction& instruction)
+{
+    Register16& reg = h8->cpu.reg16(instruction.op1.get_register_direct16());
 
-    if (reg.get() == 0) {
-        h8->cpu.ccr().set_z();        
-    } else {
-        h8->cpu.ccr().clear_z();
-    }
+    reg.set(reg.get() & 0x00ff);
 
-    h8->cpu.ccr().clear_v();
+    update_ccr<uint16_t>(h8, reg.get());
 
     h8->cpu.pc() += 2;
 
     return 0;
 }
 
-int h8instructions::extu::extu_l(H8Board* h8)
+void extu_l_parse(H8Board* h8, Instruction& instruction)
 {
     uint8_t b1 = h8->fetch_instruction_byte(1);
-    uint8_t register_index = (b1 & 0x07);
-    Register32& reg = h8->cpu.reg32(register_index);
 
-    uint16_t value = reg.get() & 0x0000ffff;
+    instruction.name = "extu.l";
+    instruction.op1.set_register_direct32(b1 & 0x0f);
+    instruction.op2.set_not_used();
 
-    // 上位2バイトを 0 で埋める
-    reg.set(0x0000ffff & (uint32_t)value);
+    instruction.parser = extu_l_parse;
+    instruction.runner = extu_l_run;
+}
 
-    h8->cpu.ccr().clear_n();
+int extu_l_run(H8Board* h8, Instruction& instruction)
+{
+    Register32& reg = h8->cpu.reg32(instruction.op1.get_register_direct32());
 
-    if (reg.get() == 0) {
-        h8->cpu.ccr().set_z();        
-    } else {
-        h8->cpu.ccr().clear_z();
-    }
+    reg.set(reg.get() & 0x0000ffff);
 
-    h8->cpu.ccr().clear_v();
+    update_ccr<uint32_t>(h8, reg.get());
 
     h8->cpu.pc() += 2;
 
     return 0;
+}
+
+}
 }
