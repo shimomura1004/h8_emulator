@@ -24,7 +24,6 @@ instruction_handler_t lookup_12(H8Board* h8300h)
 
     switch (bh) {
     case 0x03: return h8instructions::rotxl::rotxl_l;
-    case 0x08: return h8instructions::rotl::rotl_b;
     default:   return nullptr;
     }
 }
@@ -128,7 +127,7 @@ instruction_parser_t lookup_12(H8Board* h8300h)
     // case 0x00:
     // case 0x01: return nullptr; // ROTXL
     // case 0x03: return h8instructions::rotxl::rotxl_l;
-    // case 0x08: return h8instructions::rotl::rotl_b;
+    case 0x08: return h8instructions::rotl::rotl_b_parse;
     // case 0x09: return nullptr; // ROTL
     // case 0x0b: return nullptr; // ROTL
     default:   return nullptr;
@@ -234,7 +233,7 @@ instruction_parser_t lookup_1x(H8Board *h8300h)
     switch (al) {
     case 0x00: return lookup_10(h8300h);
     case 0x01: return lookup_11(h8300h);
-    // case 0x02: return lookup_12(h8300h);
+    case 0x02: return lookup_12(h8300h);
     // case 0x03: return lookup_13(h8300h);
     // case 0x04: return nullptr; // OR
     case 0x05: return h8instructions::h8xor::register_direct_b_parse;
