@@ -29,7 +29,7 @@ add_test(
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
 
-add_executable(shift_ops_test shll_test.cc shlr_test.cc shar_test.cc rotl_test.cc)
+add_executable(shift_ops_test shll_test.cc shlr_test.cc shar_test.cc rotl_test.cc rotxl_test.cc)
 target_link_libraries(shift_ops_test cpu mcu dram board operation_map instructions gtest_main gmock)
 add_test(
     NAME shift_ops_test
