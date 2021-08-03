@@ -13,7 +13,7 @@ add_test(
     WORKING_DIRECTORY ${h8emu_SOURCE_DIR}/test
 )
 
-add_executable(arithmetic_ops_test mulxs_test.cc divxs_test.cc adds_test.cc cmp_immediate_test.cc cmp_register_direct_test.cc sub_test.cc subx_test.cc extu_test.cc)
+add_executable(arithmetic_ops_test mulxs_test.cc divxs_test.cc adds_test.cc cmp_immediate_test.cc cmp_register_direct_test.cc sub_test.cc subx_test.cc extu_test.cc neg_test.cc)
 target_link_libraries(arithmetic_ops_test cpu mcu dram board operation_map instructions gtest_main gmock)
 add_test(
     NAME arithmetic_ops_test
