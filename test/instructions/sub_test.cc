@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "cpu_test_fixture.h"
 #include "cpu/ccr.h"
-#include "instructions/sub.h"
 
 // 命令の実行のテストと、命令のパースのテストは違う
 // ここで確認するのはパーサの選択やパースの実行結果ではなく、命令の実行結果

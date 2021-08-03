@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "cpu_test_fixture.h"
 #include "cpu/ccr.h"
-#include "instructions/neg.h"
 
 // CCR の更新規則
 // H = Dm-4 + Rm-4
