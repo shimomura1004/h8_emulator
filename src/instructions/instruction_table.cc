@@ -36,9 +36,6 @@ const char* lookup_instruction_name(instruction_handler_t handler)
     if (handler == dec::dec_w) return "dec::dec_w";
     if (handler == dec::dec_l) return "dec::dec_l";
 
-    if (handler == exts::exts_w) return "exts::exts_w";
-    if (handler == exts::exts_l) return "exts::exts_l";
-
     if (handler == subs::subs) return "subs::subs";
 
     fprintf(stderr, "Unknown instruction: 0x%p\n", handler);
