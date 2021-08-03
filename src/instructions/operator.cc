@@ -90,18 +90,33 @@ void Operand::set_register_direct16(uint8_t register_index)
 
 void Operand::set_register_direct32(uint8_t register_index)
 {
+    if (register_index < 0 || register_index > 7) {
+        fprintf(stderr, "Error: ER index out of bounds (%d)\n", register_index);
+        return;
+    }
+
     this->mode = addressing_mode_t::RegisterDirect32;
     this->u8 = register_index;
 }
 
 void Operand::set_register_indirect(uint8_t register_index)
 {
+    if (register_index < 0 || register_index > 7) {
+        fprintf(stderr, "Error: ER index out of bounds (%d)\n", register_index);
+        return;
+    }
+
     this->mode = addressing_mode_t::RegisterIndirect;
     this->u8 = register_index;
 }
 
 void Operand::set_register_indirect_with_displacement16(uint8_t register_index, int16_t displacement)
 {
+    if (register_index < 0 || register_index > 7) {
+        fprintf(stderr, "Error: ER index out of bounds (%d)\n", register_index);
+        return;
+    }
+
     this->mode = addressing_mode_t::RegisterIndirectWithDisplacement16;
     this->disp16_register_index = register_index;
     this->disp16_displacement = displacement;
@@ -109,6 +124,11 @@ void Operand::set_register_indirect_with_displacement16(uint8_t register_index, 
 
 void Operand::set_register_indirect_with_displacement24(uint8_t register_index, int32_t displacement)
 {
+    if (register_index < 0 || register_index > 7) {
+        fprintf(stderr, "Error: ER index out of bounds (%d)\n", register_index);
+        return;
+    }
+
     this->mode = addressing_mode_t::RegisterIndirectWithDisplacement24;
     this->disp24_register_index = register_index;
     this->disp24_displacement = displacement;
@@ -116,12 +136,22 @@ void Operand::set_register_indirect_with_displacement24(uint8_t register_index, 
 
 void Operand::set_register_indirect_with_post_incement(uint8_t register_index)
 {
+    if (register_index < 0 || register_index > 7) {
+        fprintf(stderr, "Error: ER index out of bounds (%d)\n", register_index);
+        return;
+    }
+
     this->mode = addressing_mode_t::RegisterIndirectWithPostIncement;
     this->u8 = register_index;
 }
 
 void Operand::set_register_indirect_with_pre_decrement(uint8_t register_index)
 {
+    if (register_index < 0 || register_index > 7) {
+        fprintf(stderr, "Error: ER index out of bounds (%d)\n", register_index);
+        return;
+    }
+
     this->mode = addressing_mode_t::RegisterIndirectWithPreDecrement;
     this->u8 = register_index;
 }
@@ -206,6 +236,7 @@ uint8_t Operand::get_register_direct32()
     if (this->mode != addressing_mode_t::RegisterDirect32) {
         fprintf(stderr, "Error: Operand type mismatch(%s)\n", __func__);
     }
+
     return this->u8;
 }
 
