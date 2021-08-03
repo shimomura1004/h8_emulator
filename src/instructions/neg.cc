@@ -43,7 +43,7 @@ int neg_w_run(H8Board* h8, Instruction& instruction)
 
     int16_t dst_value = dst.get();
     int16_t result_value = -dst_value;
-printf("%d -> %d\n", dst_value, result_value);
+
     if (dst_value == (int16_t)0x8000) {
         // 「実行前のRdの内容がH'8000の場合 の結果はH'8000となります」
         result_value = dst_value;
