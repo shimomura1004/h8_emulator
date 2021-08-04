@@ -17,17 +17,6 @@
 
 namespace operation_map {
 
-instruction_handler_t lookup_1A(H8Board* h8300h)
-{
-    uint8_t b1 = h8300h->fetch_instruction_byte(1);
-    uint8_t bh = (b1 & 0xf0) >> 4;
-
-    switch (bh) {
-    case 0x00: return h8instructions::dec::dec_b;
-    default:   return nullptr;
-    }
-}
-
 instruction_handler_t lookup_1B(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);
@@ -35,11 +24,8 @@ instruction_handler_t lookup_1B(H8Board* h8300h)
 
     switch (bh) {
     case 0x00: return h8instructions::subs::subs;
-    case 0x05: return h8instructions::dec::dec_w;
-    case 0x07: return h8instructions::dec::dec_l;
     case 0x08:
     case 0x09: return h8instructions::subs::subs;
-    case 0x0d: return h8instructions::dec::dec_w;
     default:   return nullptr;
     }
 }
@@ -50,7 +36,6 @@ instruction_handler_t lookup_1x(H8Board *h8300h)
     unsigned char al = b0 & 0x0f;
 
     switch (al) {
-    case 0x0a: return lookup_1A(h8300h);
     case 0x0b: return lookup_1B(h8300h);
     default:   return nullptr;
     }
@@ -150,7 +135,7 @@ instruction_parser_t lookup_1A(H8Board* h8300h)
     uint8_t bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    // case 0x00: return h8instructions::dec::dec_b;
+    case 0x00: return h8instructions::dec::dec_b_parse;
     case 0x08:
     case 0x09:
     case 0x0a:
@@ -170,12 +155,12 @@ instruction_parser_t lookup_1B(H8Board* h8300h)
 
     switch (bh) {
     // case 0x00: return h8instructions::subs::subs;
-    // case 0x05: return h8instructions::dec::dec_w;
-    // case 0x07: return h8instructions::dec::dec_l;
+    case 0x05: return h8instructions::dec::dec_w_parse;
+    case 0x07: return h8instructions::dec::dec_l_parse;
     // case 0x08:
     // case 0x09: return h8instructions::subs::subs;
-    // case 0x0d: return h8instructions::dec::dec_w;
-    // case 0x0f: return nullptr; // DEC
+    case 0x0d: return h8instructions::dec::dec_w_parse;
+    case 0x0f: return h8instructions::dec::dec_l_parse;
     default:   return nullptr;
     }
 }
@@ -216,7 +201,7 @@ instruction_parser_t lookup_1x(H8Board *h8300h)
     case 0x08: return h8instructions::sub::register_direct_b_parse;
     case 0x09: return h8instructions::sub::register_direct_w_parse;
     case 0x0a: return lookup_1A(h8300h);
-    // case 0x0b: return lookup_1B(h8300h);
+    case 0x0b: return lookup_1B(h8300h);
     case 0x0c: return h8instructions::cmp::register_direct_b_parse;
     case 0x0d: return h8instructions::cmp::register_direct_w_parse;
     case 0x0e: return h8instructions::subx::register_direct_parse;

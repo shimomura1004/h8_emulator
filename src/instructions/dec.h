@@ -2,13 +2,17 @@
 #define _INSTRUCTIONS_DEC_INCLUDED_
 
 #include "board/h8board.h"
+#include "instruction.h"
 
 namespace h8instructions {
 namespace dec {
 
-int dec_b(H8Board *h8);
-int dec_w(H8Board *h8);
-int dec_l(H8Board *h8);
+void dec_b_parse(H8Board* h8, Instruction& instruction);
+int dec_b_run(H8Board* h8, Instruction& instruction);
+void dec_w_parse(H8Board* h8, Instruction& instruction);
+int dec_w_run(H8Board* h8, Instruction& instruction);
+void dec_l_parse(H8Board* h8, Instruction& instruction);
+int dec_l_run(H8Board* h8, Instruction& instruction);
 
 }
 }
