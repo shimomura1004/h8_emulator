@@ -1,5 +1,4 @@
 add_library(instructions STATIC
-    instruction_table.cc
 	operator.cc
 	instruction.cc
 	mov_register_direct.cc

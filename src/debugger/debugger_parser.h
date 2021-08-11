@@ -21,7 +21,6 @@ public:
         // 状態確認
         PRINT_REGISTERS,
         DUMP_MEMORY,
-        LOOKUP_INSTRUCTION,
         PRINT_INSTRUCTION,
         PRINT_CALL_STACK,
 

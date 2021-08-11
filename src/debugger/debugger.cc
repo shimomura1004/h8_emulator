@@ -5,7 +5,6 @@
 #include <thread>
 #include <semaphore.h>
 #include "operation_map/operation_map.h"
-#include "instructions/instruction_table.h"
 
 // continue モード中は、Ctrl-c (mac は Ctrl-t) で連続実行を停止する
 #define EXITING_MODE  (-1)  // 終了準備中状態
@@ -203,11 +202,6 @@ int Debugger::proccess_debugger_command()
 
             h8.mcu.dump(filepath);
             fprintf(stderr, "Memory dumped to '%s' file\n", filepath);
-            break;
-        }
-        case DebuggerParser::Command::LOOKUP_INSTRUCTION: {
-            instruction_handler_t handler = operation_map::lookup(&h8);
-            fprintf(stderr, "%s\n", lookup_instruction_name(handler));
             break;
         }
         case DebuggerParser::Command::PRINT_INSTRUCTION: {

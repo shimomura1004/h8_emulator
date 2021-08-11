@@ -99,15 +99,6 @@ bool DebuggerParser::parse_dump_memory(std::string str)
     return ret;
 }
 
-bool DebuggerParser::parse_lookup_instruction(std::string str)
-{
-    static std::regex re1("^lookup$");
-    bool ret = std::regex_match(str, re1);
-    if (ret) {
-        this->command = DebuggerParser::Command::LOOKUP_INSTRUCTION;
-    }
-    return ret;
-}
 bool DebuggerParser::parse_print_instruction(std::string str)
 {
     static std::regex re1("^p$");
@@ -162,7 +153,6 @@ bool DebuggerParser::parse(const char* buf)
         || parse_break_at_adress(str)
         || parse_print_registers(str)
         || parse_dump_memory(str)
-        || parse_lookup_instruction(str)
         || parse_print_instruction(str)
         || parse_print_call_stack(str)
         || parse_write_to_register(str)
@@ -203,7 +193,7 @@ void DebuggerParser::print_help()
     fprintf(stderr, "  s: next step\n");
     fprintf(stderr, "  continue: continue execution until breakpoint\n");
     fprintf(stderr, "  b (address): set break point\n");
-    fprintf(stderr, "  lookup: display next instruction\n");
+    fprintf(stderr, "  p: display next instruction\n");
     fprintf(stderr, "  stepout: step-out from current function\n");
     fprintf(stderr, "  printpc: toggle printing pc\n");
     fprintf(stderr, "  writereg (address) (length) (value): write value to memory\n");
