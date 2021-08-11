@@ -17,6 +17,7 @@ public:
     instruction_parser_t parser;
     instruction_runner_t runner;
 
+    // TODO: 文字列ではなく enum にしたい
     const char *name;
     Operand op1;
     Operand op2;

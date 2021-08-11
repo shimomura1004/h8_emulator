@@ -21,7 +21,6 @@ instruction_handler_t lookup(H8Board* h8300h)
     unsigned char ah = (b0 & 0xf0) >> 4;
 
     switch (ah) {
-    case 0x01: return lookup_1x(h8300h);
     case 0x07: return lookup_7x(h8300h);
     default: return nullptr;
     }

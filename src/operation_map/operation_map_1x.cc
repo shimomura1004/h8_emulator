@@ -15,35 +15,6 @@
 #include "instructions/rotl.h"
 #include "instructions/not.h"
 
-namespace operation_map {
-
-instruction_handler_t lookup_1B(H8Board* h8300h)
-{
-    unsigned char b1 = h8300h->fetch_instruction_byte(1);
-    unsigned char bh = (b1 & 0xf0) >> 4;
-
-    switch (bh) {
-    case 0x00: return h8instructions::subs::subs;
-    case 0x08:
-    case 0x09: return h8instructions::subs::subs;
-    default:   return nullptr;
-    }
-}
-
-instruction_handler_t lookup_1x(H8Board *h8300h)
-{
-    unsigned char b0 = h8300h->fetch_instruction_byte(0);
-    unsigned char al = b0 & 0x0f;
-
-    switch (al) {
-    case 0x0b: return lookup_1B(h8300h);
-    default:   return nullptr;
-    }
-}
-
-}
-
-
 namespace operation_map2 {
 instruction_parser_t lookup_10(H8Board* h8300h)
 {
@@ -154,11 +125,11 @@ instruction_parser_t lookup_1B(H8Board* h8300h)
     unsigned char bh = (b1 & 0xf0) >> 4;
 
     switch (bh) {
-    // case 0x00: return h8instructions::subs::subs;
+    case 0x00: return h8instructions::subs::subs_parse;
     case 0x05: return h8instructions::dec::dec_w_parse;
     case 0x07: return h8instructions::dec::dec_l_parse;
-    // case 0x08:
-    // case 0x09: return h8instructions::subs::subs;
+    case 0x08:
+    case 0x09: return h8instructions::subs::subs_parse;
     case 0x0d: return h8instructions::dec::dec_w_parse;
     case 0x0f: return h8instructions::dec::dec_l_parse;
     default:   return nullptr;
