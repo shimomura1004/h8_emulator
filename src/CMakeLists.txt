@@ -2,6 +2,8 @@
 find_package(Threads)
 include_directories(${h8emu_SOURCE_DIR}/src)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 add_definitions("-Wall -I. -std=c++11 -pthread -g")
 # add_definitions("-Wconversion")
 
