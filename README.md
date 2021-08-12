@@ -13,10 +13,10 @@ h8_emulator emulates [H8/3069F board](https://akizukidenshi.com/catalog/g/gK-012
     $ make
 
 ## Usage
-    $ h8emu kzload.elf
+    $ ./h8emu kzload.elf
 
     # on another terminal
-    $ sender ser1
+    $ ./sender ser1
 
 ## Demo
 Start bootloader.
