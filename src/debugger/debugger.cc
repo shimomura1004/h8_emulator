@@ -171,7 +171,7 @@ int Debugger::proccess_debugger_command()
 
             // TODO: 関数ポインタの比較ではなく、命令の種類を返す関数があってもいいのでは
             // enum InstructionType get_type(parser) 的な
-            instruction_parser_t parser = operation_map2::lookup(&this->h8);
+            instruction_parser_t parser = operation_map::lookup(&this->h8);
             if (parser == h8instructions::sleep::sleep_parse) {
                 runner_mode = CONTINUE_MODE;
             }
@@ -205,7 +205,7 @@ int Debugger::proccess_debugger_command()
             break;
         }
         case DebuggerParser::Command::PRINT_INSTRUCTION: {
-            instruction_parser_t parser = operation_map2::lookup(&h8);
+            instruction_parser_t parser = operation_map::lookup(&h8);
 
             if (parser) {
                 Instruction instruction;

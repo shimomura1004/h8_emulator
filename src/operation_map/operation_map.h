@@ -6,7 +6,7 @@
 
 typedef int(*instruction_handler_t)(H8Board*);
 
-namespace operation_map2 {
+namespace operation_map {
 instruction_parser_t lookup(H8Board* h8300h);
 }
 

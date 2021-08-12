@@ -15,7 +15,7 @@
 #include "instructions/xor.h"
 #include "instructions/divxs.h"
 
-namespace operation_map2 {
+namespace operation_map {
 
 instruction_parser_t lookup_0100(H8Board* h8300h)
 {

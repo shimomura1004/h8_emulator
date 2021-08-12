@@ -9,7 +9,7 @@ uint8_t H8Board::fetch_instruction_byte(uint8_t offset)
 int H8Board::execute_next_instruction()
 {
     // TODO: InstructionParser クラスを作り、lookup をそのクラスのメンバ関数とする
-    instruction_parser_t parser = operation_map2::lookup(this);
+    instruction_parser_t parser = operation_map::lookup(this);
 
     if (parser) {
         Instruction instruction;

@@ -6,7 +6,7 @@
 #include "instructions/trapa.h"
 #include "instructions/jmp.h"
 
-namespace operation_map2 {
+namespace operation_map {
 
 instruction_parser_t lookup_58(H8Board *h8)
 {

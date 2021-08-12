@@ -15,7 +15,7 @@
 #include "instructions/rotl.h"
 #include "instructions/not.h"
 
-namespace operation_map2 {
+namespace operation_map {
 instruction_parser_t lookup_10(H8Board* h8300h)
 {
     unsigned char b1 = h8300h->fetch_instruction_byte(1);

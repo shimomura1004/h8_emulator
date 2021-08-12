@@ -1,7 +1,7 @@
 #include "operation_map_4x.h"
 #include "instructions/bcc.h"
 
-namespace operation_map2 {
+namespace operation_map {
 
 instruction_parser_t lookup_4x(H8Board *h8300h)
 {

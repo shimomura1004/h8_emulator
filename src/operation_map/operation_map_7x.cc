@@ -16,7 +16,7 @@
 #include "instructions/or.h"
 #include "instructions/bld.h"
 
-namespace operation_map2 {
+namespace operation_map {
 
 instruction_parser_t lookup_74(H8Board* h8300h)
 {

@@ -1,6 +1,6 @@
 #include "operation_map_7Fx.h"
 
-namespace operation_map2 {
+namespace operation_map {
 
 instruction_parser_t lookup_7Faa67x(H8Board* h8300h)
 {

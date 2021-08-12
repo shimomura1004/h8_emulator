@@ -5,7 +5,7 @@
 #include "instructions/mov_register_indirect_displacement_prepost.h"
 #include "instructions/mov_absolute_address.h"
 
-namespace operation_map2 {
+namespace operation_map {
 
 instruction_parser_t lookup_67(H8Board* h8300h)
 {
