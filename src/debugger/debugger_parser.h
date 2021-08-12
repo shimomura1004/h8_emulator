@@ -17,6 +17,8 @@ public:
 
         // ブレークポイント設定
         BREAK_AT_ADDRESS,
+        // BREAK_AT_INSTRUCTION,
+        // BREAK_AT_INSTRUCTION_WITH,
 
         // 状態確認
         PRINT_REGISTERS,

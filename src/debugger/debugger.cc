@@ -261,6 +261,8 @@ void Debugger::run(bool debug)
 
     while (1) {
         // bool interrupted = h8.handle_interrupt();
+
+        // 割込みが発生していたら PC を変更する
         h8.handle_interrupt();
 
         if (runner_mode == DEBUG_MODE || runner_mode == CONTINUE_MODE) {

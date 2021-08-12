@@ -62,7 +62,7 @@ sender is a helper program to interact with h8emu's serial port. Press ':' to en
     $ sudo ip addr add 10.0.0.2/24 dev tap0
 
     # Link up the tap device
-    $ sudo ip link set tun0 up
+    $ sudo ip link set tap0 up
 
     # Run your binary
-    $ ./h8emu kzload.elf
+    $ sudo ./h8emu kzload.elf
