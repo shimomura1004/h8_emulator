@@ -3,9 +3,9 @@
 
 #include "operation_map.h"
 
-namespace operation_map {
-instruction_handler_t lookup_7Dr0xx(H8Board* h8300h);
-instruction_handler_t lookup_7Dr067x(H8Board* h8300h);
+namespace operation_map2 {
+instruction_parser_t lookup_7Dr0xx(H8Board* h8300h);
+instruction_parser_t lookup_7Dr067x(H8Board* h8300h);
 }
 
 #endif

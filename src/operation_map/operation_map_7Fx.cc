@@ -1,8 +1,8 @@
 #include "operation_map_7Fx.h"
 
-namespace operation_map {
+namespace operation_map2 {
 
-instruction_handler_t lookup_7Faa67x(H8Board* h8300h)
+instruction_parser_t lookup_7Faa67x(H8Board* h8300h)
 {
     unsigned char b3 = h8300h->fetch_instruction_byte(3);
     unsigned char dh_msb = (b3 & 0x80) == 0;
@@ -11,7 +11,7 @@ instruction_handler_t lookup_7Faa67x(H8Board* h8300h)
                   : nullptr; // BIST
 }
 
-instruction_handler_t lookup_7Faaxx(H8Board* h8300h)
+instruction_parser_t lookup_7Faaxx(H8Board* h8300h)
 {
     unsigned char b2 = h8300h->fetch_instruction_byte(2);
     unsigned char ch = (b2 & 0xf0) >> 4;
