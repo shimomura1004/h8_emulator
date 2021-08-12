@@ -1,9 +1,6 @@
 #include "board/h8board.h"
 #include "operation_map/operation_map.h"
 
-// TODO: デバッグ用
-#include <set>
-
 uint8_t H8Board::fetch_instruction_byte(uint8_t offset)
 {
     return mcu.read8(this->cpu.pc() + offset);
@@ -19,14 +16,6 @@ int H8Board::execute_next_instruction()
         parser(this, instruction);
 
         {
-            // 初回のみ命令を print し動作確認
-            static std::set<instruction_parser_t> tmp;
-            if (tmp.find(parser) == tmp.end()) {
-                tmp.insert(parser);
-
-                printf("[0x%06x] ", this->cpu.pc());
-                instruction.print();
-            }
         }
 
         int result = instruction.run(this);
@@ -38,28 +27,9 @@ int H8Board::execute_next_instruction()
 
         return result;
     } else {
-        {
-            // TODO: 移行のためのフォールバック処理
-            instruction_handler_t handler = operation_map::lookup(this);
-
-            if (handler == nullptr) {
-                uint8_t first_byte = fetch_instruction_byte(0);
-                fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%06x\n", first_byte, this->cpu.pc());
-                return -1;
-            }
-
-            int result = handler(this);
-            if (result != 0) {
-                uint8_t first_byte = fetch_instruction_byte(0);
-                fprintf(stderr, "Instruction execution error(%d): [0x%02x, ...] at address 0x%06x\n", result, first_byte, this->cpu.pc());
-            }
-
-            return result;
-        }
-
-        // uint8_t first_byte = fetch_instruction_byte(0);
-        // fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%06x\n", first_byte, this->cpu.pc());
-        // return -1;
+        uint8_t first_byte = fetch_instruction_byte(0);
+        fprintf(stderr, "Unknown instruction: [0x%02x, ...] at address 0x%06x\n", first_byte, this->cpu.pc());
+        return -1;
     }
 }
 
