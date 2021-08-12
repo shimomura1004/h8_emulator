@@ -5,7 +5,6 @@
 
 namespace operation_map2 {
 instruction_parser_t lookup_7Faaxx(H8Board* h8300h);
-instruction_parser_t lookup_7Faa67x(H8Board* h8300h);
 }
 
 #endif

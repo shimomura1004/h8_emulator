@@ -18,32 +18,6 @@
 
 namespace operation_map2 {
 
-instruction_parser_t lookup_7x(H8Board *h8300h)
-{
-    unsigned char b0 = h8300h->fetch_instruction_byte(0);
-    unsigned char al = b0 & 0x0f;
-
-    switch (al) {
-    case 0x00: return h8instructions::bset::register_direct_immediate_parse;
-    // case 0x01: return nullptr; // BNOT
-    case 0x02: return h8instructions::bclr::register_direct_immediate_parse;
-    case 0x03: return h8instructions::btst::register_direct_imm_parse;
-    case 0x04: return lookup_74(h8300h);
-    case 0x05: return lookup_75(h8300h);
-    case 0x06: return lookup_76(h8300h);
-    case 0x07: return lookup_77(h8300h);
-    case 0x08: return h8instructions::mov::register_indirect_with_displacement24_b_parser;
-    case 0x09: return lookup_79(h8300h);
-    case 0x0a: return lookup_7A(h8300h);
-    // case 0x0b: return nullptr; // EEPMOV
-    case 0x0c: return lookup_7Cr0xx(h8300h);
-    case 0x0d: return lookup_7Dr0xx(h8300h);
-    case 0x0e: return lookup_7Eaaxx(h8300h);
-    case 0x0f: return lookup_7Faaxx(h8300h);
-    default:   return nullptr;
-    }
-}
-
 instruction_parser_t lookup_74(H8Board* h8300h)
 {
     // unsigned char b1 = h8300h->fetch_instruction_byte(1);
@@ -113,6 +87,32 @@ instruction_parser_t lookup_7A(H8Board* h8300h)
     // case 0x04: return nullptr; // OR
     // case 0x05: return nullptr; // XOR
     case 0x06: return h8instructions::h8and::immediate_l_parse;
+    default:   return nullptr;
+    }
+}
+
+instruction_parser_t lookup_7x(H8Board *h8300h)
+{
+    unsigned char b0 = h8300h->fetch_instruction_byte(0);
+    unsigned char al = b0 & 0x0f;
+
+    switch (al) {
+    case 0x00: return h8instructions::bset::register_direct_immediate_parse;
+    // case 0x01: return nullptr; // BNOT
+    case 0x02: return h8instructions::bclr::register_direct_immediate_parse;
+    case 0x03: return h8instructions::btst::register_direct_imm_parse;
+    case 0x04: return lookup_74(h8300h);
+    case 0x05: return lookup_75(h8300h);
+    case 0x06: return lookup_76(h8300h);
+    case 0x07: return lookup_77(h8300h);
+    case 0x08: return h8instructions::mov::register_indirect_with_displacement24_b_parser;
+    case 0x09: return lookup_79(h8300h);
+    case 0x0a: return lookup_7A(h8300h);
+    // case 0x0b: return nullptr; // EEPMOV
+    case 0x0c: return lookup_7Cr0xx(h8300h);
+    case 0x0d: return lookup_7Dr0xx(h8300h);
+    case 0x0e: return lookup_7Eaaxx(h8300h);
+    case 0x0f: return lookup_7Faaxx(h8300h);
     default:   return nullptr;
     }
 }
