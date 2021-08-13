@@ -203,6 +203,12 @@ int Debugger::proccess_debugger_command()
                 instruction.print();
             } else {
                 fprintf(stderr, "Error: unknown instruction\n");
+                fprintf(stderr, "0x%06x: ", this->h8.cpu.pc());
+                uint32_t pc = this->h8.cpu.pc();
+                for (int i=0; i < 8; i++) {
+                    fprintf(stderr, "%02x ", this->h8.mcu.read8(pc + i));
+                }
+                fprintf(stderr, "\n");
             }
             break;
         }
