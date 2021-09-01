@@ -41,7 +41,15 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
 
-    - uses: actions/upload-artifact@master
+    - name: Upload Artifact
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@master
       with:
-        name: outputs
-        path: ${{github.workspace}}/build/src
+        name: artifact-ubuntu
+        path: ${{github.workspace}}/build/bin
+    - name: Upload Artifact
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@master
+      with:
+        name: artifact-mac
+        path: ${{github.workspace}}/build/bin
